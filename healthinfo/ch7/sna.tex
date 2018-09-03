@@ -1,0 +1,171 @@
+\documentclass[11pt]{beamer}
+\usetheme[]{CambridgeUS}
+
+%-------------------------------------------------------
+% INCLUDE PACKAGES
+%-------------------------------------------------------
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{helvet}
+\usepackage{caption}
+
+%-------------------------------------------------------
+% INFORMATION IN THE TITLE PAGE
+%-------------------------------------------------------
+
+\title[] % [] is optional - is placed on the bottom of the sidebar on every slide
+{ % is placed on the title page
+      \LARGE \textbf{第七章 社会网络分析法}
+}
+
+\subtitle[]
+{
+      \textbf{Social Network Analysis}
+}
+
+\author[]
+{     \hspace{-7em} 授课教师： 吴翔 \\
+	  \vspace{1em}
+      邮箱： wuhsiang@hust.edu.cn
+}
+
+\date{Oct 24, 2018}
+
+%-------------------------------------------------------
+% THE BODY OF THE PRESENTATION
+%-------------------------------------------------------
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+%-------------------------------------------------------
+% THE TITLEPAGE
+%-------------------------------------------------------
+
+\begin{frame}[plain,noframenumbering] % the plain option removes the header from the title page, noframenumbering removes the numbering of this frame only
+  \titlepage % call the title page information from above
+\end{frame}
+
+
+\begin{frame}{目录}{}
+\tableofcontents
+\end{frame}
+
+\begin{frame}
+
+\begin{itemize}
+	\item 课件存储地址： \href{https://github.com/wuhsiang/Courses}{https://github.com/wuhsiang/Courses}
+	\centering
+	\includegraphics[width=0.3\textwidth]{../../QR.png}
+\end{itemize}
+
+\end{frame}
+
+
+%-------------------------------------------------------
+\section{1 SNA概述}
+%-------------------------------------------------------
+
+\begin{frame}[plain]
+
+\begin{center}
+	\Huge 1 SNA概述
+\end{center}
+
+\end{frame}
+
+% \begin{frame}{1.2 古典概率}
+%
+% \begin{block}{古典概率(classical probability)}
+% 在相同条件下进行了$n$次\textcolor{red}{随机试验}，其中事件A发生的次数（即频数）为$n_{A}$。换言之，事件A发生的\textcolor{red}{频率}为$f_{n}(A) = n_{A} / n$。古典概率$p(A)$定义为
+% $$
+% p(A)= lim_{n\to\infty} f_{n}(A)
+% $$
+% 例子：抛硬币
+% \end{block}
+%
+% 考虑以下情境：
+%
+% \begin{itemize}
+% 	\item 一百年内发生第三次世界大战的概率？
+%     \item 医疗检测中，受检者患病的概率？
+% \end{itemize}
+%
+% \end{frame}
+%
+%
+% \begin{frame}{1.3 先验和后验概率}
+%
+% \begin{block}{先验和后验概率(prior and posterior probability)}
+% \begin{enumerate}
+% \item 先验概率：获得观测数据$D$前，表达随机事件$A$不确定性的概率$p(A)$
+% \item 后验概率：获得观测数据$D$后，表达随机事件$A$不确定性的概率$p(A|D)$
+% \end{enumerate}
+% \end{block}
+%
+% \begin{figure}[H]
+% \begin{minipage}[b]{.48\linewidth}
+% \centering
+% \begin{tabular}{|c|c|} \hline
+%      随机事件 & 先验概率 \\ \hline
+%       晴天    & 0.3 \\
+%       阴天    & 0.5 \\
+%       雨天    & 0.2 \\ \hline
+%     \end{tabular}
+%     \captionof{table}{离散随机变量}
+% \end{minipage}
+% \hfill
+% \begin{minipage}[b]{0.48\linewidth}
+%  \centerline{\includegraphics[width=0.8\textwidth]{Feathergraphics/dprior.jpeg}}
+%  \caption{连续随机变量}
+% \end{minipage}
+% \end{figure}
+%
+% \end{frame}
+
+
+%-------------------------------------------------------
+\section{2 SNA的主要分析角度}
+%-------------------------------------------------------
+
+\begin{frame}[plain]
+
+\begin{center}
+	\Huge 2 SNA的主要分析角度
+\end{center}
+
+\end{frame}
+
+
+%-------------------------------------------------------
+\section{3 SNA的主要软件工具}
+%-------------------------------------------------------
+
+\begin{frame}[plain]
+
+\begin{center}
+	\Huge 3 SNA的主要软件工具
+\end{center}
+
+\end{frame}
+
+
+%-------------------------------------------------------
+\section{4 SNA在医学领域的应用}
+
+\begin{frame}[plain]
+
+\begin{center}
+	\Huge 4 SNA在医学领域的应用
+\end{center}
+
+\end{frame}
+
+
+
+\end{CJK}
+
+\end{document}

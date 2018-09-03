@@ -1,0 +1,14 @@
+---
+title: "案例：SNA在医学中的应用"
+author: "Xiang Wu"
+date: "Oct 26, 2018"
+documentclass: ctexart
+output:
+  html_document
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+```
