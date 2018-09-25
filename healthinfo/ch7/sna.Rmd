@@ -1,0 +1,64 @@
+---
+title: "第七章 社会网络分析"
+author:
+ - 授课教师：吴翔 \newline
+ - 邮箱：wuhsiang@hust.edu.cn
+date: "2018年10月25日"
+linestretch: 1.25
+header-includes:
+  - \usepackage{ctex}
+output:
+  beamer_presentation:
+    theme: "CambridgeUS"
+    colortheme: "beaver"
+    latex_engine: xelatex
+    toc: true
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+# SNA概述
+
+## 课程存储地址
+
+- 课程存储地址： [https://github.com/wuhsiang/Courses](https://github.com/wuhsiang/Courses)
+- 资源：课件、案例数据及代码
+
+![qr](../../QR.png){width=52%}
+
+## 参考教材
+
+- 托马斯. 社会网络与健康:模型、方法与应用. 北京:人民卫生出版社. 2016.
+- 埃里克-克拉泽克, 加博尔-乔尔迪. 网络数据的统计分析：R语言实践. 西安:西安交通大学出版社. 2016.
+
+## 主要网络结构
+
+- 随机网络
+- 规则网络
+- 小世界网络
+- 无标度网络
+- 优先连接网络
+
+#  SNA主要分析角度
+
+## 主要分析角度
+
+- 中心性
+- 群组
+- 位置
+- 网络层面
+
+# 案例一：文献分析
+
+## 医学领域案例：文献分析
+
+- 李杰. CiteSpace中文版指南. http://cluster.ischool.drexel.edu/~cchen/citespace/manual/CiteSpaceChinese.pdf[EB/OL][2018-09-05].2015.
+
+# 案例二：健康行为分析
+
+## 医学领域案例：行为分析
