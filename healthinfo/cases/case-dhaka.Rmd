@@ -25,49 +25,47 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 论文导读
 
-**研究背景及问题**   
+### 研究背景及问题  
 
 精神疾病占全球疾病负担的7.1%，中低收入国家的低收入人群承担着更多的精神疾病困扰。研究表明，社会关系的质量与更深层次的社会嵌入是心理健康的重要影响因素。在孟加拉国，证实了社会网络有助于城市和农村地区的卫生服务提供，然而，社会关系及网络属性如何影响心理健康尚不清楚。
 
 因此，本研究以孟加拉国Dhaka城市贫民社区的青年为研究对象，探索社会网络是否在减轻抑郁症与焦虑方面发挥作用，从而促进贫困城市社区青年的心理健康。
 
-**研究设计**
+### 研究设计
 
 横断面研究设计，2016年12月，针对Dhaka市Vashantek社区某一分区18岁-29岁男性进行了为期26天的访谈，收集了824名青年的心理健康状况数据，详细的社会经济学特征数据和朋友网络数据。
 
-**数据详情**
+### 数据描述
 
-***心理健康测量***：采用了GHQ-12测量受试者的心理健康状况，12个健康问题，四点式李克特量表法计分，分数越高表明心理健康状况不佳。量表详情与测量结果请看附件A。
+**心理健康测量**：采用了GHQ-12测量受试者的心理健康状况，12个健康问题，四点式李克特量表法计分，分数越高表明心理健康状况不佳。量表详情与测量结果请看附件A。
 
 数据集中GHQ-12测量结果以GHQ_score命名，标准化结果以zghq命名。在R语言实现部分，我们将通过GHQ_score描述受试者心理健康状况，标准化的心理健康状况数据zghq将作为回归分析中的因变量，揭示多个自变量与心理健康状况的因果关系。
 
-***社会经济学特征***：研究收集了受试者的社会经济学特征数据，这些特征将会影响受试者的社会嵌入，社会支持等，因此需要作为自变量纳入到回归模型中。
+**社会经济学特征**：研究收集了受试者的社会经济学特征数据，这些特征将会影响受试者的社会嵌入，社会支持等，因此需要作为自变量纳入到回归模型中。
 
 数据集中职业变量以qa_命名，年龄rage，教育程度reduce，是否出生于当地rvas，婚姻状况rmar，标准化的财富状况数据requ。以上变量将作为回归模型的因变量，揭示与心理健康状况的因果关系。
 
-***社会网络特征***：受试者的朋友数量，在朋友网络中的位置（即度，网络中心性）将作为重要的解释变量，揭示社会关系对心理健康状况的影响。
+**社会网络特征**：受试者的朋友数量，在朋友网络中的位置（即度，网络中心性）将作为重要的解释变量，揭示社会关系对心理健康状况的影响。
 
 通过询问确定了824名受试者的朋友关系，建立了824*824邻接矩阵，使用社会网络分析软件Pajek进行网络特征值的计算。因此，在数据集中直接给出了社会网络特征指标计算的结果。
 
 为了还原整个数据分析过程，了解社会网络分析的应用，我们需要根据论文提供的社会网络特征线索，构造一个“相似”的随机网络，并从该网络中生成网络特征指标变量。
 
-**统计分析**
+### 统计分析
 
 为揭示社会关系与心理健康之间的关系，研究使用不同的社会网络特征指标分别运行了重线性回归模型，社会经济学特征指标将作为控制变量纳入到每个回归模型中。同时对连续型变量进行了标准化处理，使其具有可比性，符合多重线性回归应用条件。
 
 在R语言实现的第三部分，我们将分别运行一个基准模型（因变量为社会经济学指标）和四个纳入不同解释变量（因变量分别为度及三个中心性指标）的模型。
 
-**研究结果**
+### 研究结果
 
 这一部分我们将在最后结合R语言实现结果进行解释。
 
 ## R语言实现
 
-第一步：读取论文数据集，应用数据集中的人口统计学特征信息、社会经济学特征信息及心理健康测量信息。
-
-第二步：模拟论文数据构造社会网络，从既定的社会网络中生成网络指标变量。
-
-第三步：分析社会网络对健康的作用。
+1. 读取论文数据集，应用数据集中的人口统计学特征信息、社会经济学特征信息及心理健康测量信息。
+2. 模拟论文数据构造社会网络，从既定的社会网络中生成网络指标变量。
+3. 分析社会网络对健康的作用。
 
 ### 第一步
 
@@ -90,38 +88,42 @@ dat <- read.dta13("dhaka.dta")
 save(dat, file = "dhaka.RData")
 
 ```
+
 可以看到，数据集包含`r nrow(dat)`个样本和`r ncol(dat)`个变量。
 
 在接下来的分析中，我们会用到其中社会经济学特征变量，而朋友网络特征指标将会在我们第二步中的随机网络中产生。
 
 
 需要检验变量是否有缺失值，函数complete.cases()用来识别矩阵中没有缺失值的行。
+
 ```{r}
 
 mean(!complete.cases(dat))
 attach(dat)
 
 ```
+
 结果表明，数据集完整。    
 
-
 通过论文阅读，我们知道有些变量应为分类变量（如职业，教育水平，居住地区等），在这里可以通过函数is.factor()来验证，函数as.factor()用于转换数据类型。
+
 ```{r}
 
-transvars <- c("rmar", "rvas", "reduc", "qa_12_1", "qa_12_3", 
+transvars <- c("rmar", "rvas", "reduc", "qa_12_1", "qa_12_3",
            "qa_12_2", "qa_12_5", "qa_12_4", "qa_12_20", "qa_12_6")
 transtats <- function(x, print = FALSE){
   if(!is.factor(x))
-    x <- as.factor(x) 
+    x <- as.factor(x)
   return(is.factor(x))
 }
 sapply(transvars, transtats)
 
 ```
+
 is.factor()运行结果表明，数据转换完成。
 
+为了进一步了解数据，我们看看受试者的**心理健康测量结果（GHQ_score）**如何，函数hist()用来绘制直方图。
 
-为了进一步了解数据，我们看看受试者的***心理健康测量结果（GHQ_score）***如何，函数hist()用来绘制直方图。
 ```{r}
 
 # distribution of GHQ-12 scores
@@ -137,7 +139,8 @@ hist(GHQ_score,
 ```
 
 
-社会经济学特征变量***年龄（rage），财富状况（requ）***是连续型变量。
+社会经济学特征变量**年龄（rage），财富状况（requ）**是连续型变量。
+
 ```{r}
 
 #continuous variable : age, equity score
@@ -151,11 +154,12 @@ sapply(dat[cvars], cstats)
 
 ```
 
-社会经济学特征变量***婚姻状况（rmar），是否在当地出生（rvas），受教育程度（reduc），职业（qa_）***是分类变量。
+社会经济学特征变量**婚姻状况（rmar），是否在当地出生（rvas），受教育程度（reduc），职业（qa_）**是分类变量。
+
 ```{r}
 
 #factors : currently married, born in Vashantel, education, occupation
-fvars <- c("rmar", "rvas", "reduc", "qa_12_1", "qa_12_3", 
+fvars <- c("rmar", "rvas", "reduc", "qa_12_1", "qa_12_3",
            "qa_12_2", "qa_12_5", "qa_12_4", "qa_12_20", "qa_12_6")
 fstats <- function(x){
   f <- table(x)
@@ -181,10 +185,10 @@ g <- erdos.renyi.game(824, 0.002)
 save(g, file = "net.RData")
 
 ```
+
 构造完成，你构造的网络有`r vcount(g)`个节点，`r ecount(g)`个边，每个人平均有`r mean(degree(g))`朋友。
 
 是不是与论文中的朋友网络很”相似“了呢，所以我们可以直接用该网络的指标进行分析了。
-
 
 为了更加了解朋友网络，让我们绘制“度”的直方图，再用fruchterman-reingold算法的布局绘制随机生成的仿-824名青年朋友网络图。
 
@@ -194,11 +198,11 @@ D <- degree(g)
 hist(D,
      xlab  = "Degree",
      main = "")
-plot(g, layout=layout.fruchterman.reingold, vertex.label=NA, vertex.size=1) 
+plot(g, layout=layout.fruchterman.reingold, vertex.label=NA, vertex.size=1)
 
 ```
 
-***度（D）***指标反映受试者在朋友网络中朋友数量，还有三个中心性指标可以反映受试者在网络中的位置。
+**度（D）**指标反映受试者在朋友网络中朋友数量，还有三个中心性指标可以反映受试者在网络中的位置。
 
 我们在第三步的分析中将用这四个指标反映朋友网络特征，需要说明的是，最后将会对三个中心性指标进行标准化处理。
 
@@ -229,12 +233,12 @@ print(c(mean(Eigc), sd(Eigc)))
 
 vertex_attr(g) <- list(names = qa_7,
                        age = rage,
-                       occupation_Driver = qa_12_1, 
+                       occupation_Driver = qa_12_1,
                        occupation_Student = qa_12_2,
                        occupation_service = qa_12_3,
-                       occupation_construction = qa_12_4, 
-                       occuparion_business = qa_12_5, 
-                       occupation_van = qa_12_6, 
+                       occupation_construction = qa_12_4,
+                       occuparion_business = qa_12_5,
+                       occupation_van = qa_12_6,
                        occupation_daily = qa_12_20,
                        GHQ_score = GHQ_score,
                        sGHQ = zghq,
@@ -242,11 +246,11 @@ vertex_attr(g) <- list(names = qa_7,
                        location = rvas,
                        marry = rmar,
                        urbanWS = equity_UrbanScore,
-                       urbanWQ = equity_UrbanQuintile) 
+                       urbanWQ = equity_UrbanQuintile)
 
 ```
 
-对三个中心性指标进行标准化处理后得到重要的解释变量***closeness centrality（sCloc），betweenness centrality（sBetc），eigenvector centrality（sEigc）***。
+对三个中心性指标进行标准化处理后得到重要的解释变量**closeness centrality（sCloc），betweenness centrality（sBetc），eigenvector centrality（sEigc）**。
 
 ```{r}
 
@@ -310,4 +314,3 @@ stargazer(fit_1, fit_2, fit_3, fit_4, fit_5, type = "html", report = "vc*")
 同时，控制变量的分析结果也很有趣，例如，出生在当地的受试者有更好的心理健康状况，受过更高教育的受试者有更好的心理健康状况，随着年龄的增长心理健康状况将会恶化。
 
 最后，我的结果证实了社会关系将会影响人的心理健康，社会关系较好，网络嵌入较高的年轻人心理健康状况较好。
-
