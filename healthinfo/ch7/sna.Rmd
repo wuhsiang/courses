@@ -1,5 +1,5 @@
 ---
-title: "第七章 社会网络分析"
+title: 第七章 社会网络分析
 author:
  - 授课教师：吴翔 \newline
  - 邮箱：wuhsiang@hust.edu.cn
@@ -45,12 +45,19 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 - 社会网络的符号表示
 - 基本社会网络结构
 
-## 基本概念
+## SNA与健康
+
+
+
+## 7.1.1 基本概念
 
 社会网络分析（social network analysis, SNA）
 
-- 社会网络是**社会行动者**（人、组织等），及其之间关系的集合
-- 社会行动者之间的关系称为**社会关系**
+- 社会网络：**社会行动者**（人、组织等），及其之间关系的集合
+- 社会关系：社会行动者之间的关系
+- 分析逻辑：行动者之间的关系是主要的，行动者的属性是次要的
+
+## 基本特征
 
 SNA的基本特征[@freeman2004]：
 
@@ -59,7 +66,7 @@ SNA的基本特征[@freeman2004]：
 - 运用图表展示
 - 运用数学的形式
 
-## 社会网络数据
+## 7.1.2 社会网络数据
 
 社会网络数据包括：
 
@@ -71,16 +78,17 @@ SNA的基本特征[@freeman2004]：
 
 - 图论
 - 社会计量
-- 代数（略）
 
 ## 图论符号表示法
 
 图$G = (N, L)$由节点的集合$N$和线的集合$L$所定义。
 
-| 社会网络 | 图   |
-|----------|------|
-| 行动者   | 节点 |
-| 社会关系 | 线   |
+| 社会网络          | 图             |
+|:-------------:|:-------------:|
+| 行动者           | 节点            |
+| 社会关系          | 线             |
+
+
 
 Table: 社会网络与图论的对应关系
 
@@ -99,13 +107,13 @@ set.seed(123)
 # create graph g from literal
 g <- graph_from_literal(WCY-ZBT, WCY-LCY, HYS-GJ, HQG-GJ, ZBT-GJ, OYF-YG, DZX)
 # plot the graph
-plot(g)
+plot(g, layout = layout.circle)
 
 ```
 
 ## 社会计量符号表示
 
-- **社会计量**（sociometric）：由人以及被度娘的人与人之间的情感关系组成的社会网络数据集合
+- **社会计量**（sociometric）：由人以及被度量的人与人之间的情感关系组成的社会网络数据集合
 - **社会关系矩阵**（sociomatrix）：邻接矩阵，对应于量化行动者之间的社会关系图。
 
 ## 社会计量符号表示（续）
@@ -118,8 +126,54 @@ g %>% as_adjacency_matrix(sparse = F) %>% pandoc.table()
 
 ```
 
+## 其它情形
 
-## 主要网络结构
+- 有值关系
+- 有向关系
+- 多重关系
+- 网络动态性
+
+
+
+## 有向图/有值图
+
+
+
+## 多重关系
+
+```{r}
+
+par(mfrow = c(1, 2))
+# create graph h1 from literal
+h1 <- graph_from_literal(WCY-ZBT, LCY, HYS, HQG-GJ, OYF, YG, DZX)
+# plot the graph
+plot(h1, layout = layout.circle)
+# create graph h2 from literal
+h2 <- graph_from_literal(WCY-LCY, HYS-GJ, HQG, ZBT-GJ, OYF-YG, DZX)
+# plot the graph
+plot(h2, layout = layout.circle)
+
+
+```
+
+
+
+## 网络动态性
+
+
+```{r}
+
+par(mfrow = c(1, 2))
+
+g %>% subgraph(c(1:4, 6:7, 9)) %>% plot(layout = layout.circle)
+
+
+g %>% subgraph(c(2,4:9)) %>% plot(layout = layout.circle)
+
+
+```
+
+## 7.1.3 主要网络结构
 
 参照网络：
 
@@ -131,6 +185,25 @@ g %>% as_adjacency_matrix(sparse = F) %>% pandoc.table()
 - 小世界网络
 - 无标度网络（优先连接网络）
 
+
+## 随机网络
+
+```{r}
+
+erdos.renyi.game(20, 0.05) %>% plot(layout = layout.circle)
+
+```
+
+
+## 规则网络
+
+```{r}
+
+make_lattice(length = 2, dim = 3, circular = T) %>% plot()
+
+```
+
+
 ## 小世界网络
 
 - 基本问题：社会网络中两个节点之间传递信息将需要几个步骤？“六度空间”理论的发现
@@ -138,9 +211,11 @@ g %>% as_adjacency_matrix(sparse = F) %>% pandoc.table()
 - 特点：
 
 
+## 无标度网络
+
 #  SNA主要分析角度
 
-## 主要分析角度
+## 本节知识点
 
 - 中心性
 - 群组
@@ -162,13 +237,12 @@ g %>% as_adjacency_matrix(sparse = F) %>% pandoc.table()
 
 ```
 
-# 案例一：文献分析
+# 案例
 
 ## 医学领域案例：文献分析
 
 - 李杰. CiteSpace中文版指南. http://cluster.ischool.drexel.edu/~cchen/citespace/manual/CiteSpaceChinese.pdf[EB/OL][2018-09-05].2015.
 
-# 案例二：健康行为分析
 
 ## 医学领域案例：行为分析
 
