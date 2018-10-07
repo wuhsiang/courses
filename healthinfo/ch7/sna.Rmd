@@ -123,9 +123,9 @@ SNA的基本特征[@freeman2004]：
 | 行动者           | 节点            |
 | 社会关系          | 线             |
 
-
-
 Table: 社会网络与图论的对应关系
+
+图论符号表示法中，可以采用边列表来表示社会网络数据。
 
 ## 图论符号表示法（续）
 
@@ -148,10 +148,8 @@ plot(g, layout = layout.circle)
 
 ## 社会计量符号表示
 
-- **社会计量**（sociometric）：由人以及被度量的人与人之间的情感关系组成的社会网络数据集合
-- **社会关系矩阵**（sociomatrix）：邻接矩阵，对应于量化行动者之间的社会关系图。
-- **关联矩阵**：
-- **边列表**
+- **社会计量**（sociometric）：由人以及被度量的人与人之间的情感关系组成的社会网络数据集合，旨在研究一群人中积极和消极的感情关系。
+- 社会关系矩阵：邻接矩阵，对应于量化行动者之间的社会关系图。
 
 ## 邻接矩阵
 
@@ -163,13 +161,6 @@ g %>% as_adjacency_matrix(sparse = F) %>% pandoc.table(split.tables = Inf)
 
 ```
 
-## 关联矩阵
-
-
-## 边列表
-
-
-
 ## 其它情形
 
 - 有值关系
@@ -177,54 +168,62 @@ g %>% as_adjacency_matrix(sparse = F) %>% pandoc.table(split.tables = Inf)
 - 多重关系
 - 网络动态性
 
-
-
 ## 有向图/有值图
 
+- 有向图
+- 有值图（含权图）
 
+```{r, fig.align='center', fig.height=4.8}
+
+par(mfrow = c(1, 2))
+#
+graph_from_literal(WCY++ZBT, WCY+-LCY, HYS+-GJ, HQG++GJ, ZBT++GJ, OYF++YG, DZX) %>% plot(layout = layout.circle)
+# weighted edges
+gw <- g %>% set_edge_attr("weight", value = 1:6) %>%
+  set_edge_attr("color", value = "red")
+plot(gw, edge.width = E(gw)$weight)
+
+
+```
 
 ## 多重关系
 
-```{r}
+- 师门关系
+- 家庭关系
+
+```{r, fig.align='center', fig.height=4.8}
 
 par(mfrow = c(1, 2))
 # create graph h1 from literal
-h1 <- graph_from_literal(WCY-ZBT, LCY, HYS, HQG-GJ, OYF, YG, DZX)
-# plot the graph
-plot(h1, layout = layout.circle)
+graph_from_literal(WCY-ZBT, LCY, HYS, HQG-GJ, OYF, YG, DZX) %>% plot(layout = layout.circle)
 # create graph h2 from literal
-h2 <- graph_from_literal(WCY-LCY, HYS-GJ, HQG, ZBT-GJ, OYF-YG, DZX)
-# plot the graph
-plot(h2, layout = layout.circle)
-
+graph_from_literal(WCY-LCY, HYS-GJ, HQG, ZBT-GJ, OYF-YG, DZX) %>% plot(layout = layout.circle)
 
 ```
-
-
 
 ## 网络动态性
 
+- 前30年
+- 后30年
 
-```{r}
+```{r, fig.align='center', fig.height=4.8}
 
 par(mfrow = c(1, 2))
-
-g %>% subgraph(c(1:4, 6:7, 9)) %>% plot(layout = layout.circle)
-
-
+# early period
+g %>% subgraph(c(1, 3:4, 6:7, 9)) %>% plot(layout = layout.circle)
+# late period
 g %>% subgraph(c(2,4:9)) %>% plot(layout = layout.circle)
-
 
 ```
 
-## 7.1.3 主要网络结构
+## 7.1.3 主要网络模型
 
-参照网络：
+参照网络模型：
 
 - 随机网络
 - 规则网络
 
-现实网络：
+现实网络模型：
 
 - 小世界网络
 - 无标度网络（优先连接网络）
@@ -232,35 +231,72 @@ g %>% subgraph(c(2,4:9)) %>% plot(layout = layout.circle)
 
 ## 随机网络
 
-```{r}
+- 基本假定：节点之间的边是随机构建的。
+- $G(n, p)$模型：图$G$有$n$个节点，$n\choose 2$条边以$p$的概率随机连接。
 
-erdos.renyi.game(20, 0.05) %>% plot(layout = layout.circle)
+```{r, fig.align='center', fig.height=4.5}
+
+# create and plot a random network
+erdos.renyi.game(12, 0.1) %>% plot(layout = layout.circle)
 
 ```
 
 
 ## 规则网络
 
-```{r}
+- 基本假设：每个节点的度是常数$c$
 
-make_lattice(length = 2, dim = 3, circular = T) %>% plot()
+```{r, fig.align='center', fig.height=4.5}
+
+make_lattice(length = 2, dim = 3) %>% plot(circular = T)
 
 ```
 
 
 ## 小世界网络
 
-- 基本问题：社会网络中两个节点之间传递信息将需要几个步骤？“六度空间”理论的发现
-- 定义：
-- 特点：
+- 基本问题：社会网络中两个节点之间传递信息将需要几个步骤？
+- 基本假设：大多数节点几乎没有联系，但任意两个节点之间的距离都比预期的短
+- 特点：这个世界真小啊！“六度分割”理论
 
+```{r, fig.align='center', fig.height=4.5}
+
+sample_smallworld(1, 20, 3, 0.02) %>% plot(circular = T)
+
+```
 
 ## 无标度网络
+
+- 基本问题：加入现有网络时，行动者对要联系的人有偏好吗？
+- 基本假设：行动者更喜欢连接到网络最中心的位置
+- 特点：“富者愈富”
+
+
+```{r, fig.align='center', fig.height=4.5}
+
+sample_pa(n = 20, power = 1, directed = F) %>% plot(circular = T)
+
+```
 
 
 ## 7.1.4 社会网络分析软件
 
+常用分析工具：
 
+- UCINET
+- Pajek
+- NetMiner
+- STRUCTURE
+- MultiNet
+- StOCNET
+
+
+## 新兴分析工具
+
+- Python-NetworkX
+- R-**igraph**
+
+本课程采用`igraph`包进行演示。
 
 #  社会网络主要分析角度（4个课时）
 
@@ -294,6 +330,13 @@ make_lattice(length = 2, dim = 3, circular = T) %>% plot()
 
 
 ```
+
+
+## 网络属性
+
+- 度分布
+- 聚类系数
+- 平均路径长度
 
 # 案例（2个课时）
 
