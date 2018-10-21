@@ -3,7 +3,7 @@ title: 第七章 社会网络分析
 author:
  - 授课教师：吴翔 \newline
  - 邮箱：wuhsiang@hust.edu.cn
-date: "2018年10月25日"
+date: "2018年11月1日"
 linestretch: 1.25
 fontsize: 12
 bibliography: ref.bib
@@ -46,11 +46,11 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 - 基本社会网络结构
 - 社会网络分析软件
 
-## 社会网络时代
+## 社交网络时代
 
-IT --> 联系更便利 --> 社会网络时代
+IT --> 联系便利 --> 社交网络时代
 
-![社会网络时代](figures/sns.jpg){width=55%}
+![社交网络时代](figures/sns.jpg){width=55%}
 
 ## 社会网络与健康
 
@@ -116,16 +116,16 @@ SNA的基本特征[@freeman2004]：
 
 ## 图论符号表示法
 
-图$G = (N, L)$由节点的集合$N$和线的集合$L$所定义。
+图$G = (N, L)$由节点的集合$N$和边的集合$L$所定义。
 
-| 社会网络          | 图             |
-|:-------------:|:-------------:|
+| 社会网络         | 图              |
+|:----------------:|:---------------:|
 | 行动者           | 节点            |
-| 社会关系          | 线             |
+| 社会关系         | 边              |
 
 Table: 社会网络与图论的对应关系
 
-图论符号表示法中，可以采用边列表来表示社会网络数据。
+图论符号表示法中，可以采用节点集合和边列表来表示社会网络数据。
 
 ## 图论符号表示法（续）
 
@@ -308,35 +308,42 @@ sample_pa(n = 20, power = 1, directed = F) %>% plot(circular = T)
 - 凝聚子群
 - 结构等价
 
-## 子图
+<!-- ## 子图 -->
 
-- 子图：若$G_{s} = (N_{s}, L_{s})$，且$N_{S} \subset N$、$L_{s} \subset L$，那么$G_{s}$是$G$的子图
-  - 点导出子图
-  - 边导出子图
-- 二元图：包含两个节点的点导出子图
-- 三元图：包含三个节点的点导出子图
+<!-- - 子图：若$G_{s} = (N_{s}, L_{s})$，且$N_{S} \subset N$、$L_{s} \subset L$，那么$G_{s}$是$G$的子图 -->
+<!--   - 点导出子图 -->
+<!--   - 边导出子图 -->
+<!-- - 二元图：包含两个节点的点导出子图 -->
+<!-- - 三元图：包含三个节点的点导出子图 -->
 
-## 中心性度量
+<!-- ## 中心性度量 -->
 
-- 度
-- 接近性
-- 中间性
+<!-- - 度 -->
+<!-- - 接近性 -->
+<!-- - 中间性 -->
 
-## 度
+<!-- ## 度 -->
+
+<!-- \begin{equation*} -->
+<!--   \underbrace{d(n_{i})}_{\text{degree}} = \underbrace{\sum_{j} x_{ji}}_{\text{indegree}} = \underbrace{\sum_{j} x_{ij}}_{\text{outdegree}}. -->
+<!-- \end{equation*} -->
+
+<!-- \begin{equation*} -->
+<!--   C_{D}(n_{i}) = \frac{d(n_{i})}{g - 1} -->
+<!-- \end{equation*} -->
+
+<!-- ```{r} -->
 
 
-```{r}
+
+<!-- ``` -->
 
 
+<!-- ## 网络属性 -->
 
-```
-
-
-## 网络属性
-
-- 度分布
-- 聚类系数
-- 平均路径长度
+<!-- - 度分布 -->
+<!-- - 聚类系数 -->
+<!-- - 平均路径长度 -->
 
 # 案例（2个课时）
 
@@ -345,12 +352,12 @@ sample_pa(n = 20, power = 1, directed = F) %>% plot(circular = T)
 - SNA与文献分析
 - SNA与健康行为分析
 
-## 医学领域案例：文献分析
+<!-- ## 医学领域案例：文献分析 -->
 
-- 李杰. CiteSpace中文版指南. http://cluster.ischool.drexel.edu/~cchen/citespace/manual/CiteSpaceChinese.pdf[EB/OL][2018-09-05].2015.
+<!-- - 李杰. CiteSpace中文版指南. http://cluster.ischool.drexel.edu/~cchen/citespace/manual/CiteSpaceChinese.pdf[EB/OL][2018-09-05].2015. -->
 
 
-## 医学领域案例：行为分析
+<!-- ## 医学领域案例：行为分析 -->
 
 
 ## 参考文献
