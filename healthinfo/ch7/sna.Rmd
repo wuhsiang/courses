@@ -3,9 +3,9 @@ title: 第七章 社会网络分析
 author:
  - 授课教师：吴翔 \newline
  - 邮箱：wuhsiang@hust.edu.cn
-date: "2018年11月1日"
+date: "2018年11月2日"
 linestretch: 1.25
-fontsize: 12
+fontsize: 16
 bibliography: ref.bib
 header-includes:
   - \usepackage{ctex}
@@ -308,42 +308,83 @@ sample_pa(n = 20, power = 1, directed = F) %>% plot(circular = T)
 - 凝聚子群
 - 结构等价
 
-<!-- ## 子图 -->
+## 子图
 
-<!-- - 子图：若$G_{s} = (N_{s}, L_{s})$，且$N_{S} \subset N$、$L_{s} \subset L$，那么$G_{s}$是$G$的子图 -->
-<!--   - 点导出子图 -->
-<!--   - 边导出子图 -->
-<!-- - 二元图：包含两个节点的点导出子图 -->
-<!-- - 三元图：包含三个节点的点导出子图 -->
+- 子图：若$G_{s} = (N_{s}, L_{s})$，且$N_{S} \subset N$、$L_{s} \subset L$，那么$G_{s}$是$G$的子图
+  - 点导出子图
+  - 边导出子图
+- 二元图：包含两个节点的点导出子图
+- 三元图：包含三个节点的点导出子图
 
-<!-- ## 中心性度量 -->
+## 中心性与声望
 
-<!-- - 度 -->
-<!-- - 接近性 -->
-<!-- - 中间性 -->
-
-<!-- ## 度 -->
-
-<!-- \begin{equation*} -->
-<!--   \underbrace{d(n_{i})}_{\text{degree}} = \underbrace{\sum_{j} x_{ji}}_{\text{indegree}} = \underbrace{\sum_{j} x_{ij}}_{\text{outdegree}}. -->
-<!-- \end{equation*} -->
-
-<!-- \begin{equation*} -->
-<!--   C_{D}(n_{i}) = \frac{d(n_{i})}{g - 1} -->
-<!-- \end{equation*} -->
-
-<!-- ```{r} -->
+- 基本问题：如何识别社会网络中“**最重要的**”角色？
+- 中心性测度的**有效性**
+  - 我们是否能够捕捉到实质上所要表示的“重要”？
+  - 先有理论基础，再进行量化
+- 中心性与声望
+  - 中心性：行动者参与其中，适用于无向关系和有向关系
+  - 声望：行动者作为接受者，适用于有向关系
+  - 情境（关系本身的性质）：讨厌（接受者，负面）、给出建议（发送者）
 
 
+## 中心性度量
 
-<!-- ``` -->
+无向关系的社会网络中，主要的三种中心性度量：
+
+- 度中心性
+- 接近中心度
+- 中介中心度
+
+```{r}
+
+# 星形网络
+
+# 环形网络
+
+# 线形网络
 
 
-<!-- ## 网络属性 -->
+```
 
-<!-- - 度分布 -->
-<!-- - 聚类系数 -->
-<!-- - 平均路径长度 -->
+## 度中心性
+
+
+
+\begin{equation*}
+  \underbrace{d(n_{i})}_{\text{degree}} = \underbrace{\sum_{j} x_{ji}}_{\text{indegree}} = \underbrace{\sum_{j} x_{ij}}_{\text{outdegree}}.
+\end{equation*}
+
+\begin{equation}
+  C_{D}(n_{i}) = \frac{d(n_{i})}{g - 1}
+\end{equation}
+
+```{r}
+
+
+
+```
+
+## 接近中心度
+
+\begin{equation}
+  C_{C}(n_{i}) = \frac{g - 1}{\sum_{j = 1}^{g} d(n_{i}, n_{j})}.
+\end{equation}
+
+
+## 中介中心度
+
+
+\begin{equation}
+  C_{B}(n_{i}) = \frac{\sum_{j \leq k} g_{jk}(n_{i}) / g_{jk}}{(g - 1)(g - 2) / 2}.
+\end{equation}
+
+
+## 网络属性
+
+- 度分布
+- 聚类系数
+- 平均路径长度
 
 # 案例（2个课时）
 
@@ -352,12 +393,12 @@ sample_pa(n = 20, power = 1, directed = F) %>% plot(circular = T)
 - SNA与文献分析
 - SNA与健康行为分析
 
-<!-- ## 医学领域案例：文献分析 -->
+## 医学领域案例：文献分析
 
-<!-- - 李杰. CiteSpace中文版指南. http://cluster.ischool.drexel.edu/~cchen/citespace/manual/CiteSpaceChinese.pdf[EB/OL][2018-09-05].2015. -->
+- 李杰. CiteSpace中文版指南. http://cluster.ischool.drexel.edu/~cchen/citespace/manual/CiteSpaceChinese.pdf[EB/OL][2018-09-05].2015.
 
 
-<!-- ## 医学领域案例：行为分析 -->
+## 医学领域案例：行为分析
 
 
 ## 参考文献
