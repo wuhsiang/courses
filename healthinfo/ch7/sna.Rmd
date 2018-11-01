@@ -225,9 +225,9 @@ graph_from_literal(WCY-LCY, HYS-GJ, HQG, ZBT-GJ, OYF-YG, DZX) %>% plot(layout = 
 
 par(mfrow = c(1, 2))
 # early period
-g.condorheros %>% subgraph(c(1, 3:4, 6:7, 9)) %>% plot(layout = layout.circle)
+g.condorheros %>% induced_subgraph(c(1, 3:4, 6:7, 9)) %>% plot(layout = layout.circle)
 # late period
-g.condorheros %>% subgraph(c(2,4:9)) %>% plot(layout = layout.circle)
+g.condorheros %>% induced_subgraph(c(2,4:9)) %>% plot(layout = layout.circle)
 
 ```
 
@@ -362,10 +362,9 @@ g.pa %>% plot(circular = T)
 
 我们考虑星形网络、环形网络和线形网络。
 
-```{r}
+```{r, fig.align='center', fig.height=5}
 
-
-par(mfrow=c(1, 3))
+par(mfrow = c(1, 3))
 
 # 星形网络
 g.star <- make_star(n = 9, mode = "undirected")
@@ -392,36 +391,96 @@ plot(g.line, circular = T)
   C_{D}(n_{i}) = \frac{d(n_{i})}{g - 1}
 \end{equation}
 
-## 度中心性计算
+## 度中心性（续）
+
+\begin{columns}
+\begin{column}{0.58\textwidth}
+
+在图$G$中，节点个数$g = 9$，度的最大值为$g - 1 = 8$。
+
+$d(n_{HYS}) = 1$, 故$C_{D}(n_{HYS}) = 0.125$
+
+$d(n_{WCY}) = 2$, 故$C_{D}(n_{WCY}) = 0.25$
+
+$d(n_{DZX}) = 0$, 故$C_{D}(n_{DZX}) = 0$
+
+$d(n_{GJ}) = 3$, 故$C_{D}(n_{DZX}) = 0.375$
+
+\end{column}
+\begin{column}{0.4\textwidth}
+ \includegraphics[width=1.2\textwidth]{figures/condorheros.png}
+\end{column}
+\end{columns}
+
+## 度中心性（续）
 
 ```{r, results = 'asis'}
 
+# calculate degree centrality
 cd <- cbind(degree(g.star,  normalized = T), degree(g.ring,  normalized = T), degree(g.line,  normalized = T), degree(g.condorheros,  normalized = T))
 colnames(cd) <- c("star", "ring", "line", "condor-heros")
-pandoc.table(cd)
-
+# print the results
+pandoc.table(cd, caption = "Degree centrality for four graphs")
 
 ```
-
 
 ## 接近中心性
 
 接近中心性（closeness centrality）的测量逻辑：
 
--
+- 占据中心地位的行动者在与其他行动者交流信息时更有效率
+- 如果行动者能快速地与所有其他行动者产生内在连接，那么他就是中心行动者
+- 最小距离可以用于测量中心性
 
 \begin{equation}
   C_{C}(n_{i}) = \frac{g - 1}{\sum_{j = 1}^{g} d(n_{i}, n_{j})}.
 \end{equation}
 
+缺陷：
 
-## 接近中心性计算
+- 必须是连通图
+- 实际操作中，基于最大连通子图来计算
+
+## 接近中心性（续）
+
+首先，得到最大联通子图$G'$。可以看到，欧阳锋、杨过和段智兴（节点7-9）被排除在最大连通子图之外。
+
+```{r, fig.align='center', fig.height=4.5}
+
+par(mfrow = c(1, 2))
+g.condorheros %>% plot(circular = T)
+g.ch.m <- decompose(g.condorheros)[[1]]
+g.ch.m %>% plot()
+
+```
+
+## 接近中心性（续）
+
+\begin{columns}
+\begin{column}{0.58\textwidth}
+
+在图$G'$中，节点个数$g = 6$，最短距离之和的最大值为$g - 1 = 5$。
+
+$\sum_{j \neq HYS} d(n_{HYS}, n_{j}) = 1 + 2 \times 2 + 3 + 4 = 12$, 故$C_{C}(n_{HYS}) = 5 / 12 = 0.42 $
+
+$\sum_{j \neq GJ} d(n_{GJ}, n_{j}) = 1 \times 3 + 2 + 3 = 8$, 故$C_{C}(n_{GJ}) = 5 / 8 = 0.62$
+
+\end{column}
+\begin{column}{0.4\textwidth}
+ \includegraphics[width=1.2\textwidth]{figures/gchm.png}
+\end{column}
+\end{columns}
+
+
+## 接近中心性（续）
 
 ```{r, results = 'asis'}
 
-cc <- cbind(closeness(g.star), closeness(g.ring), closeness(g.line), closeness(g.condorheros))
+# calculate closeness centrality
+cc <- cbind(closeness(g.star, normalized = T), closeness(g.ring, normalized = T), closeness(g.line, normalized = T), c(closeness(g.ch.m, normalized = T), rep(0, 3)))
 colnames(cc) <- c("star", "ring", "line", "condor-heros")
-pandoc.table(cc, digits = 2)
+# print the results
+pandoc.table(cc, digits = 2, caption = "Closeness centrality for four graphs")
 
 ```
 
@@ -429,19 +488,51 @@ pandoc.table(cc, digits = 2)
 
 中介中心性（betweenness centrality）的测量逻辑：
 
+- 如果某个行动者位于其它行动者的最短路径上，那么他就是中心行动者
+- 最短距离地位具有战略重要性
+
+假定连接$j$和$k$的最短路径共有$g_{jk}$条，而其中包含节点$i$的有$g_{jk}(n_{i})$条
 
 \begin{equation}
   C_{B}(n_{i}) = \frac{\sum_{j \leq k} g_{jk}(n_{i}) / g_{jk}}{(g - 1)(g - 2) / 2}.
 \end{equation}
 
+## 中介中心性（续）
 
-## 中介中心性计算
+\begin{columns}
+\begin{column}{0.58\textwidth}
+
+在图$G$中，节点个数$g = 9$，除节点$i$以外，图$G$的路径最大数目为$(g - 1) (g - 2) / 2 = 28$。
+
+只有王重阳、周伯通、郭靖处于其他行动者的最短路径上。
+
+$n_{WCY}$：$\sum g_{j-LCY} = 1 \times 4 = 4$，故$C_{B}(n_{WCY}) = 4 / 28 = 0.14$。
+
+$n_{GJ}$：$\sum g_{j-HYS} = \sum g_{j-HQG} = 4$，故$\sum_{j \leq k} g_{jk}(n_{GJ}) / g_{jk} = 4 \times 2 - 1 = 7$，即$C_{B}(n_{GJ}) = 7 / 28 = 0.25$。
+
+\end{column}
+\begin{column}{0.4\textwidth}
+ \includegraphics[width=1.2\textwidth]{figures/condorheros.png}
+\end{column}
+\end{columns}
+
+## 中介中心性（续）
 
 ```{r, results = 'asis'}
 
 cb <- cbind(betweenness(g.star,  normalized = T), betweenness(g.ring,  normalized = T), betweenness(g.line,  normalized = T), betweenness(g.condorheros,  normalized = T))
 colnames(cb) <- c("star", "ring", "line", "condor-heros")
-pandoc.table(cb, digits = 2)
+pandoc.table(cb, digits = 2, caption = "Betweenness centrality for four graphs")
+
+```
+
+## 中心性测度的比较（续）
+
+```{r, results = 'asis'}
+
+cb <- cbind(degree(g.condorheros,  normalized = T), c(closeness(g.ch.m, normalized = T), rep(0, 3)), betweenness(g.condorheros,  normalized = T))
+colnames(cb) <- c("degree", "closeness", "betweenness")
+pandoc.table(cb, digits = 2, caption = "A comparison of centralities for condor-heros network")
 
 ```
 
