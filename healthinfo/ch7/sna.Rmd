@@ -44,6 +44,7 @@ options(digits = 2)
 
 - 社会网络的基本概念
 - 社会网络的符号表示
+- 图的基本概念
 - 基本社会网络结构
 - 社会网络分析软件
 
@@ -86,9 +87,9 @@ IT --> 联系便利 --> 社交网络时代
 
 社会网络分析（social network analysis, SNA）的关键概念：
 
-- 行动者：社会网络分析中的社会实体被称为行动者，包括个体、企业、民族国家等。
-- 关系连接：行动者通过社会关系彼此相连。这些联系包括：评价、资源传输、行为互动等。联系存在于特定的成对行动者之间。
-- 关系：群体成员间某种类型的联系的集合。
+- 行动者：社会网络分析中的社会实体被称为行动者，包括个体、企业、民族国家等
+- 关系连接：行动者通过社会关系彼此相连。这些联系包括：评价、资源传输、行为互动等。联系存在于特定的成对行动者之间
+- 关系：群体成员间某种类型的联系的集合
 - 社会网络：行动者（人、组织等），及其之间关系的集合
 
 其它关键概念还包括：二元图、三元图、子群、群。
@@ -149,8 +150,8 @@ plot(g.condorheros, layout = layout.circle)
 
 ## 社会计量符号表示
 
-- **社会计量**（sociometric）：由人以及被度量的人与人之间的情感关系组成的社会网络数据集合，旨在研究一群人中积极和消极的感情关系。
-- 社会关系矩阵：邻接矩阵，对应于量化行动者之间的社会关系图。
+- **社会计量**（sociometric）：由人以及被度量的人与人之间的情感关系组成的社会网络数据集合，旨在研究一群人中积极和消极的感情关系
+- 社会关系矩阵：邻接矩阵，对应于量化行动者之间的社会关系图
 
 ## 邻接矩阵
 
@@ -162,25 +163,14 @@ g.condorheros %>% as_adjacency_matrix(sparse = F) %>% pandoc.table(split.tables 
 
 ```
 
-## 节点度
-
-在无向图$G$中，节点$n_{i}$的度为
-
-\begin{equation*}
-  \underbrace{d(n_{i})}_{\text{degree}} = \underbrace{\sum_{j} x_{ji}}_{\text{indegree}} = \underbrace{\sum_{j} x_{ij}}_{\text{outdegree}}.
-\end{equation*}
-
-对于有向图而言，
-\begin{equation*}
-  \underbrace{\sum_{j} x_{ji}}_{\text{indegree}} \neq \underbrace{\sum_{j} x_{ij}}_{\text{outdegree}}.
-\end{equation*}
-
-
 ## 其它情形
 
 - 有值关系
+
 - 有向关系
+
 - 多重关系
+
 - 网络动态性
 
 ## 有向图/有值图
@@ -192,7 +182,8 @@ g.condorheros %>% as_adjacency_matrix(sparse = F) %>% pandoc.table(split.tables 
 
 par(mfrow = c(1, 2))
 # directed graph
-graph_from_literal(WCY++ZBT, WCY+-LCY, HYS+-GJ, HQG++GJ, ZBT++GJ, OYF++YG, DZX) %>% plot(layout = layout.circle)
+g.ch.directed <- graph_from_literal(WCY++ZBT, WCY+-LCY, HYS+-GJ, HQG++GJ, ZBT++GJ, OYF++YG, DZX)
+g.ch.directed %>% plot(layout = layout.circle)
 # weighted edges
 gw <- g.condorheros %>% set_edge_attr("weight", value = 1:6) %>%
   set_edge_attr("color", value = "red")
@@ -231,7 +222,104 @@ g.condorheros %>% induced_subgraph(c(2,4:9)) %>% plot(layout = layout.circle)
 
 ```
 
-## 7.1.3 主要网络模型
+## 7.1.3 图的基本概念
+
+- 子图：若$G_{s} = (N_{s}, L_{s})$，且$N_{S} \subset N$、$L_{s} \subset L$，那么$G_{s}$是$G$的子图
+  - 点导出子图
+  - 边导出子图
+- 二元图：包含两个节点的点导出子图
+- 三元图：包含三个节点的点导出子图
+
+## 子图（续）
+
+点导出子图与边导出子图
+
+```{r, echo = T, fig.align='center', fig.height=4}
+
+par(mfrow = c(1, 2))
+g.condorheros %>% induced_subgraph(c(1,2, 5, 8)) %>% plot()
+g.condorheros %>% subgraph.edges(c(2:5)) %>% plot()
+
+
+```
+
+## 节点度
+
+在无向图$G$中，节点$n_{i}$的度为
+
+\begin{equation}
+  \underbrace{d(n_{i})}_{\text{degree}} = \underbrace{\sum_{j} x_{ji}}_{\text{indegree}} = \underbrace{\sum_{j} x_{ij}}_{\text{outdegree}}.
+\end{equation}
+
+对于有向图而言，
+\begin{equation*}
+  \underbrace{\sum_{j} x_{ji}}_{\text{indegree}} \neq \underbrace{\sum_{j} x_{ij}}_{\text{outdegree}}.
+\end{equation*}
+
+## 节点度（续）
+
+图$G$中节点度的均值为
+
+\begin{equation*}
+  \bar{d} = \frac{\sum d(n_{i})}{g} = \frac{2L}{g}。
+\end{equation*}
+
+度的方差为
+\begin{equation*}
+  S_{D}^{2} = \frac{\sum [d(n_{i}) - \bar{d}]^{2}}{g}.
+\end{equation*}
+
+$S_{D}^{2} = 0$对应的图称为$d$-规则图（$d$-regular lattice）。
+
+## 图的密度
+
+图的密度
+
+- 实际存在的边与可能的边的数量比例
+
+\begin{equation}
+  \Delta = \frac{L}{g(g - 1) / 2} = \frac{2L}{g(g - 1)}.
+\end{equation}
+
+
+## 图的密度（续）
+
+- 空图
+- 完全图
+- 密度 $\Delta = 2 / 6 = 0.33$
+
+```{r, fig.align='center', fig.height=4.5}
+
+par(mfrow = c(1, 3))
+graph_from_literal(1, 2, 3, 4) %>% plot(circular = T)
+make_full_graph(n = 4) %>% plot(circular = T)
+graph_from_literal(1-2, 3, 2-4) %>% plot(circular = T)
+
+```
+
+
+## 节点间距离
+
+- 测地线（geodesic distance）：节点$n_{i}$和$n_{j}$之间的最短距离$d(n_{i}, n_{j})$
+- 图的直径
+  - 测地线的最大值$D = \text{max}_{i} \text{max}_{j} d(n_{i}, n_{j})$
+  - 刻画了图中两点之间的最远距离
+- 非连通图：直径$D$无穷大
+
+## 连通图
+
+- 连通图
+  - 任意两个节点$n_{i}$和$n_{j}$间都存在通路
+  - 所有节点对都是可达的
+- 连通分图
+  - 非连通图的节点划分为多个子集
+  - 每个子集内部是连通的，不同子集之间是不可达的
+- 连通分图个数
+  - 连通图：1
+  - 非连通图：$\geq$ 2
+
+
+## 7.1.4 主要网络模型
 
 参照网络模型：
 
@@ -243,11 +331,11 @@ g.condorheros %>% induced_subgraph(c(2,4:9)) %>% plot(layout = layout.circle)
 - 小世界网络
 - 无标度网络（优先连接网络）
 
-
 ## 随机网络
 
-- 基本假定：节点之间的边是随机构建的。
-- $G(n, p)$模型：图$G$有$n$个节点，$n\choose 2$条边以$p$的概率随机连接。
+- 基本假定：节点之间的边是随机构建的
+- $G(n, p)$模型：图$G$有$n$个节点，$n\choose 2$条边以$p$的概率随机连接
+- 节点的期望度是$(n - 1) p$，边的期望条数是$\frac{n (n - 1)}{2} \times p$
 
 ```{r, fig.align='center', fig.height=4.5}
 
@@ -301,7 +389,7 @@ g.pa %>% plot(circular = T)
 ```
 
 
-## 7.1.4 社会网络分析软件
+## 7.1.5 社会网络分析软件
 
 常用分析工具：
 
@@ -316,6 +404,7 @@ g.pa %>% plot(circular = T)
 ## 新兴分析工具
 
 - Python-NetworkX
+
 - R-**igraph**
 
 本课程采用`igraph`包进行演示。
@@ -324,19 +413,12 @@ g.pa %>% plot(circular = T)
 
 ## 本节知识点
 
-- 图论
 - 中心性与声望
-- 结构平衡和传递性 （略）
+- 结构平衡和传递性
 - 凝聚子群
-- 结构等价 （略）
+- 结构等价
 
-## 子图
 
-- 子图：若$G_{s} = (N_{s}, L_{s})$，且$N_{S} \subset N$、$L_{s} \subset L$，那么$G_{s}$是$G$的子图
-  - 点导出子图
-  - 边导出子图
-- 二元图：包含两个节点的点导出子图
-- 三元图：包含三个节点的点导出子图
 
 ## 中心性与声望
 
@@ -354,9 +436,11 @@ g.pa %>% plot(circular = T)
 
 无向关系的社会网络中，主要的三种中心性度量：
 
-- 度中心性
-- 接近中心性
-- 中介中心性
+- 度中心性（degree centrality）
+
+- 接近中心性（closeness centrality）
+
+- 中介中心性（betweenness centrality）
 
 ## 特殊网络
 
@@ -443,7 +527,7 @@ pandoc.table(cd, caption = "Degree centrality for four graphs")
 
 ## 接近中心性（续）
 
-首先，得到最大联通子图$G'$。可以看到，欧阳锋、杨过和段智兴（节点7-9）被排除在最大连通子图之外。
+首先，得到最大连通子图$G'$。可以看到，欧阳锋、杨过和段智兴（节点7-9）被排除在最大连通子图之外。
 
 ```{r, fig.align='center', fig.height=4.5}
 
@@ -536,6 +620,19 @@ pandoc.table(cb, digits = 2, caption = "A comparison of centralities for condor-
 
 ```
 
+## 有向图的中心性度量
+
+三种中心性度量是否可以扩展到有向图的情形？
+
+- 度中心性（degree centrality）：容易扩展
+\begin{equation*}
+  C_{D}(n_{i}) = \frac{d^{in}(n_{i})}{g - 1}
+\end{equation*}
+- 接近中心性（closeness centrality）：有所限制
+\begin{equation*}
+  C_{C}(n_{i}) = \frac{g - 1}{\sum_{j = 1}^{g} d(n_{i}, n_{j})}.
+\end{equation*}
+- 中介中心性（betweenness centrality）：难以扩展
 
 ## 声望
 
