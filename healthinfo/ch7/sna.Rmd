@@ -414,9 +414,9 @@ g.pa %>% plot(circular = T)
 ## 本节知识点
 
 - 中心性与声望
-- 结构平衡和传递性
+- 结构平衡和传递性（略）
 - 凝聚子群
-- 结构等价
+- 结构等价（略）
 
 
 
@@ -622,17 +622,18 @@ pandoc.table(cb, digits = 2, caption = "A comparison of centralities for condor-
 
 ## 有向图的中心性度量
 
-三种中心性度量是否可以扩展到有向图的情形？
-
-- 度中心性（degree centrality）：容易扩展
+- 度中心性（degree centrality）
 \begin{equation*}
   C_{D}(n_{i}) = \frac{d^{in}(n_{i})}{g - 1}
 \end{equation*}
-- 接近中心性（closeness centrality）：有所限制
+- 接近中心性（closeness centrality）
 \begin{equation*}
   C_{C}(n_{i}) = \frac{g - 1}{\sum_{j = 1}^{g} d(n_{i}, n_{j})}.
 \end{equation*}
-- 中介中心性（betweenness centrality）：难以扩展
+- 中介中心性（betweenness centrality）：分母乘以2
+\begin{equation*}
+  C_{B}(n_{i}) = \frac{\sum_{j \leq k} g_{jk}(n_{i}) / g_{jk}}{(g - 1)(g - 2)}.
+\end{equation*}
 
 ## 声望
 
@@ -641,6 +642,90 @@ pandoc.table(cb, digits = 2, caption = "A comparison of centralities for condor-
 - 度数声望
 - 邻近声望
 - 地位或等级声望
+
+## 中心性与市场策略
+
+智能穿戴设备可以用作：
+
+- 慢性病管理
+- 生活与运动习惯监测
+
+大多数智能手环、智能手表等产品销售状况并不理想。在市场营销中，为了促进新产品的扩散，企业可能采用“product seeding program”，亦即：
+
+- 选取意见领袖作为“种子客户”，免费向其提供新产品，以期这些“种子客户”能够通过口碑效应，促进新产品的扩散。
+
+
+## 智能穿戴设备扩散模型
+
+
+对于任意行动者$i$，购买智能穿戴设备的决策受到两个途径的影响：
+
+- 大众传播：广告等途径，全局效果
+- 口碑传播：个体之间传播，局部效果
+
+## 智能穿戴设备扩散模型（续）
+
+
+如果第$t - 1$期末行动者$i$尚未购买智能穿戴设备，那么他在第$i$期购买智能穿戴设备的概率是：
+
+\begin{equation}
+  \text{prob}_{it} = 1 - (1 - p) \times (1 - q) ^ {m_{it}},
+\end{equation}
+
+其中：
+
+- $p$：创新系数，用以刻画大众传播
+- $q$：模仿系数，用以刻画口碑传播
+- $m_{it}$：在第$t - 1$期末，与行动者$i$直接相连的行动者中，已经购买了智能穿戴设备的数量
+
+## 智能穿戴设备扩散模型（续）
+
+如果行动者$i$在第$t$期购买了智能穿戴设备，则记作$y_{it} = 1$；否则，记作记作$y_{it} = 0$。所以，每期的销售量为：
+
+\begin{equation}
+  \text{sales}_{t} = \sum_{i} y_{it}.
+\end{equation}
+
+进一步，考虑到货币的时间价值，可以通过折现率$r$来计算企业通过销售智能穿戴设备获得的收益净现值：
+
+\begin{equation}
+  \text{npv} = \sum_{t} \frac{\text{sales}_{t}}{(1 + r)^{t}}.
+\end{equation}
+
+## 仿真模型及分析
+
+根据以上仿真模型，模拟智能穿戴设备的扩散过程。
+
+在5000个潜在客户中选取10个作为“种子客户”，并考虑三种策略：
+
+- 选择度中心性最大的10位
+- 选择接近中心性最大的10位
+- 选择中介中心性最大的10位
+
+模型的代码及实现请参阅：
+
+- [cases/case-diffusion.Rmd](https://github.com/wuhsiang/Courses/tree/master/healthinfo/cases)
+
+## 智能穿戴设备扩散曲线
+
+![产品扩散曲线](figures/diffusion.png){width=75%}
+
+## 智能穿戴设备销售净现值
+
+
+相应地得到销售净现值如下：
+
+```{r}
+
+# npv
+npv <- c(3443, 3446, 3459, 3400)
+names(npv) <- c("normal", "dc", "cc", "bc")
+print(npv)
+
+```
+
+考虑到免费向10位客户提供了智能穿戴产品，策略二是有效果的。
+
 
 ## 网络属性
 
