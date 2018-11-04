@@ -434,9 +434,11 @@ g.pa %>% plot(circular = T)
 
 ## 中心性度量
 
-无向关系的社会网络中，主要的三种中心性度量：
+无向关系的社会网络中，主要的几种中心性度量：
 
 - 度中心性（degree centrality）
+
+- 特征向量中心性（eigenvector centrality）
 
 - 接近中心性（closeness centrality）
 
@@ -507,6 +509,69 @@ colnames(cd) <- c("star", "ring", "line", "condor-heros")
 pandoc.table(cd, caption = "Degree centrality for four graphs")
 
 ```
+
+## 特征向量中心性
+
+特征向量中心性（eigenvector centrality）的测量逻辑：
+
+- 如果某个行动者邻居大多是中心行动者，那么他就是中心行动者
+- 中心性不仅取决于认识多少人，还取决于认识的人是否重要
+
+图$G$的邻接矩阵为$A$，
+\begin{equation*}
+  A v = \lambda v,
+\end{equation*}
+其中$\lambda$为特征值，$v$为特征向量。
+
+特征向量中心性$C_{e}(n_{i})$定义为**最大特征值**对应的特征向量。
+
+```{r}
+
+# calculate adjacency matrix
+a.condorheros <- g.condorheros %>% as_adjacency_matrix(sparse = F)
+# calculate eigvalues
+eigmax <- eigen(a.condorheros)$`values`[1]
+eigvec <- eigen(a.condorheros)$vectors[, 1]
+
+```
+
+## 特征向量中心性（续）
+
+\begin{columns}
+\begin{column}{0.58\textwidth}
+
+在图$G$中，最大特征值为`r eigmax`。
+
+对应的特征向量为
+$C_{e}(n_{i}) = c(0.37, 0.51, 0.2, 0.32, 0.6, 0.32, 0, 0, 0)$。
+
+\end{column}
+\begin{column}{0.4\textwidth}
+ \includegraphics[width=1.2\textwidth]{figures/condorheros.png}
+\end{column}
+\end{columns}
+
+## 特征向量中心性（续）
+
+```{r, results = 'asis'}
+
+ce <- cbind(eigen_centrality(g.star, scale = T)$vector, eigen_centrality(g.ring, scale = T)$vector, eigen_centrality(g.line, scale = T)$vector, eigen_centrality(g.condorheros, scale = T)$vector)
+colnames(ce) <- c("star", "ring", "line", "condor-heros")
+pandoc.table(ce, digits = 2, caption = "Eiggenvector centrality for four graphs")
+
+```
+
+## PageRank
+
+Google搜索引擎
+
+- 采用PageRank来度量网页的中心性
+- 在检索时，和查询相匹配且PageRank值高的网页将最先显示
+
+PageRank在特征中心性的基础上作了修正：
+
+- 中心节点在传递其中心性时，考虑其度（有向图中，则是出度）
+- 每个邻居获取其中心性的一部分（除以节点度）
 
 ## 接近中心性
 
@@ -614,34 +679,20 @@ pandoc.table(cb, digits = 2, caption = "Betweenness centrality for four graphs")
 
 ```{r, results = 'asis'}
 
-cb <- cbind(degree(g.condorheros,  normalized = T), c(closeness(g.ch.m, normalized = T), rep(0, 3)), betweenness(g.condorheros,  normalized = T))
-colnames(cb) <- c("degree", "closeness", "betweenness")
+cb <- cbind(degree(g.condorheros,  normalized = T), eigen_centrality(g.condorheros, scale = T)$vector, c(closeness(g.ch.m, normalized = T), rep(0, 3)), betweenness(g.condorheros,  normalized = T))
+colnames(cb) <- c("degree", "eigen_centrality", "closeness", "betweenness")
 pandoc.table(cb, digits = 2, caption = "A comparison of centralities for condor-heros network")
 
 ```
 
-## 有向图的中心性度量
-
-- 度中心性（degree centrality）
-\begin{equation*}
-  C_{D}(n_{i}) = \frac{d^{in}(n_{i})}{g - 1}
-\end{equation*}
-- 接近中心性（closeness centrality）
-\begin{equation*}
-  C_{C}(n_{i}) = \frac{g - 1}{\sum_{j = 1}^{g} d(n_{i}, n_{j})}.
-\end{equation*}
-- 中介中心性（betweenness centrality）：分母乘以2
-\begin{equation*}
-  C_{B}(n_{i}) = \frac{\sum_{j \leq k} g_{jk}(n_{i}) / g_{jk}}{(g - 1)(g - 2)}.
-\end{equation*}
 
 ## 声望
 
 有向关系的社会网络中，主要的三种声望测量：
 
-- 度数声望
-- 邻近声望
-- 地位或等级声望
+- 度数声望（类似于度中心性）
+- 邻近声望（类似于接近中心性）
+- 地位或等级声望（类似于特征向量中心性）
 
 ## 中心性与市场策略
 
@@ -699,6 +750,7 @@ pandoc.table(cb, digits = 2, caption = "A comparison of centralities for condor-
 在5000个潜在客户中选取10个作为“种子客户”，并考虑三种策略：
 
 - 选择度中心性最大的10位
+- 选择特征向量中心性最大的10位
 - 选择接近中心性最大的10位
 - 选择中介中心性最大的10位
 
@@ -718,13 +770,18 @@ pandoc.table(cb, digits = 2, caption = "A comparison of centralities for condor-
 ```{r}
 
 # npv
-npv <- c(3443, 3446, 3459, 3400)
-names(npv) <- c("normal", "dc", "cc", "bc")
+npv <- c(3443, 3446, 3442, 3417, 3460)
+names(npv) <- c("normal", "dc", "ec", "cc", "bc")
 print(npv)
 
 ```
 
-考虑到免费向10位客户提供了智能穿戴产品，策略二是有效果的。
+考虑到免费向10位客户提供了智能穿戴产品，策略四是有效果的。
+
+注：需要多次重复（repeat = 30）求平均值
+
+
+## 凝聚子群
 
 
 ## 网络属性
@@ -732,8 +789,6 @@ print(npv)
 - 度分布
 - 聚类系数
 - 平均路径长度
-
-## 凝聚子群
 
 # 案例（2个课时）
 

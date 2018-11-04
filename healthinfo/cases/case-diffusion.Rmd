@@ -1,8 +1,9 @@
 ---
-title: "案例：中心性与新产品扩散"
+title: "案例：意见领袖与智能穿戴设备扩散"
 author: "吴翔"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document: default
 ---
 
 ```{r setup, include = FALSE}
@@ -33,6 +34,10 @@ options(digits = 3)
 而今智能手环、智能手表等产品已经非常丰富，然而大多数产品的销售状况并不理想。在市场营销中，为了促进新产品的扩散，企业可能采用“product seeding program”，亦即：
 
 > 选取意见领袖作为“种子客户”，免费向其提供新产品，以期这些“种子客户”能够通过口碑效应，促进新产品的扩散。
+
+然而，社会网络中的哪些客户是“意见领袖”呢？
+
+我们求诸节点中心性。
 
 ## 研究思路
 
@@ -67,6 +72,8 @@ options(digits = 3)
 
 ## 正常产品扩散情形
 
+我们首先搭建仿真模型，以模拟该新型智能穿戴设备在投放市场之后的扩散过程。
+
 ### 创建并初始化社会网络
 
 ```{r}
@@ -99,9 +106,12 @@ setattr <- function(g, seeds = NULL) {
 ```
 
 
-
 ### 新产品扩散机制
 
+智能穿戴设备的扩散过程中：
+
+- 行动者之间是相互沟通和影响的
+- 影响模式由以上公式刻画
 
 ```{r}
 
@@ -170,6 +180,7 @@ npv <- function(sales, discount.rate = 0.05) {
 
 ### 新产品销售量
 
+我们根据以上仿真模型，计算该智能穿戴设备的销售量。
 
 ```{r}
 
@@ -186,8 +197,12 @@ ggplot(sales.base, aes(x = t, y = basesales)) + geom_line() + labs(caption = "Sa
 
 ```
 
+同时可以看到，总销售量为`r sum(sales.base$basesales)`。
+
+
 ### 净现值
 
+考虑到货币的时间价值（2017年的1000元比2018年的1000元人民币更值钱：通货膨胀），我们计算销售额的净现值。
 
 ```{r}
 
@@ -200,6 +215,8 @@ npvvec
 
 
 ## 营销策略及结果
+
+我们依次考虑四种营销策略。
 
 ### 度中心性
 
@@ -226,7 +243,7 @@ dc[seeds.dc]
 
 ```
 
-可以看到，以上“种子客户”的度都大约在20左右。
+可以看到，以上“种子客户”的度（未归一化）都大约在20左右。
 
 ```{r}
 
@@ -256,12 +273,82 @@ ggplot(illust.dat, aes(x = t, y = adopters, linetype = type)) + geom_line() + la
 
 ```
 
+可以看到，总销售量为`r sum(sales.dc)`。
 
 ```{r}
 
 # calculate and compare NPV
 npv.dc <- npv(sales.dc)
 npvvec <- cbind(npvvec, npv.dc)
+npvvec
+
+```
+
+
+### 特征向量中心性
+
+首先，我们计算节点的特征向量中心性，并绘制特征向量中心性的分布图。
+
+```{r}
+
+# calculate eigenvector centrality
+ec <- eigen_centrality(g, scale = T)$vector
+# distribution of ec
+data.frame(ec = ec) %>% ggplot(aes(x = ec)) + geom_histogram(binwidth = 5e-3) + theme_bw()
+
+```
+
+进而，我们选取`r n * 0.002`个特征向量中心性最大的行动者（即消费者）作为“种子客户”，免费向其提供智能穿戴产品。
+
+```{r}
+
+# select 2/1000 actors as seeds
+seeds.ec <- order(ec, decreasing = T)[1:seedsize]
+# print the cc of these seeds
+ec[seeds.ec]
+
+```
+
+
+```{r}
+
+# set attributes
+g.ec <- setattr(g, seeds = seeds.ec)
+# diffusion process
+g.ec <- iteration(g.ec)
+# obtain the sales
+sales.ec <- graph_attr(g.ec, "adopters")[[1]]
+
+# create a data frame
+t <- 1:max(length(sales.base$basesales), length(sales.dc), length(sales.ec))
+# adding zeros
+addzeros <- function(x, tmax) {
+  if (length(x) < tmax) {
+    # adding zeros
+    x <- c(x, rep(0, tmax - length(x)))
+  }
+  # return
+  return(x)
+}
+# apply for two vectors
+illust.dat <- data.frame(t,
+                         normal = addzeros(sales.base$basesales, length(t)),
+                         dc = addzeros(sales.dc, length(t)),
+                         ec = addzeros(sales.ec, length(t)))
+illust.dat <- gather(illust.dat, "type", "adopters", 2:4)
+# plot the results
+ggplot(illust.dat, aes(x = t, y = adopters, linetype = type)) + geom_line() + labs(caption = "Sales over periods for the new wearable device") + theme_bw()
+
+```
+
+
+可以看到，总销售量为`r sum(sales.ec)`。
+
+```{r}
+
+# calculate and compare NPV
+npv.ec <- npv(sales.ec)
+npvvec <- cbind(npvvec, npv.ec)
 npvvec
 
 ```
@@ -301,7 +388,7 @@ g.cc <- iteration(g.cc)
 sales.cc <- graph_attr(g.cc, "adopters")[[1]]
 
 # create a data frame
-t <- 1:max(length(sales.base$basesales), length(sales.dc), length(sales.cc))
+t <- 1:max(length(sales.base$basesales), length(sales.dc), length(sales.ec), length(sales.cc))
 # adding zeros
 addzeros <- function(x, tmax) {
   if (length(x) < tmax) {
@@ -315,15 +402,16 @@ addzeros <- function(x, tmax) {
 illust.dat <- data.frame(t,
                          normal = addzeros(sales.base$basesales, length(t)),
                          dc = addzeros(sales.dc, length(t)),
+                         ec = addzeros(sales.ec, length(t)),
                          cc = addzeros(sales.cc, length(t)))
-illust.dat <- gather(illust.dat, "type", "adopters", 2:4)
+illust.dat <- gather(illust.dat, "type", "adopters", 2:5)
 # plot the results
 ggplot(illust.dat, aes(x = t, y = adopters, linetype = type)) + geom_line() + labs(caption = "Sales over periods for the new wearable device") + theme_bw()
 
 ```
 
 
-
+可以看到，总销售量为`r sum(sales.cc)`。
 
 ```{r}
 
@@ -369,7 +457,7 @@ g.bc <- iteration(g.bc)
 sales.bc <- graph_attr(g.bc, "adopters")[[1]]
 
 # create a data frame
-t <- 1:max(length(sales.base$basesales), length(sales.dc), length(sales.cc), length(sales.bc))
+t <- 1:max(length(sales.base$basesales), length(sales.dc), length(sales.ec), length(sales.cc), length(sales.bc))
 # adding zeros
 addzeros <- function(x, tmax) {
   if (length(x) < tmax) {
@@ -383,16 +471,20 @@ addzeros <- function(x, tmax) {
 illust.dat <- data.frame(t,
                          normal = addzeros(sales.base$basesales, length(t)),
                          dc = addzeros(sales.dc, length(t)),
+                         ec = addzeros(sales.ec, length(t)),
                          cc = addzeros(sales.cc, length(t)),
                          bc = addzeros(sales.bc, length(t)))
-illust.dat <- gather(illust.dat, "type", "adopters", 2:5)
+illust.dat <- gather(illust.dat, "type", "adopters", 2:6)
 # plot the results
 ggplot(illust.dat, aes(x = t, y = adopters, linetype = type)) + geom_line() + labs(caption = "Sales over periods for the new wearable device") + theme_bw()
 
 ```
 
 
+可以看到，总销售量为`r sum(sales.bc)`。
 
+
+最后，我们可以比较四种策略下的销售额净现值。
 
 ```{r}
 
