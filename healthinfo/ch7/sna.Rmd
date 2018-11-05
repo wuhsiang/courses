@@ -3,7 +3,7 @@ title: 第七章 社会网络分析
 author:
  - 授课教师：吴翔 \newline
  - 邮箱：wuhsiang@hust.edu.cn
-date: "2018年11月2日"
+date: "2018.11.2 - 2018.11.7"
 linestretch: 1.25
 fontsize: 16
 bibliography: ref.bib
@@ -413,14 +413,13 @@ g.pa %>% plot(circular = T)
 
 ## 本节知识点
 
-- 中心性与声望
-- 结构平衡和传递性（略）
-- 凝聚子群
-- 结构等价（略）
+- 中心性与声望 （行动者层级）
 
+- 凝聚子群 （子群层级）
 
+- 评估网络属性 （网络层级）
 
-## 中心性与声望
+## 7.2.1 中心性与声望
 
 - 基本问题：如何识别社会网络中“**最重要的**”角色？
 - 中心性测度的**有效性**
@@ -781,28 +780,188 @@ print(npv)
 注：需要多次重复（repeat = 30）求平均值
 
 
-## 凝聚子群
+## 7.2.2 凝聚子群
+
+社会网络的分析层次
+
+- 行动者：中心性与声望
+
+- 子群：凝聚子群
+
+- 网络：评估网络属性
 
 
-## 网络属性
+## 理论背景
 
-- 度分布
-- 聚类系数
-- 平均路径长度
+社会群体理论
+
+- 结构化凝聚
+
+  - 假设：两个人存在正向互动时，存在趋向一致的压力
+
+  - 例子：党同伐异
+
+- 同质性
+
+  - 社会规范：凝聚导致同质性
+
+  - 个体选择：个体选择加入与自己类似的群体
+
+## 社会群体理念
+
+如何概念化社会群体？
+
+- 联系的交互性
+
+- 子群成员的接近度或可及性
+
+- 成员间联系的频率
+
+- 与非成员相比，子群成员联系的相对频率
+
+## 凝聚子群分析方法
+
+- 基于完全交互性
+
+- 基于可及性和直径
+
+- 基于节点度
+
+- 凝聚程度的度量
+
+## 空手道俱乐部网络
+
+考虑分裂为两个派别的空手道俱乐部网络`karate`，两派领导为Mr Hi和John A。
+
+```{r, fig.align = 'center', fig.height = 6}
+
+# clean the working directory
+rm(list = ls())
+suppressMessages(library(sand))
+suppressMessages(library(pander))
+suppressMessages(library(magrittr))
+suppressMessages(library(igraph))
+data(karate)
+set.seed(123)
+
+# plot karate
+plot(karate, layout = layout.kamada.kawai(karate))
+
+```
+
+## 网络布局
+
+```{r, fig.align = 'center', fig.height = 10, eval = F}
+
+# get adjacency matrix
+A <- as_adjacency_matrix(karate, sparse = F)
+g <- network::as.network.matrix(A)
+par(mfrow = c(1, 2))
+sna::gplot.target(g, degree(g), circ.lab = F, circ.col = "blue", usearrows = F, edge.col = "darkgray")
+sna::gplot.target(g, closeness(g), circ.lab = F, circ.col = "blue", usearrows = F, edge.col = "darkgray")
+
+```
+
+## 基于完全交互性
+
+团（clique）
+
+- 社会学含义：在友谊选择中，由那些彼此相互选择的人们构成的，并且包含了所有与全体子群成员相互选择的人
+
+- 图论定义：节点个数$g_{s} \geq 3$的最大**完全**子图
+
+## 团
+
+```{r, results='asis', echo = T}
+
+# summary of cliques
+table(sapply(cliques(karate), length)) %>% pandoc.table()
+# cliques with size = 5
+cliques(karate)[sapply(cliques(karate), length) == 5][[1]]
+
+```
+
+## 团（续）
+
+
+```{r}
+
+# obtain two cliques
+cl5 <- cliques(karate)[sapply(cliques(karate), length) == 5]
+# plot these two cliques
+par(mfrow = c(1, 2))
+karate %>% induced_subgraph(cl5[[1]]) %>% plot()
+karate %>% induced_subgraph(cl5[[2]]) %>% plot()
+
+```
+
+## 基于可及性和直径
+
+## $n$-团
+
+```{r, eval = F}
+
+# create a graph for example
+graph_from_literal(1-2, 1-3, 2-3, 2-4, 3-5, 4-6, 5-6) %>% plot(circular = F)
+
+```
+
+\begin{columns}
+\begin{column}{0.58\textwidth}
+
+
+
+\end{column}
+\begin{column}{0.4\textwidth}
+ \includegraphics[width=1.2\textwidth]{figures/cliqueexample.png}
+\end{column}
+\end{columns}
+
+
+## 基于节点度
+
+## 凝聚程度的度量
+
+## 7.2.3 评估网络属性
+
+真实网络的属性：
+
+- 度分布：幂律
+
+- 聚类系数：较高
+
+- 平均路径长度：较短
+
+## 随机网络
+
+
+
+## 小世界网络
+
+
+## 优先连接网络
+
+
+## 典型网络的属性比较
+
 
 # 案例（2个课时）
+
+
+
 
 ## 本节知识点
 
 - SNA与文献分析
+
 - SNA与健康行为分析
 
-## 医学领域案例：文献分析
+## 7.3.1 医学领域案例：文献分析
 
 - 李杰. CiteSpace中文版指南. http://cluster.ischool.drexel.edu/~cchen/citespace/manual/CiteSpaceChinese.pdf[EB/OL][2018-09-05].2015.
 
 
-## 医学领域案例：行为分析
+## 7.3.2 医学领域案例：行为分析
 
 
 ## 参考文献
