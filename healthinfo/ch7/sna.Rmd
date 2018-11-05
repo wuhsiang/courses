@@ -829,6 +829,8 @@ print(npv)
 
 - 凝聚程度的度量
 
+- 图分割与层次聚类
+
 ## 空手道俱乐部网络
 
 考虑分裂为两个派别的空手道俱乐部网络`karate`，两派领导为Mr Hi和John A。
@@ -849,18 +851,6 @@ plot(karate, layout = layout.kamada.kawai(karate))
 
 ```
 
-## 网络布局
-
-```{r, fig.align = 'center', fig.height = 10, eval = F}
-
-# get adjacency matrix
-A <- as_adjacency_matrix(karate, sparse = F)
-g <- network::as.network.matrix(A)
-par(mfrow = c(1, 2))
-sna::gplot.target(g, degree(g), circ.lab = F, circ.col = "blue", usearrows = F, edge.col = "darkgray")
-sna::gplot.target(g, closeness(g), circ.lab = F, circ.col = "blue", usearrows = F, edge.col = "darkgray")
-
-```
 
 ## 基于完全交互性
 
@@ -895,7 +885,30 @@ karate %>% induced_subgraph(cl5[[2]]) %>% plot()
 
 ```
 
+## 团（续）
+
+缺点：
+
+- 定义过于严格
+  - 任意一个联系缺失，则无法成团
+  - 现实例子非常少
+- 团之间不存在内在的区别
+  - 在图论意义上，都是完全子图
+  - 无法探究团的特性带来的影响
+
+改进：
+
+- 放松其定义，使其在理论和应用上更加有用
+
 ## 基于可及性和直径
+
+基于可及性，可以定义$n$-团
+
+- 基本假定
+  - 重要的社会过程可以通过中间人发生
+  - 子群成员间的距离是最短的
+- 定义
+  - 在图$G$中，子图中任意节点距离$d(n_{i}, n_{j}) \leq n$
 
 ## $n$-团
 
@@ -909,7 +922,19 @@ graph_from_literal(1-2, 1-3, 2-3, 2-4, 3-5, 4-6, 5-6) %>% plot(circular = F)
 \begin{columns}
 \begin{column}{0.58\textwidth}
 
+右图的2-团包括：
 
+\begin{itemize}
+  \item {1, 2, 3, 4, 5}
+  \item {2, 3, 4, 5, 6}
+\end{itemize}
+
+缺陷:
+
+\begin{itemize}
+  \item 节点4和5的最短路径包含了节点6
+  \item 节点6不在子群中
+\end{itemize}
 
 \end{column}
 \begin{column}{0.4\textwidth}
@@ -917,10 +942,130 @@ graph_from_literal(1-2, 1-3, 2-3, 2-4, 3-5, 4-6, 5-6) %>% plot(circular = F)
 \end{column}
 \end{columns}
 
+## $n$-族和$n$-社
+
+例子：
+
+- 星形网络中，除去中心节点外其它节点组成了2-团
+
+反思：
+
+- $n$-团作为子图，其直径可能大于$n$
+- $n$-团可能是非连通的
+- $n$-团未能达到我们希望的凝聚程度
+
+改进：
+
+- $n$-族：在子图$G_{s}$中，任意节点距离$d(n_{i}, n_{j}) \leq n$
+- $n$-社：直径为$n$的最大子图
+
+## $n$-族和$n$-社（续）
+
+\begin{columns}
+\begin{column}{0.58\textwidth}
+
+右图的2-团包括：
+
+\begin{itemize}
+  \item {1, 2, 3, 4, 5}
+  \item {2, 3, 4, 5, 6}
+\end{itemize}
+
+右图的2-族包括：
+
+\begin{itemize}
+  \item {2, 3, 4, 5, 6}
+\end{itemize}
+
+右图的2-社包括：
+
+\begin{itemize}
+  \item {1, 2, 3, 4}
+  \item {1, 2, 3, 5}
+  \item {2, 3, 4, 5, 6}
+\end{itemize}
+
+\end{column}
+\begin{column}{0.4\textwidth}
+ \includegraphics[width=1.2\textwidth]{figures/cliqueexample.png}
+\end{column}
+\end{columns}
 
 ## 基于节点度
 
+基本假定的适用性：
+
+- 可及性：重要的社会过程可以通过中间人发生（信息与资源传播）
+- 邻接性：重要的社会过程需要直接接触（团体内的知识学习）
+
+基于节点度的子群：
+
+- 基本假定：行动者与子群内相当数量的成员相邻接
+- 现实含义：多重冗余的沟通渠道，子图的“脆弱性”问题（星形网络）
+- $k$-丛（$k$-plex）：子图$G_{s}$中$d_{s}(n_{i}) \geq g_{s} - k$
+- $k$-核（$k$-core）：子图$G_{s}$中$d_{s}(n_{i}) \geq k$
+
+## $k$-核与可视化
+
+核数（coreness）为1（黑色）、2（红色）、3（绿色）、4（蓝色）
+
+```{r, fig.align = 'center', fig.height = 6}
+
+# calculate cores
+cores <- graph.coreness(karate)
+# get adjacency matrix
+A <- as_adjacency_matrix(karate, sparse = F)
+g <- network::as.network.matrix(A)
+# plot the graph
+suppressMessages(library(sna))
+sna::gplot.target(g, cores, circ.lab = F, circ.col = "skyblue",
+                  usearrows = F, vertex.col = cores, edge.col = "darkgray")
+
+
+```
+
 ## 凝聚程度的度量
+
+
+度量的思路：
+
+- 内外联系的比较
+  - 子群内联系集中
+  - 子群内外联系的强度或频率较大
+
+- 健壮的连通性
+  - 凝聚子群在连通性方面是健壮的（有益的冗余）
+  - 移除一定数量的边之后，子群依然是连通的
+
+
+## 图分割与层次聚类
+
+```{r}
+
+# clustering
+kc <- cluster_fast_greedy(karate)
+
+```
+
+对空手道俱乐部网络进行层次聚类，发现`r length(kc)`个社团（communities），其大小分别为`r sizes(kc)[1]`、`r sizes(kc)[2]`和`r sizes(kc)[3]`。
+
+```{r, fig.align = 'center', fig.height = 6}
+
+# plot these communities
+plot(kc, karate)
+
+```
+
+## 图分割与层次聚类（续）
+
+采用树状图展示：
+
+```{r, fig.align = 'center', fig.height = 6}
+
+suppressMessages(library(ape))
+dendPlot(kc, mode = "phylo")
+
+```
 
 ## 7.2.3 评估网络属性
 
