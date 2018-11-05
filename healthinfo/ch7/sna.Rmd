@@ -19,7 +19,7 @@ output:
 
 ```{r setup, include = FALSE}
 
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 options(digits = 2)
 
 ```
@@ -1018,7 +1018,7 @@ A <- as_adjacency_matrix(karate, sparse = F)
 g <- network::as.network.matrix(A)
 # plot the graph
 suppressMessages(library(sna))
-sna::gplot.target(g, cores, circ.lab = F, circ.col = "skyblue",
+sna::gplot.target(g, cores, circ.col = "skyblue",
                   usearrows = F, vertex.col = cores, edge.col = "darkgray")
 
 
@@ -1077,17 +1077,198 @@ dendPlot(kc, mode = "phylo")
 
 - 平均路径长度：较短
 
+
+## 度分布
+
+
+真实网络的节点度通常满足**幂律分布**，即度为$k$的节点在网络中的比例为
+
+\begin{equation}
+  p_{k} = a k^{-b}
+\end{equation}
+
+或者得到
+
+\begin{equation}
+  \text{ln}(p_{k}) = -b \text{ln}(k) + \text{ln} (a).
+\end{equation}
+
+符合幂律分布的网络称之为**无标度网络**。
+
+## 聚类系数
+
+聚类系数（clustering coefficient）定义为
+
+\begin{equation}
+  cl_{T}(G) = \frac{3 \tau_{\Delta}(G)}{\tau_{3}(G)},
+\end{equation}
+其中$\tau_{\Delta}(G)$是图$G$中三角形的个数，而$\tau_{3}(G)$为连通的三元组（即由两条边连接的三个节点，亦即2-star网络）的个数。
+
+聚类系数衡量了“传递三元组”的比例。
+
+## 平均路径长度
+
+平均路径长度为
+
+\begin{equation}
+  \bar{d} = \frac{\sum_{i \neq j} d(n_{i}, n_{j})}{2 L}.
+\end{equation}
+
+真实网络的平均路径长度大多在4-6之间。
+
+## 真实网络案例
+
+```{r, fig.align = 'center', fig.height = 8}
+
+rm(list = ls())
+detach("package:sna")
+detach("package:network")
+suppressMessages(library(sand))
+suppressMessages(library(igraph))
+suppressMessages(library(ggplot2))
+suppressMessages(library(dplyr))
+suppressMessages(library(pander))
+data("fblog") 
+fblog <- fblog %>% upgrade_graph()
+plot(fblog)
+
+```
+
+## 度分布
+
+法国的博客网络`fblog`，包含`r length(V(fblog))`个节点和`r length(E(fblog))`条边。
+
+```{r, fig.align = 'center', fig.height = 4.5}
+
+# calculate degree
+dc <- degree(fblog)
+u <- table(dc) %>% as.data.frame() %>% 
+  within({
+    dc <- dc %>% as.character() %>% as.numeric() %>% log();
+    Freq <- log(Freq / 192)
+  }
+  )
+# plot
+u %>% ggplot(aes(x = dc, y = Freq)) + geom_point(shape = 1) + geom_smooth(method=lm) + theme_bw()
+
+```
+
+## 估计幂律指数
+
+```{r, results = 'asis'}
+
+suppressMessages(library(stargazer))
+fit <- lm(Freq ~ dc, data = u) 
+stargazer(fit, type = "latex", report = "vc*")
+
+```
+
+
+## 主要参数
+
+我们计算三个主要参数：
+
+- 平均度
+- 平均聚类系数
+- 平均路径长度
+
+```{r, results = 'asis'}
+
+# calculate these parameters
+fblog.stat <- c(fblog %>% degree() %>% mean(), transitivity(fblog), mean_distance(fblog))
+names(fblog.stat) <- c("degree", "clustering coefficient", "distance")
+pandoc.table(fblog.stat)
+
+```
+
 ## 随机网络
 
+设置$n = 192$，$p = 15 / 192 = 0.078$，创建随机网络。
 
+进而计算三个主要参数。
+
+```{r, results = 'asis'}
+
+# create a random graph
+g.random <- erdos.renyi.game(n = 192, p = 0.078)
+# calculate these parameters
+grandom.stat <- c(g.random  %>% degree() %>% mean(), transitivity(g.random), mean_distance(g.random))
+names(grandom.stat) <- c("degree", "clustering coefficient", "distance")
+pandoc.table(grandom.stat)
+
+
+```
+
+随机网络：
+
+- 度不是幂律分布
+- 聚类系数过低
 
 ## 小世界网络
+
+设置$n = 192$，重链概率$p = 15 / 192 = 0.078$，创建小世界网络。
+
+进而计算三个主要参数。
+
+```{r, results = 'asis'}
+
+# create a random graph
+g.sw <- sample_smallworld(1, size = 192, nei = 8, p = 0.078)
+# calculate these parameters
+gsw.stat <- c(g.sw  %>% degree() %>% mean(), transitivity(g.sw), mean_distance(g.sw))
+names(gsw.stat) <- c("degree", "clustering coefficient", "distance")
+pandoc.table(gsw.stat)
+
+
+```
+
+小世界网络：
+
+- 度不是幂律分布
 
 
 ## 优先连接网络
 
+设置$n = 192$，幂律指数$b = 0.79$，创建小世界网络。
+
+进而计算三个主要参数。
+
+```{r, results = 'asis'}
+
+# create a random graph
+g.pa <- sample_pa(n = 192, power = 0.79, m = 8, zero.appeal = 1, directed = F)
+# calculate these parameters
+gpa.stat <- c(g.pa  %>% degree() %>% mean(), transitivity(g.pa), mean_distance(g.pa))
+names(gpa.stat) <- c("degree", "clustering coefficient", "distance")
+pandoc.table(gpa.stat)
+
+
+```
+
+优先连接网络：
+
+- 聚类系数过低
+
 
 ## 典型网络的属性比较
+
+我们最后比较典型网络的主要属性：
+
+```{r, results = 'asis'}
+
+mstat <- cbind(c(fblog %>% degree() %>% mean(), transitivity(fblog), mean_distance(fblog)), 
+      c(g.random  %>% degree() %>% mean(), transitivity(g.random), mean_distance(g.random)),
+      c(g.sw  %>% degree() %>% mean(), transitivity(g.sw), mean_distance(g.sw)),
+      c(g.pa  %>% degree() %>% mean(), transitivity(g.pa), mean_distance(g.pa)))
+
+mstat <- matrix(mstat, nrow = 3) %>% t() %>% 
+  as.data.frame()
+colnames(mstat) <- c("degree", "clustering coefficient", "distance")
+rownames(mstat) <- c("fblog", "random", "sw", "pa")
+pandoc.table(mstat, digits = 2)
+
+
+```
 
 
 # 案例（2个课时）
