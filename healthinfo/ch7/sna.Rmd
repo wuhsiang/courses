@@ -1281,7 +1281,11 @@ pandoc.table(mstat, digits = 2)
 
 ## 7.3.1 医学领域案例：文献分析
 
-- 李杰. CiteSpace中文版指南. http://cluster.ischool.drexel.edu/~cchen/citespace/manual/CiteSpaceChinese.pdf[EB/OL][2018-09-05].2015.
+- [CiteSpace中文版指南](https://github.com/wuhsiang/Courses/blob/master/healthinfo/resources/CiteSpace-Guide.pdf)
+
+- [CiteSpace讲义](https://github.com/wuhsiang/Courses/tree/master/healthinfo/resources/CiteSpace-itpcas.pdf)
 
 
 ## 7.3.2 医学领域案例：行为分析
+
+- [孟加拉国Dhaka城市贫民社区中青年的精神健康问题研究](https://github.com/wuhsiang/Courses/blob/master/healthinfo/cases/case-dhaka.Rmd)
