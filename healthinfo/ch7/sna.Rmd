@@ -96,7 +96,7 @@ IT --> 联系便利 --> 社交网络时代
 
 ## 基本特征
 
-SNA的基本特征[@freeman2004]：
+SNA的基本特征：
 
 - 考虑整个网络结构
 - 论证网络结构如何影响个体行为
@@ -607,7 +607,7 @@ g.ch.m %>% plot()
 \begin{columns}
 \begin{column}{0.58\textwidth}
 
-在图$G'$中，节点个数$g = 6$，最短距离之和的最大值为$g - 1 = 5$。
+在图$G'$中，节点个数$g = 6$，最短距离之和的最小值为$g - 1 = 5$。
 
 $\sum_{j \neq HYS} d(n_{HYS}, n_{j}) = 1 + 2 \times 2 + 3 + 4 = 12$, 故$C_{C}(n_{HYS}) = 5 / 12 = 0.42 $
 
@@ -944,10 +944,6 @@ graph_from_literal(1-2, 1-3, 2-3, 2-4, 3-5, 4-6, 5-6) %>% plot(circular = F)
 
 ## $n$-族和$n$-社
 
-例子：
-
-- 星形网络中，除去中心节点外其它节点组成了2-团
-
 反思：
 
 - $n$-团作为子图，其直径可能大于$n$
@@ -1111,7 +1107,7 @@ dendPlot(kc, mode = "phylo")
 平均路径长度为
 
 \begin{equation}
-  \bar{d} = \frac{\sum_{i \neq j} d(n_{i}, n_{j})}{2 L}.
+  \bar{d} = \frac{\sum_{i \neq j} d(n_{i}, n_{j})}{g (g - 1)}.
 \end{equation}
 
 真实网络的平均路径长度大多在4-6之间。
@@ -1128,7 +1124,7 @@ suppressMessages(library(igraph))
 suppressMessages(library(ggplot2))
 suppressMessages(library(dplyr))
 suppressMessages(library(pander))
-data("fblog") 
+data("fblog")
 fblog <- fblog %>% upgrade_graph()
 plot(fblog)
 
@@ -1142,7 +1138,7 @@ plot(fblog)
 
 # calculate degree
 dc <- degree(fblog)
-u <- table(dc) %>% as.data.frame() %>% 
+u <- table(dc) %>% as.data.frame() %>%
   within({
     dc <- dc %>% as.character() %>% as.numeric() %>% log();
     Freq <- log(Freq / 192)
@@ -1158,7 +1154,7 @@ u %>% ggplot(aes(x = dc, y = Freq)) + geom_point(shape = 1) + geom_smooth(method
 ```{r, results = 'asis'}
 
 suppressMessages(library(stargazer))
-fit <- lm(Freq ~ dc, data = u) 
+fit <- lm(Freq ~ dc, data = u)
 stargazer(fit, type = "latex", report = "vc*")
 
 ```
@@ -1206,13 +1202,13 @@ pandoc.table(grandom.stat)
 
 ## 小世界网络
 
-设置$n = 192$，重链概率$p = 15 / 192 = 0.078$，创建小世界网络。
+设置$n = 192$，重链概率$\beta = 0.078 \in (0.01, 0.1)$，创建小世界网络。
 
 进而计算三个主要参数。
 
 ```{r, results = 'asis'}
 
-# create a random graph
+# create a small world graph
 g.sw <- sample_smallworld(1, size = 192, nei = 8, p = 0.078)
 # calculate these parameters
 gsw.stat <- c(g.sw  %>% degree() %>% mean(), transitivity(g.sw), mean_distance(g.sw))
@@ -1229,13 +1225,13 @@ pandoc.table(gsw.stat)
 
 ## 优先连接网络
 
-设置$n = 192$，幂律指数$b = 0.79$，创建小世界网络。
+设置$n = 192$，幂律指数$b = 0.79$，创建优先连接网络。
 
 进而计算三个主要参数。
 
 ```{r, results = 'asis'}
 
-# create a random graph
+# create a scale-free graph
 g.pa <- sample_pa(n = 192, power = 0.79, m = 8, zero.appeal = 1, directed = F)
 # calculate these parameters
 gpa.stat <- c(g.pa  %>% degree() %>% mean(), transitivity(g.pa), mean_distance(g.pa))
@@ -1256,12 +1252,14 @@ pandoc.table(gpa.stat)
 
 ```{r, results = 'asis'}
 
-mstat <- cbind(c(fblog %>% degree() %>% mean(), transitivity(fblog), mean_distance(fblog)), 
+# combine these parameters
+mstat <- cbind(c(fblog %>% degree() %>% mean(), transitivity(fblog), mean_distance(fblog)),
       c(g.random  %>% degree() %>% mean(), transitivity(g.random), mean_distance(g.random)),
       c(g.sw  %>% degree() %>% mean(), transitivity(g.sw), mean_distance(g.sw)),
       c(g.pa  %>% degree() %>% mean(), transitivity(g.pa), mean_distance(g.pa)))
 
-mstat <- matrix(mstat, nrow = 3) %>% t() %>% 
+# create a data frame
+mstat <- matrix(mstat, nrow = 3) %>% t() %>%
   as.data.frame()
 colnames(mstat) <- c("degree", "clustering coefficient", "distance")
 rownames(mstat) <- c("fblog", "random", "sw", "pa")
@@ -1272,7 +1270,6 @@ pandoc.table(mstat, digits = 2)
 
 
 # 案例（2个课时）
-
 
 
 
@@ -1288,6 +1285,3 @@ pandoc.table(mstat, digits = 2)
 
 
 ## 7.3.2 医学领域案例：行为分析
-
-
-## 参考文献
