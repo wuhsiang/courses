@@ -1,0 +1,174 @@
+---
+title: 第三章 线性回归分析及Bootstrap应用
+author:
+ - 授课教师：吴翔 \newline
+ - 邮箱：wuhsiang@hust.edu.cn
+date: "March 16, 2019"
+linestretch: 1.25
+fontsize: 16
+header-includes:
+  - \usepackage{ctex}
+output:
+  beamer_presentation:
+    theme: "CambridgeUS"
+    colortheme: "beaver"
+    latex_engine: xelatex
+    toc: true
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+options(digits = 2)
+
+```
+
+
+# 线性回归分析概述
+
+## 简单回归模型
+
+考虑由数据生成过程（**data generating process**, DGP） $y = -5 + 2 \cdot x$得到的样本。
+
+```{r}
+
+# clear directory
+rm(list = ls())
+set.seed(123)
+
+```
+
+
+```{r, echo = TRUE}
+
+# generate dataset
+x <- rnorm(n = 200, mean = 10, sd = 8)
+beta <- c(-5, 2)
+y <- beta[1] + beta[2] * x + rnorm(n = 200, mean = 0, sd = 2)
+dat <- data.frame(x = x, y = y)
+
+```
+
+```{r}
+
+# linear regression
+fit <- lm(y ~ x, data = dat)
+summary(fit)$coef
+
+```
+
+线性模型$R^{2} = `r summary(fit)$r.squared`$，预测值$\hat{\beta} = (`r fit$coef[1]`, `r fit$coef[2]`)$接近实际值$\beta = (-5, 2)$。
+
+## 正效应 vs 负效应？
+
+考虑增加一个样本$c(164, -500)$，重新运行模型。
+
+```{r, echo = TRUE}
+
+# add a sample
+dat1 <- rbind(dat, c(164, -500))
+# linear regression
+fit1 <- lm(y ~ x, data = dat1)
+summary(fit1)$coef
+
+```
+
+线性模型$R^{2} = `r summary(fit1)$r.squared`$，预测值$\hat{\beta} = (`r fit1$coef[1]`, `r fit1$coef[2]`)$大幅偏离实际值$\beta = (-5, 2)$。
+
+## 虚假效应
+
+考虑变量$z$，它受$x$影响，但不受$y$影响。在模型设定错误下，
+
+```{r, echo = TRUE}
+
+# another variable
+z <- 6 - 5 * x + rnorm(n = 200, mean = 0, sd = 4)
+dat2 <- cbind(dat, z)
+# linear regression
+fit2 <- lm(y ~ z, data = dat2)
+summary(fit2)$coef
+
+```
+
+回归模型显示，$y = `r fit2$coef[1]` + `r fit2$coef[2]` z$，且$R^{2} = `r summary(fit2)$r.squared`$。
+
+
+## 真实效应
+
+我们考虑真实模型$y = \beta_{0} + \beta_{1} x + \beta_{2} z$。
+
+```{r, echo = TRUE}
+
+# linear regression
+fit3 <- lm(y ~ x + z, data = dat2)
+summary(fit3)$coef
+
+```
+
+回归模型显示，$y = `r fit3$coef[1]` + `r fit3$coef[2]` x$，且$R^{2} = `r summary(fit3)$r.squared`$。
+
+
+## 如何学习线性回归？
+
+
+![Master & PhD students who are learning regression models](figures/confused.jpg){width=60%}
+
+## 课程存储地址
+
+- 课程存储地址： [https://github.com/wuhsiang/Courses](https://github.com/wuhsiang/Courses)
+- 资源：课件、案例数据及代码
+
+![课程存储地址](../../QR.png){width=40%}
+
+## 参考教材
+
+- 谢宇. 回归分析. 北京：社会科学文献出版社. 2010.
+- 威廉·贝里. 理解回归假设. 上海:格致出版社. 2012.
+
+
+# 线性回归分析原理
+
+## 遗传与变异
+
+## 什么是“回归”？
+
+## 高尔顿的身高研究
+
+```{r, fig.align='center', fig.height=3, fig.width=4}
+
+rm(list = ls())
+# load Galton's height data
+suppressMessages(library(UsingR))
+suppressMessages(library(ggplot2))
+data("galton")
+# scatter plot
+ggplot(galton, aes(x = parent, y = child)) + geom_point() + geom_smooth(method=lm, color="darkred", fill="blue") + theme_bw()
+
+```
+
+## 身高数据及回归结果
+
+```{r, echo = TRUE}
+
+# linear regression
+fit <- lm(child ~ parent, data = galton)
+summary(fit)$coef
+
+```
+
+## 回归分析原理：简单案例
+
+考虑教育程度$x$与收入$y$的关系，回归模型为：
+$$
+y_{i} = \alpha + \beta x_{i} + \epsilon_{i}, \epsilon_{i} \sim N(0, \sigma^{2}).
+$$
+
+**暗含的假设**：
+
+- A.0.1. 线性假设：
+- A.0.2. 同质性假设：
+- A.0.3. 同方差假设：
+
+# 线性回归假设与诊断
+
+# 线性回归的贝叶斯估计
