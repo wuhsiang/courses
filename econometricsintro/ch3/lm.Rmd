@@ -1,11 +1,11 @@
 ---
-title: 第三章 线性回归分析及Bootstrap应用
+title: 线性回归分析及Bootstrap应用
 author:
  - 授课教师：吴翔 \newline
  - 邮箱：wuhsiang@hust.edu.cn
 date: "March 16, 2019"
 linestretch: 1.25
-fontsize: 16
+fontsize: 18
 header-includes:
   - \usepackage{ctex}
 output:
@@ -59,22 +59,6 @@ summary(fit)$coef
 
 线性模型$R^{2} = `r summary(fit)$r.squared`$，预测值$\hat{\beta} = (`r fit$coef[1]`, `r fit$coef[2]`)$接近实际值$\beta = (-5, 2)$。
 
-## 正效应 vs 负效应？
-
-考虑增加一个样本$c(164, -500)$，重新运行模型。
-
-```{r, echo = TRUE}
-
-# add a sample
-dat1 <- rbind(dat, c(164, -500))
-# linear regression
-fit1 <- lm(y ~ x, data = dat1)
-summary(fit1)$coef
-
-```
-
-线性模型$R^{2} = `r summary(fit1)$r.squared`$，预测值$\hat{\beta} = (`r fit1$coef[1]`, `r fit1$coef[2]`)$大幅偏离实际值$\beta = (-5, 2)$。
-
 ## 虚假效应
 
 考虑变量$z$，它受$x$影响，但不受$y$影响。在模型设定错误下，
@@ -108,6 +92,23 @@ summary(fit3)$coef
 回归模型显示，$y = `r fit3$coef[1]` + `r fit3$coef[2]` x$，且$R^{2} = `r summary(fit3)$r.squared`$。
 
 
+## 正效应 vs 负效应？
+
+考虑增加一个样本$c(164, -500)$，重新运行模型。
+
+```{r, echo = TRUE}
+
+# add a sample
+dat1 <- rbind(dat, c(164, -500))
+# linear regression
+fit1 <- lm(y ~ x, data = dat1)
+summary(fit1)$coef
+
+```
+
+线性模型$R^{2} = `r summary(fit1)$r.squared`$，预测值$\hat{\beta} = (`r fit1$coef[1]`, `r fit1$coef[2]`)$大幅偏离实际值$\beta = (-5, 2)$。
+
+
 ## 如何学习线性回归？
 
 
@@ -130,11 +131,21 @@ summary(fit3)$coef
 
 ## 遗传与变异
 
-## 什么是“回归”？
+Francis Galton（以及Karl Pearson）研究
 
-## 高尔顿的身高研究
+- 个体差异：确立了社会科学研究与自然科学研究的根本区别
+- 遗传与个体差异的关系：倡导“优生学”
+- 双生儿法（twin method）：匹配方法（matching）之先河
 
-```{r, fig.align='center', fig.height=3, fig.width=4}
+变异与个体差异
+
+- 随着物种的变异，其个体差异是否会一直增大？
+- 个体差异上的两极分化是否是一般规律？
+
+
+## Galton的身高研究
+
+```{r, fig.align='center', fig.height=3, fig.width=3}
 
 rm(list = ls())
 # load Galton's height data
@@ -142,33 +153,66 @@ suppressMessages(library(UsingR))
 suppressMessages(library(ggplot2))
 data("galton")
 # scatter plot
-ggplot(galton, aes(x = parent, y = child)) + geom_point() + geom_smooth(method=lm, color="darkred", fill="blue") + theme_bw()
+ggplot(galton, aes(x = parent, y = child)) + geom_point() + geom_smooth(method=lm, color="darkred", fill="blue") + theme_bw() + xlim(60, 75) + ylim(60, 75) + geom_abline(intercept = 0, slope = 1)
 
 ```
 
-## 身高数据及回归结果
+## 什么是“回归”？
 
-```{r, echo = TRUE}
+Galton的身高研究发现：
 
-# linear regression
-fit <- lm(child ~ parent, data = galton)
-summary(fit)$coef
+- 父亲的身高增加时，儿子的身高也倾向于增加
+- 当父亲高于平均身高时，儿子身高比他更高的概率要小于比他更矮的概率；父亲矮于平均身高时，儿子身高比他更矮的概率要小于比他更高的概率。
 
-```
+**回归效应**：
 
-## 回归分析原理：简单案例
+- 向平均数方向的回归 (regression toward mediocrity)
+- 天之道，损有余而补不足
+
+## 回归分析原理：模型设定
 
 考虑教育程度$x$与收入$y$的关系，回归模型为：
 $$
-y_{i} = \alpha + \beta x_{i} + \epsilon_{i}, \epsilon_{i} \sim N(0, \sigma^{2}).
+y_{i} = \alpha + \beta x_{i} + \epsilon_{i}.
 $$
 
 **暗含的假设**：
 
-- A.0.1. 线性假设：
-- A.0.2. 同质性假设：
-- A.0.3. 同方差假设：
+- A1. 线性假设（$E(y|x) = \beta x$）：非线性模型、结构模型
+- A2. 同质性假设：随机参数/效应模型、分层线性模型
 
-# 线性回归假设与诊断
 
-# 线性回归的贝叶斯估计
+## 总体回归方程
+
+给定$x_{i}$，在的$\epsilon_{i} \text{ i.i.d } \sim N(0, \sigma^{2})$假定下，对回归模型求条件期望得到如下**总体回归方程**，
+
+$$
+E(y|x = x_{i}) = \mu_{y|x_{i}} = \alpha + \beta x_{i}.
+$$
+
+含义：
+
+- 给定任意$x_{i}$，对应的$y_{i} \sim N(\mu_{y|x_{i}}, \sigma^{2})$。
+- 回归线穿过$(x_{i},  \mu_{y|x_{i}})$。
+- 参数$\beta$刻画了$x$的变化对$y$的期望的影响。
+
+## 总体回归线
+
+![总体回归线](figures/condmean.png){width=60%}
+
+## 暗含的假设
+
+- A3. 独立同分布假设：
+  - $E(\epsilon_{i}) = 0$：随机效应模型中的随机截距参数
+  - $Cov(\epsilon_{i}, \epsilon_{j}) = 0$：时间序列模型、空间计量模型、嵌套模型
+  - $\sigma_{i} = \sigma$：异方差问题
+- A4. 关于$y$的假设：
+  - $y$应是连续变量：广义线性模型
+  - $y$的条件期望$\mu_{y|x_{i}} = E(y|x = x_{i})$符合正态分布：分位数回归
+- A5. 正交（严格外生）假设
+  - 误差项$\epsilon$和$x$不相关，即$Cov(x, \epsilon) = 0$
+  - 内生性问题
+
+## Gauss–Markov定理
+
+# 线性回归诊断
