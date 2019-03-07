@@ -5,6 +5,8 @@
 本仓库存储以下课程：
 
 - 《卫生信息分析》：请参阅[healthinfo](https://github.com/wuhsiang/Courses/tree/master/healthinfo)文件夹
+- 《计量经济学应用》：请参阅[econometricsintro](https://github.com/wuhsiang/Courses/tree/master/econometricsintro)文件夹
+- 《数据挖掘》：请参阅[datamining](https://github.com/wuhsiang/Courses/tree/master/datamining)文件夹
 
 
 课件撰写：
