@@ -1,5 +1,5 @@
 ---
-title: 线性回归分析及Bootstrap应用
+title: 线性回归分析
 author:
  - 授课教师：吴翔 \newline
  - 邮箱：wuhsiang@hust.edu.cn
@@ -24,11 +24,11 @@ options(digits = 2)
 ```
 
 
-# 线性回归分析概述
+# 线性回归概述
 
-## 简单回归模型
+## 简单案例
 
-考虑由数据生成过程（**data generating process**, DGP） $y = -5 + 2 \cdot x$得到的样本。
+考虑由数据生成过程（**data generating process**, DGP） $y = -5 + 2 \cdot x$得到的样本。另外有变量$z$，它受$x$影响，但不受$y$影响。
 
 ```{r}
 
@@ -45,69 +45,62 @@ set.seed(123)
 x <- rnorm(n = 200, mean = 10, sd = 8)
 beta <- c(-5, 2)
 y <- beta[1] + beta[2] * x + rnorm(n = 200, mean = 0, sd = 2)
-dat <- data.frame(x = x, y = y)
+z <- 6 - 5 * x + rnorm(n = 200, mean = 0, sd = 4)
+dat <- data.frame(x = x, y = y, z = z)
 
 ```
+
+## 回归分析
 
 ```{r}
 
 # linear regression
-fit <- lm(y ~ x, data = dat)
-summary(fit)$coef
-
-```
-
-线性模型$R^{2} = `r summary(fit)$r.squared`$，预测值$\hat{\beta} = (`r fit$coef[1]`, `r fit$coef[2]`)$接近实际值$\beta = (-5, 2)$。
-
-## 虚假效应
-
-考虑变量$z$，它受$x$影响，但不受$y$影响。在模型设定错误下，
-
-```{r, echo = TRUE}
-
-# another variable
-z <- 6 - 5 * x + rnorm(n = 200, mean = 0, sd = 4)
-dat2 <- cbind(dat, z)
-# linear regression
-fit2 <- lm(y ~ z, data = dat2)
-summary(fit2)$coef
-
-```
-
-回归模型显示，$y = `r fit2$coef[1]` + `r fit2$coef[2]` z$，且$R^{2} = `r summary(fit2)$r.squared`$。
-
-
-## 真实效应
-
-我们考虑真实模型$y = \beta_{0} + \beta_{1} x + \beta_{2} z$。
-
-```{r, echo = TRUE}
-
-# linear regression
-fit3 <- lm(y ~ x + z, data = dat2)
-summary(fit3)$coef
-
-```
-
-回归模型显示，$y = `r fit3$coef[1]` + `r fit3$coef[2]` x$，且$R^{2} = `r summary(fit3)$r.squared`$。
-
-
-## 正效应 vs 负效应？
-
-考虑增加一个样本$c(164, -500)$，重新运行模型。
-
-```{r, echo = TRUE}
-
-# add a sample
-dat1 <- rbind(dat, c(164, -500))
-# linear regression
-fit1 <- lm(y ~ x, data = dat1)
+fit1 <- lm(y ~ x, data = dat)
 summary(fit1)$coef
 
 ```
 
-线性模型$R^{2} = `r summary(fit1)$r.squared`$，预测值$\hat{\beta} = (`r fit1$coef[1]`, `r fit1$coef[2]`)$大幅偏离实际值$\beta = (-5, 2)$。
+考虑$x$对$y$的效应，线性模型$R^{2} = `r summary(fit1)$r.squared`$，预测值$\hat{\beta} = (`r fit1$coef[1]`, `r fit1$coef[2]`)$接近实际值$\beta = (-5, 2)$。
 
+```{r}
+
+fit2 <- lm(y ~ z, data = dat)
+summary(fit2)$coef
+
+```
+
+考虑$z$对$y$的效应，$y = `r fit2$coef[1]` + `r fit2$coef[2]` z$，且$R^{2} = `r summary(fit2)$r.squared`$。
+
+
+## 虚假 vs 真实效应
+
+```{r, echo = TRUE}
+
+# linear regression
+fit3 <- lm(y ~ x + z, data = dat)
+summary(fit3)$coef
+
+```
+
+考虑模型$y = \beta_{0} + \beta_{1} x + \beta_{2} z$。结果显示，$y = `r fit3$coef[1]` + `r fit3$coef[2]` x$，且$R^{2} = `r summary(fit3)$r.squared`$。
+
+**Q1: z对y的效应，是否显著？**
+
+
+## 正效应 vs 负效应？
+
+```{r, echo = TRUE}
+
+# add a sample
+dat1 <- rbind(dat, c(164, -500, 200))
+fit4 <- lm(y ~ x, data = dat1)
+summary(fit4)$coef
+
+```
+
+增加一个样本$c(164, -500, 200)$，重新考虑$x$对$y$的效应，$R^{2} = `r summary(fit4)$r.squared`$，预测值$\hat{\beta} = (`r fit4$coef[1]`, `r fit4$coef[2]`)$大幅偏离实际值$\beta = (-5, 2)$。
+
+**Q2: x对y的效应，到底是正还是负？**
 
 ## 如何学习线性回归？
 
@@ -127,21 +120,14 @@ summary(fit1)$coef
 - 威廉·贝里. 理解回归假设. 上海:格致出版社. 2012.
 
 
-# 线性回归分析原理
+# 线性回归原理
 
-## 遗传与变异
-
-Francis Galton（以及Karl Pearson）研究
-
-- 个体差异：确立了社会科学研究与自然科学研究的根本区别
-- 遗传与个体差异的关系：倡导“优生学”
-- 双生儿法（twin method）：匹配方法（matching）之先河
+## 缘起
 
 变异与个体差异
 
 - 随着物种的变异，其个体差异是否会一直增大？
-- 个体差异上的两极分化是否是一般规律？
-
+- 个体差异上的**两极分化**是否是一般规律？
 
 ## Galton的身高研究
 
@@ -161,15 +147,30 @@ ggplot(galton, aes(x = parent, y = child)) + geom_point() + geom_smooth(method=l
 
 Galton的身高研究发现：
 
-- 父亲的身高增加时，儿子的身高也倾向于增加
-- 当父亲高于平均身高时，儿子身高比他更高的概率要小于比他更矮的概率；父亲矮于平均身高时，儿子身高比他更矮的概率要小于比他更高的概率。
+- 父代的身高增加时，子代的身高也倾向于增加
+- 当父代高于平均身高时，子代身高比他更高的概率要小于比他更矮的概率；父代矮于平均身高时，子代身高比他更矮的概率要小于比他更高的概率。
+- 同一族群中，子代的身高通常介于其父代的身高和族群的平均身高之间。
 
 **回归效应**：
 
 - 向平均数方向的回归 (regression toward mediocrity)
 - 天之道，损有余而补不足
 
-## 回归分析原理：模型设定
+## Galton的开创性研究
+
+Francis Galton（以及Karl Pearson）研究
+
+- 个体差异：确立了社会科学研究与自然科学研究的根本区别
+- 遗传与个体差异的关系：倡导“优生学”
+- 双生儿法（twin method）：匹配方法（matching）之先河
+
+## 理解回归的三种视角
+
+- **因果性**（计量经济领域）：观测项 = 机制项 + 干扰项
+- **预测性**（机器学习领域）：观测项 = 预测项 + 误差项
+- **描述性**（统计领域）：观测项 = 概括项 + 残差项
+
+## 回归模型设定
 
 考虑教育程度$x$与收入$y$的关系，回归模型为：
 $$
