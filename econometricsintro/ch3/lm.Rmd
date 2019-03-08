@@ -172,10 +172,11 @@ Francis Galton（以及Karl Pearson）研究
 
 ## 理解回归的三种视角
 
-考虑回归模型
+回归模型
 $$
 y_{i} = f(X_{i}) + \epsilon_{i} = \beta X_{i} + \epsilon_{i}
 $$
+将观测值$y_{i}$分为结构部分$f(X_{i})$和随机部分$\epsilon_{i}$，并可以从**三个视角**来理解：
 
 - **因果性**（计量经济领域）：观测项 = 机制项 + 干扰项
 - **预测性**（机器学习领域）：观测项 = 预测项 + 误差项
@@ -183,7 +184,7 @@ $$
 
 ## 回归模型设定
 
-考虑教育程度$x$与收入$y$的关系，回归模型为：
+考虑收入$x$与老年人自评健康状况$y$的关系，回归模型为：
 $$
 y_{i} = \alpha + \beta x_{i} + \epsilon_{i}.
 $$
@@ -293,10 +294,57 @@ Table:多元线性回归的方差分析表
 
 相应地，可以构造$F$检验：
 $$
-F(\text{df}_{\text{SSR}}, \text{df}_{\text{SSE}}) = \frac{\text{MSR}}{\text{MSE}} 
+F(\text{df}_{\text{SSR}}, \text{df}_{\text{SSE}}) = \frac{\text{MSR}}{\text{MSE}}
 $$
 
+# 线性回归案例
+
+## 中老年精神健康案例
+
+从CHARLS数据中随机抽取$n = 500$个样本，考虑收入$x$对中老年精神健康$y$的影响。
+
+```{r, fig.height=4}
+
+rm(list = ls())
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
+load("charlswh.RData")
+
+# plot
+ggplot(charlswh, aes(x = cesd10)) + geom_histogram(bins = 50) + theme_bw()
+
+```
+
+## 收入与精神健康
+
+
+## 变异的分解
+
+```{r, echo = T}
+
+# regression model
+fit <- lm(cesd10 ~ income + educ, data = charlswh) 
+# calculate predicted values
+yhat <- predict.lm(fit)
+# calculate and print SST, SSR, and SSE
+ybar <- mean(charlswh$cesd10)
+sst <- sum((charlswh$cesd10 - ybar) ^ 2)
+ssr <- sum((yhat - ybar) ^ 2)
+sse <- sum((charlswh$cesd10 - yhat) ^ 2)
+c(sst, ssr, sse)
+
+```
 
 ## Gauss–Markov定理
 
+
+
 # 线性回归诊断
+
+## 因变量分布
+
+
+## 残差分布
+
+
+## 异常值处理
