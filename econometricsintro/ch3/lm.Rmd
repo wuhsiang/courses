@@ -28,7 +28,7 @@ options(digits = 2)
 
 ## 简单案例
 
-考虑由数据生成过程（**data generating process**, DGP） $y = -5 + 2 \cdot x$得到的样本。另外有变量$z$，它受$x$影响，但不受$y$影响。
+考虑智力测验成绩$x$、教育年限$z$和年收入$y$（万元）之间的关系。数据生成过程（**data generating process**, DGP） $y = -0.5 + 0.2 \cdot x$得到的样本。
 
 ```{r}
 
@@ -42,10 +42,10 @@ set.seed(123)
 ```{r, echo = TRUE}
 
 # generate dataset
-x <- rnorm(n = 200, mean = 10, sd = 8)
-beta <- c(-5, 2)
-y <- beta[1] + beta[2] * x + rnorm(n = 200, mean = 0, sd = 2)
-z <- 6 - 5 * x + rnorm(n = 200, mean = 0, sd = 4)
+x <- rnorm(n = 200, mean = 110, sd = 10)
+beta <- c(-0.5, 0.2)
+y <- beta[1] + beta[2] * x + rnorm(n = 200, mean = 0, sd = 0.5)
+z <- round(-2 + 0.1 * x + rnorm(n = 200, mean = 0, sd = 0.4))
 dat <- data.frame(x = x, y = y, z = z)
 
 ```
@@ -60,7 +60,7 @@ summary(fit1)$coef
 
 ```
 
-考虑$x$对$y$的效应，线性模型$R^{2} = `r summary(fit1)$r.squared`$，预测值$\hat{\beta} = (`r fit1$coef[1]`, `r fit1$coef[2]`)$接近实际值$\beta = (-5, 2)$。
+考虑$x$对$y$的效应，线性模型$R^{2} = `r summary(fit1)$r.squared`$，预测值$\hat{\beta} = (`r fit1$coef[1]`, `r fit1$coef[2]`)$接近实际值$\beta = (-0.5, 0.2)$。
 
 ```{r}
 
@@ -92,13 +92,13 @@ summary(fit3)$coef
 ```{r, echo = TRUE}
 
 # add a sample
-dat1 <- rbind(dat, c(164, -500, 200))
+dat1 <- rbind(dat, c(160, -100, 10))
 fit4 <- lm(y ~ x, data = dat1)
 summary(fit4)$coef
 
 ```
 
-增加一个样本$c(164, -500, 200)$，重新考虑$x$对$y$的效应，$R^{2} = `r summary(fit4)$r.squared`$，预测值$\hat{\beta} = (`r fit4$coef[1]`, `r fit4$coef[2]`)$大幅偏离实际值$\beta = (-5, 2)$。
+增加一个样本$c(160, -100, 10)$，重新考虑$x$对$y$的效应，$R^{2} = `r summary(fit4)$r.squared`$，预测值$\hat{\beta} = (`r fit4$coef[1]`, `r fit4$coef[2]`)$大幅偏离实际值$\beta = (-0.5, 0.2)$。
 
 **Q2: x对y的效应，到底是正还是负？**
 
@@ -184,7 +184,7 @@ $$
 
 ## 回归模型设定
 
-考虑收入$x$与老年人自评健康状况$y$的关系，回归模型为：
+考虑收入$x$与中老年人抑郁水平$y$的关系，回归模型为：
 $$
 y_{i} = \alpha + \beta x_{i} + \epsilon_{i}.
 $$
@@ -301,7 +301,7 @@ $$
 
 ## 中老年精神健康案例
 
-从CHARLS数据中随机抽取$n = 500$个样本，考虑收入$x$对中老年精神健康$y$的影响。
+从CHARLS数据中随机抽取$n = 500$个样本，考虑收入$x$对中老年抑郁水平$y$的影响。
 
 ```{r, fig.height=4}
 
@@ -323,7 +323,7 @@ ggplot(charlswh, aes(x = cesd10)) + geom_histogram(bins = 50) + theme_bw()
 ```{r, echo = T}
 
 # regression model
-fit <- lm(cesd10 ~ income + educ, data = charlswh) 
+fit <- lm(cesd10 ~ income + educ, data = charlswh)
 # calculate predicted values
 yhat <- predict.lm(fit)
 # calculate and print SST, SSR, and SSE
@@ -343,6 +343,19 @@ c(sst, ssr, sse)
 
 ## 因变量分布
 
+```{r, fig.height=4}
+
+rm(list = ls())
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
+load("charlswh.RData")
+
+# plot
+ggplot(charlswh, aes(x = cesd10)) + geom_histogram(bins = 50) + theme_bw()
+
+```
+
+**Q5: 取对数是否合适？**
 
 ## 残差分布
 
