@@ -174,7 +174,7 @@ Francis Galton（以及Karl Pearson）研究
 
 ## 理解回归的三种视角
 
-回归模型
+回归模型考虑解释变量$x$与结果变量$y$的关系，
 $$
 y_{i} = f(X_{i}) + \epsilon_{i} = \beta X_{i} + \epsilon_{i}
 $$
@@ -244,7 +244,7 @@ $$
 \hat{\beta} = (X'X)^{-1}X'y.
 $$
 
-**课堂思考: (1)c如何在熟悉的编程语言中，撰写函数估计多元线性模型？(2) 在实践中，OLS会造成什么缺陷？**
+**课堂思考: (1)如何在熟悉的编程语言中，撰写函数估计多元线性模型？(2) 在实践中，OLS会造成什么缺陷？**
 
 ## 变异分解逻辑
 
@@ -306,8 +306,13 @@ $$
 
 ## 模型选择
 
-- 模型选择：
+- 模型选择：**精确性原则** vs **简约性原则**
 - 情境：假定在线性回归模型$A$的基础上，加了几个变量得到模型$B$，应当如何在模型A和B之间选择？
+
+构造$F$检验：
+$$
+F(\Delta \text{df}, \text{df}_{\text{SSE}}) = \frac{\Delta \text{SSR} / \Delta \text{df}}{\text{MSE}_{\text{B}}} ?> F_{\alpha}
+$$
 
 # 线性回归案例
 
@@ -315,7 +320,7 @@ $$
 
 从CHARLS数据中随机抽取样本$n = 488$，考虑中老年抑郁水平。`income`为个人收入，以万元计；`educ`表示教育水平是否在初中及以上，`hukou`表示是否是城市户口。
 
-```{r, fig.height=4}
+```{r}
 
 rm(list = ls())
 suppressMessages(library(dplyr))
@@ -372,16 +377,15 @@ summary.aov(fit3)
 
 权衡**精确性原则**与**简约性原则**，选择模型2。
 
-```{r}
-
-summary(fit2)$coef
-
-```
+![模型估计结果](figures/fit2.png){width=75%}
 
 ## 显著性与效应大小
 
 - 统计显著性（statistical significance）
 - 效应大小（effect size）
+
+
+**课堂讨论：二者有何区别？**
 
 ## 变异分解：编程计算
 
@@ -413,10 +417,9 @@ summary.aov(fit2)
 
 ```{r, fig.height=4}
 
-rm(list = ls())
 suppressMessages(library(dplyr))
 suppressMessages(library(ggplot2))
-load("charlswh.RData")
+suppressMessages(library(e1071))
 
 # plot
 ggplot(charlswh, aes(x = cesd10)) + geom_histogram(bins = 50) + theme_bw()
@@ -429,19 +432,38 @@ ggplot(charlswh, aes(x = cesd10)) + geom_histogram(bins = 50) + theme_bw()
 
 ## 多重共线性
 
+参数估计值
+$$
+\hat{\beta} = (X'X)^{-1}X'y
+$$
+要求$X'X$是**可逆（非奇异）**的。
+
+- 完全多重共线性：模型无法识别
+- 严重多重共线性：不影响估计的无偏性和一致性，损害参数估计的**有效性**，及标准误会增大
+- 判断标准：**方差膨胀因子**（variance inflation factor, VIF）最大值超过10，平均值明显大于1
 
 ## 消除共线性
 
-假定分类变量$edu$包含三个水平：小学以下（1）、中学（2）、大学及以上（3）
+- $k$水平分类变量：虚拟变量（dummy variable）化后，只能有$k-1$个虚拟变量
+- 减少解释变量个数
+- 维度规约：因子分析
+- 变量选择：如lasso等统计机器学习方法，尤其是$n < p$时模型无法识别的情形
 
-- 分类变量$edu$如何进入回归模型？
-- 哑变量化
+```{r, echo = T}
+
+suppressMessages(library(car))
+# calculate VIF
+vif(fit2)
+
+```
 
 ## 残差分布
 
 ## 纳入二次项
 
 - 处理$U$型关系
+
+## 纳入交互项（调节作用）
 
 ## 异常值处理
 
@@ -450,7 +472,7 @@ ggplot(charlswh, aes(x = cesd10)) + geom_histogram(bins = 50) + theme_bw()
 
 - 正交假设 （\textcolor{red}{需要检验}）
 
-# 线性回归高阶议题
+# 线性回归高阶议题（*）
 
 ## 内生性
 
@@ -459,8 +481,6 @@ ggplot(charlswh, aes(x = cesd10)) + geom_histogram(bins = 50) + theme_bw()
 ## 随机控制试验法（RCT）
 
 ## 异质性
-
-## 纳入交互项（调节作用）
 
 ## 分层线性模型
 
