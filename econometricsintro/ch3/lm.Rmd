@@ -170,8 +170,6 @@ Francis Galton（以及Karl Pearson）研究
 - 遗传与个体差异的关系：倡导“优生学”
 - 双生儿法（twin method）：匹配方法（matching）之先河
 
-## 自然科学 vs 社会科学研究
-
 ## 理解回归的三种视角
 
 回归模型考虑解释变量$x$与结果变量$y$的关系，
@@ -337,10 +335,6 @@ rm(list = ls())
 suppressMessages(library(dplyr))
 suppressMessages(library(ggplot2))
 load("charlswh.RData")
-charlswh <- charlswh %>%
-    rename(hukou = r4hukou) %>%
-    filter(hukou < 2) %>%
-    mutate(income = income / 10000)
 
 ```
 
@@ -358,16 +352,16 @@ Table: 描述性统计量
 ```{r}
 
 # estimate three models
-fit1 <- lm(cesd10 ~ income, data = charlswh)
-fit2 <- lm(cesd10 ~ income + educ, data = charlswh)
-fit3 <- lm(cesd10 ~ income + educ + hukou, charlswh)
+fit1 <- lm(y ~ I(log(income)), data = charlswh)
+fit2 <- lm(y ~ I(log(income)) + educ, data = charlswh)
+fit3 <- lm(y ~ I(log(income)) + educ + hukou, charlswh)
 
 ```
 
 变量   | 模型1 | 模型2 | 模型3 |
 ---- | :-----: |:---: |:-----: |
 常数项 | `r summary(fit1)$coef[1,1]` (`r summary(fit1)$coef[1,2]`) | `r summary(fit2)$coef[1,1]` (`r summary(fit2)$coef[1,2]`) | `r summary(fit3)$coef[1,1]` (`r summary(fit3)$coef[1,2]`) |
-income | `r summary(fit1)$coef[2,1]` (`r summary(fit1)$coef[2,2]`) | `r summary(fit2)$coef[2,1]` (`r summary(fit2)$coef[2,2]`) | `r summary(fit3)$coef[2,1]` (`r summary(fit3)$coef[2,2]`) |
+log(income) | `r summary(fit1)$coef[2,1]` (`r summary(fit1)$coef[2,2]`) | `r summary(fit2)$coef[2,1]` (`r summary(fit2)$coef[2,2]`) | `r summary(fit3)$coef[2,1]` (`r summary(fit3)$coef[2,2]`) |
 educ | - | `r summary(fit2)$coef[3,1]` (`r summary(fit2)$coef[3,2]`) | `r summary(fit3)$coef[3,1]` (`r summary(fit3)$coef[3,2]`) |
 hukou | - | - | `r summary(fit3)$coef[4,1]`$^{\text{ns}}$ (`r summary(fit3)$coef[4,2]`) |
 $R^{2}$ | `r summary(fit1)$r.squared` |`r summary(fit2)$r.squared` | `r summary(fit3)$r.squared` |
@@ -395,8 +389,28 @@ summary.aov(fit3)
 - 统计显著性（statistical significance）
 - 效应大小（effect size）
 
+请参阅Github上的[\textcolor{red}{完整案例}](https://github.com/wuhsiang/Courses/tree/master/econometricsintro/cases/case-charlswh.pdf)
 
 **课堂讨论：二者有何区别？**
+
+
+## 回归结果图示
+
+```{r, fig.height=4}
+
+# load related pacakges
+suppressMessages(library(tidyverse))
+suppressMessages(library(broom))
+# calculate regression diagnostics
+model.diag.metrics <- augment(fit2)
+# plot the fitted values
+ggplot(model.diag.metrics, aes(I.log.income.., y)) +
+  geom_point() +
+  stat_smooth(method = lm, se = FALSE) +
+  geom_segment(aes(xend = I.log.income.., yend = .fitted), color = "red", size = 0.3)
+
+```
+
 
 ## 变异分解：编程计算
 
@@ -405,10 +419,10 @@ summary.aov(fit3)
 # calculate predicted values
 yhat <- predict.lm(fit2)
 # calculate and print SST, SSR, and SSE
-ybar <- mean(charlswh$cesd10)
-sst <- sum((charlswh$cesd10 - ybar) ^ 2)
+ybar <- mean(charlswh$y)
+sst <- sum((charlswh$y - ybar) ^ 2)
 ssr <- sum((yhat - ybar) ^ 2)
-sse <- sum((charlswh$cesd10 - yhat) ^ 2)
+sse <- sum((charlswh$y - yhat) ^ 2)
 c(sst, ssr, sse)
 
 ```
@@ -424,22 +438,9 @@ summary.aov(fit2)
 
 # 线性回归诊断
 
-## 因变量分布
+## 因变量分布与Box-Cox变换
 
-```{r, fig.height=4}
-
-suppressMessages(library(dplyr))
-suppressMessages(library(ggplot2))
-suppressMessages(library(e1071))
-
-# plot
-ggplot(charlswh, aes(x = cesd10)) + geom_histogram(bins = 50) + theme_bw()
-
-```
-
-## Box-Cox变换
-
-Box & Cox (1964)建议采用如下Box-Cox变换
+当因变量不服从正态分布时，Box & Cox (1964)建议采用如下Box-Cox变换
 $$
 y_{i} =
 \begin{cases}
@@ -450,6 +451,7 @@ $$
 将非正态的分布转换为正态分布。
 
 **课堂思考: (1) 对数变换或Box-Cox变换是否合适？(2) 如何推导出“变化比例”这一含义？**
+
 
 ## 多重共线性
 
@@ -478,20 +480,60 @@ vif(fit2)
 
 ```
 
-## 残差分布
+## 异方差
 
-## 纳入二次项
+通常将违背残差分布假定的
 
-- 处理$U$型关系
+- 自相关：$\text{Cov}(\epsilon_{i}, \epsilon_{j}) \neq 0$
+- 异方差：$\text{Var}(\epsilon_{i}) \neq \text{Var}(\epsilon_{j})$
 
-## 纳入交互项（调节作用）
+统称为**异方差**。
 
-## 异常值处理
+异方差不影响估计的无偏性和一致性，但会损害估计的**有效性**。
 
+
+## 处理异方差
+
+- 调整标准误的计算，采用稳健标准误
+- 采用广义最小二乘法（generalized least squares, GLS）估计模型
+
+
+## 处理非线性
+
+- 纳入二次项：处理$U$型关系
+- 采用对数项：处理比例关系
+- 纳入交互项：处理调节作用
+
+## 高影响点及异常值处理
+
+OLS采用最小化误差**平方和**的方式，使估计值对异常值非常敏感
+
+- **高影响点/高杠杆点**（influential/leverage points）：观测案例$i$对**回归系数**影响较大的点，通常可由Cook距离等统计量衡量
+- **异常值**：模型拟合失败的观测点，它们大幅**偏离回归线**，通常由标准化残差来衡量（其绝对值不宜大于5）
+
+因而需要识别高影响点和异常值，并**谨慎判断**是否要排除这些观测样本。
 
 ## 实践中的回归假设
 
-- 正交假设 （\textcolor{red}{需要检验}）
+1. 模型设定假设
+    - 线性模型假设：$E(y|X) = \beta X + \epsilon$ （\textcolor{red}{可检验}）
+    - 同质效应假设：$\beta_{i} = \beta$ （\textcolor{red}{可检验，高阶议题*}）
+2. 正交假设 （\textcolor{blue}{OLS自动保证，不必检验}）
+    - 误差项均值为0：$E(\epsilon) = 0$
+    - 误差项与解释变量不相关：$\text{Cov}(X,\epsilon) = 0$
+3. 独立同分布假设
+    - 误差项相互独立：$\text{Cov}(\epsilon_{i}, \epsilon_{j}) = 0$
+    - 误差项方差相同：$\text{Var}(\epsilon_{i}) = \sigma^{2}$ （\textcolor{red}{可检验}）
+4. 正态分布假设 （\textcolor{blue}{大样本时，不必要}）
+    - 误差项服从正态分布：$\epsilon_{i} \sim N(0, \sigma^{2})$
+
+## 实践中的回归假设（续）
+
+由回归模型设定、OLS估计衍生出来的问题：
+
+1. 结果变量$y$的分布 （\textcolor{red}{可检验, Box-Cox变换}）
+2. 多重共线性 （\textcolor{red}{可检验}）
+3. 异常值 （\textcolor{red}{可检验}）
 
 # 线性回归高阶议题（*）
 
@@ -537,3 +579,7 @@ $$
 
 
 ## 回归分析总结
+
+1. 回归假设与诊断：如何得到可靠的结论？
+2. 变异及其分解：社会科学定量研究的核心
+3. 高阶议题：计量经济应用的前沿
