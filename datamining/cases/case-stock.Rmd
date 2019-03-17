@@ -1,0 +1,42 @@
+---
+title: "基本分类模型案例：股票市场走势预测"
+author: "吴翔"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+
+```
+## 概述
+
+我们通过R语言`ISLR`包中股票市场走势的案例来阐述如何使用如下基本分类模型：
+
+- logistic回归
+- LDA
+- QDA
+- KNN
+
+
+```{r}
+
+# clean the work directory
+rm(list = ls())
+
+# set seeds
+set.seed(123)
+
+# read dataset
+suppressMessages(library(ISLR))
+suppressMessages(library(tidyverse))
+data("Smarket")
+# display the variables
+str(Smarket)
+# dimensions
+dim(Smarket)
+# summary of dataset
+summary(Smarket)
+
+```

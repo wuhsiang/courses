@@ -90,9 +90,10 @@ $$
 ## 基本分类模型（basic classifier）
 
 1. 逻辑斯蒂回归（logistic regression）
-2. 线性判别分析（linear discriminant analysis, LDA）
-3. 二次判别分析（quadratic discriminant analysis, QDA）
-4. $K$最近邻（$K-$nearest neighbor, KNN）
+2. 朴素贝叶斯分类器（naive bayes classifier）
+3. 线性判别分析（linear discriminant analysis, LDA）
+4. 二次判别分析（quadratic discriminant analysis, QDA）
+5. $K$最近邻（$K-$nearest neighbor, KNN）
 
 ## logistic回归
 
@@ -104,11 +105,80 @@ $$
 
 当类别$K \geq 2$时，则采用多类别logistic回归模型。
 
+## 似然函数
+
+可以通过**最大似然估计**（maximum likelihood estimation, MLE）得到logistic回归的参数值。
+
+参数记为$\theta$，数据记为$D$。似然函数（likelihood function）是参数$\theta$的函数，且定义为给定参数$\theta$时，观测到数据$D$的概率：
+$$
+l(\theta) = p(D|\theta).
+$$
+
+例如，logistic回归模型的似然函数
+$$
+l(\beta) = \prod_{i=1}^{n} p(X_{i})^{y_{i}} [1-p(X_{i})]^{1-y_{i}}.
+$$
+
+## 贝叶斯定理
+
+贝叶斯定理阐述了随机变量$X$和$Y$的条件概率之间的关系：
+$$
+p(Y|X) = \frac{p(X,Y)}{p(X)} = \frac{p(Y) \cdot p(X|Y)}{p(X)}.
+$$
+
+或从“数据-参数”的视角而言，参数$\theta$的后验分布$\pi({\theta}) = p(\theta|D)$正比于参数的先验分布$p(\theta)$和似然函数$l(\theta)$之积：
+$$
+\pi(\theta) = \frac{p(\theta)p(D|\theta)}{p(D)} = \frac{p(\theta) l(\theta)}{p(D)}.
+$$
+
+**课堂板书：贝叶斯定理推导及概念解释**
+
+## 贝叶斯定理与分类
+
+对于分类（categorical）响应变量$Y$而言，运用贝叶斯定理：
+$$
+p(Y = k|X = x) = \frac{p(Y = k) \cdot p(X = x|Y = k)}{p(X = x)}.
+$$
+假定$X$是$m$维向量（即特征数量），简写为
+$$
+p(C_{k}|X) = \frac{p(C_{k}) \cdot p(X|C_{k})}{p(X)} \propto p(C_{k}) \prod_{i=1}^{m} p(X_{i}|C_{k})
+$$
+
+## 贝叶斯分类器
+
+贝叶斯分类器（bayesian classifier）选择后验概率$p(C_{k}|X)$最大的类别，作为分类结果，即$\text{argmax } p(C_{k}|X)$。
+
+可以证明，贝叶斯分类器将产生最低的测试错误率，亦即**贝叶斯错误率**。相应用于分类的边界，成为贝叶斯决策边界（bayes decision boundary）。
+
+
 ## LDA
+
+线性判别分析（linear discriminant analysis, LDA）假定$p(X = x|Y = k) \sim N(\mu_{k}, \Sigma)$。LDA即是条件概率$p(X|Y)$为正态分布时的贝叶斯分类器，其判别函数$f(x)$为线性函数。
+
+![Illustration of LDA](figures/lda.png){width=60%}
+
 
 ## QDA
 
+二次判别分析（quadratic discriminant analysis, QDA）假定$p(X = x|Y = k) \sim N(\mu_{k}, \Sigma_{k})$。QDA即是条件概率$p(X|Y)$为正态分布时的贝叶斯分类器，其判别函数$f(x)$为二次函数。
+
+## LDA vs QDA
+
+- 左图：对于两个类别，均有$\rho(X_{1}, X_{2}) = 0.7$
+- 右图：对于橙色类别，$\rho(X_{1}, X_{2}) = 0.7$；对于蓝色类别，$\rho(X_{1}, X_{2}) = -0.7$
+
+![Illustration of QDA](figures/qda.jpg){width=70%}
+
 ## KNN
+
+通常难以知道$p(C_{k}|X)$的分布。因而，可以设法估计条件分布$p(C_{k}|X)$。
+
+
+## 基本分类模型比较
+
+
+## 分类效果比较
+
 
 # 聚类模型
 
