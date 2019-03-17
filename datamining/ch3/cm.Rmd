@@ -57,34 +57,80 @@ $$
 
 ## 交叉验证
 
+交叉验证将原始数据集分为训练集（training set）和验证集（validation set），并以验证集的错误率选择最佳模型。
+
+- 留一交叉验证法（leave-one-out cross validation, LOOCV）
+- $k$折交叉验证法（$k-$fold CV）：将观测集随机分为$k$个大小基本一致的组，或说折（fold）。每次选取其中一折作为验证集，而剩余$k-1$折作为训练集。通常，取$k=5$或$k=10$。
+
+分类模型验证集错误率：
+$$
+\text{CV}_{(k)} = \frac{1}{k} \sum_{i=1}^{k} \text{Err}_{k} = \frac{1}{k} \sum_{i=1}^{k} \frac{1}{m_{k}} \sum_{i=1}^{m_{k}} I(y_{i} \neq \hat{y}_{i}).
+$$
+
+
 ## 分类模型概述
 
-1. 基本分类模型
-    - 逻辑斯蒂回归
-    - 线性判别分析（linear discriminant analysis, LDA）：包括LDA和QDA
-    - $K$最近邻（$K-$nearest neighbor）
+预测分类响应变量（categorical response variable）：
+
+1. 基本分类模型（basic classifier）
 2. 树模型（tree-based models）
-    - 决策树
-    - 装袋法（bagging）
-    - 随机森林（random forest）
-    - 提升法（boosting）
 3. 支持向量机（support vector machine, SVM）
 4. 聚类模型（clustering models）
-    - $K$均值聚类（$K-$means clustering）
-    - 系统聚类（hierarchical clustering）
+
+## 分类模型的评价
+
+![confusion matrix](figures/confusionmatrix.png){width=90%}
+
+## ROC曲线
+
+## AUC
 
 # 基本分类模型
 
-## 逻辑斯蒂回归
+## 基本分类模型（basic classifier）
+
+1. 逻辑斯蒂回归（logistic regression）
+2. 线性判别分析（linear discriminant analysis, LDA）
+3. 二次判别分析（quadratic discriminant analysis, QDA）
+4. $K$最近邻（$K-$nearest neighbor, KNN）
+
+## logistic回归
+
+给定$X$条件下事件$Y$发生的概率$p(X) = \text{Pr}(Y=1|X)$，据此可以将发生比（odd）的对数建模为$X$的线性函数
+$$
+\text{log}[\frac{p(X)}{1-p(X)}] = \beta X.
+$$
+上式左侧称为对数发生比（log-odd）或分对数（logit），其取值范围在$(-\infty, \infty)$。
+
+当类别$K \geq 2$时，则采用多类别logistic回归模型。
+
+## LDA
+
+## QDA
+
+## KNN
+
+# 聚类模型
+
+## 聚类模型（clustering models）
+
+1. $K$均值聚类（$K-$means clustering）
+2. 系统聚类（hierarchical clustering）
+
+## $K$均值聚类
+
 
 # 树模型
+
+## 树模型（tree-based models）
+
+1. 决策树
+2. 装袋法（bagging）
+3. 随机森林（random forest）
+4. 提升法（boosting）
 
 ## 决策树
 
 # 支持向量机
 
 ## 支持向量机
-
-# 聚类模型
-
-## $K$均值聚类
