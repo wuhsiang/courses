@@ -81,6 +81,16 @@ $$
 
 ![confusion matrix](figures/confusionmatrix.png){width=90%}
 
+## 混淆矩阵及评价指标
+
+- 准确率（accuracy）：指被正确判断的样本的比例。
+- 精确率（precision）：指判断为阳性的样本中，实际为阳性的比例。
+- 灵敏度（sensitivity）：也称为真阳性率、召回率（recall rate）。指实际为阳性的样本中，被正确判断为阳性的比例。
+- 特异度（specificity）：也称为真阴性率。指实际为阴性的样本中，被正确判断为阴性的比例。
+
+完美的分类器可以达到100%的灵敏度，及100%的特异度。但是理论上所有的分类器都会有最小的误差范围，称为贝叶斯错误率。
+
+
 ## ROC曲线
 
 ## AUC
@@ -90,7 +100,7 @@ $$
 ## 基本分类模型（basic classifier）
 
 1. 逻辑斯蒂回归（logistic regression）
-2. 朴素贝叶斯分类器（naive bayes classifier）
+2. 贝叶斯分类器（bayes classifier）
 3. 线性判别分析（linear discriminant analysis, LDA）
 4. 二次判别分析（quadratic discriminant analysis, QDA）
 5. $K$最近邻（$K-$nearest neighbor, KNN）
@@ -139,30 +149,54 @@ $$
 $$
 p(Y = k|X = x) = \frac{p(Y = k) \cdot p(X = x|Y = k)}{p(X = x)}.
 $$
-假定$X$是$m$维向量（即特征数量），简写为
+假定$x$是$m$维向量（即特征数量），简写为
 $$
-p(C_{k}|X) = \frac{p(C_{k}) \cdot p(X|C_{k})}{p(X)} \propto p(C_{k}) \prod_{i=1}^{m} p(X_{i}|C_{k})
+p(C_{k}|x) = \frac{p(C_{k}) \cdot p(x|C_{k})}{p(x)} \propto p(C_{k}) \prod_{i=1}^{m} p(x_{i}|C_{k})
 $$
 
 ## 贝叶斯分类器
 
-贝叶斯分类器（bayesian classifier）选择后验概率$p(C_{k}|X)$最大的类别，作为分类结果，即$\text{argmax } p(C_{k}|X)$。
+贝叶斯分类器（bayesian classifier）选择后验概率$p(C_{k}|x)$最大的类别，作为分类结果，即$\text{argmax } p(C_{k}|x)$。
 
 可以证明，贝叶斯分类器将产生最低的测试错误率，亦即**贝叶斯错误率**。相应用于分类的边界，成为贝叶斯决策边界（bayes decision boundary）。
+
+问题在于，如何推导出后验概率$p(C_{k}|x)$？我们需要更多**假设**。
 
 
 ## LDA
 
-线性判别分析（linear discriminant analysis, LDA）假定$p(X = x|Y = k) \sim N(\mu_{k}, \Sigma)$。LDA即是条件概率$p(X|Y)$为正态分布时的贝叶斯分类器，其判别函数$f(x)$为线性函数。
+线性判别分析（linear discriminant analysis, LDA）假定$p(x|C_{k}) \sim N(\mu_{k}, \Sigma)$。LDA即是条件概率$p(x|C_{k})$为（多元）正态分布时的贝叶斯分类器，其判别函数$f(x)$为线性函数。
 
-![Illustration of LDA](figures/lda.png){width=60%}
+考虑$x$是一维的情况，
+$$
+p(x|C_{k}) = \frac{1}{\sqrt{2\pi}\sigma} \text{exp}[-\frac{1}{2\sigma^{2}}(x-\mu_{k})^{2}],
+$$
+由此根据后验概率$p(C_{k}|x)$的对数，得到如下判别函数
+$$
+f_{k}(x) = x \cdot \frac{\mu_{k}}{\sigma^{2}} - \frac{\mu_{k}^{2}}{2\sigma^{2}} + \text{log}[p(C_{k})].
+$$
+
+**课堂板书：推导判别函数**
+
+## LDA示意图
+
+![Illustration of LDA](figures/lda.png){width=75%}
 
 
 ## QDA
 
-二次判别分析（quadratic discriminant analysis, QDA）假定$p(X = x|Y = k) \sim N(\mu_{k}, \Sigma_{k})$。QDA即是条件概率$p(X|Y)$为正态分布时的贝叶斯分类器，其判别函数$f(x)$为二次函数。
+二次判别分析（quadratic discriminant analysis, QDA）假定$p(x|C_{k}) \sim N(\mu_{k}, \Sigma_{k})$。QDA即是条件概率$p(x|C_{k})$为（多元）正态分布时的贝叶斯分类器，其判别函数$f(x)$为二次函数。QDA与LDA的差别在于，协方差矩阵$\Sigma_{k}$是否假定相等。
 
-## LDA vs QDA
+$x$为多维向量时，LDA的判别函数为
+$$
+f_{k}(x) = x^{T} \Sigma^{-1} \mu_{k} - \frac{1}{2} \mu_{k}^{T} \Sigma^{-1} \mu_{k} + \text{log}[p(C_{k})].  
+$$
+相应地，QDA的判别函数为
+$$
+f_{k}(x) = - \frac{1}{2} x^{T} \Sigma_{k}^{-1} x + x^{T} \Sigma_{k}^{-1} \mu_{k} - \frac{1}{2} \mu_{k}^{T} \Sigma_{k}^{-1} \mu_{k} + \text{log}[p(C_{k})].  
+$$
+
+## QDA示意图
 
 - 左图：对于两个类别，均有$\rho(X_{1}, X_{2}) = 0.7$
 - 右图：对于橙色类别，$\rho(X_{1}, X_{2}) = 0.7$；对于蓝色类别，$\rho(X_{1}, X_{2}) = -0.7$
@@ -173,11 +207,28 @@ $$
 
 通常难以知道$p(C_{k}|X)$的分布。因而，可以设法估计条件分布$p(C_{k}|X)$。
 
+对给定正整数$K$和测试观测值$x_{0}$，$K$最近邻（KNN）分类器首先识别训练集中$K$个最靠近$x_{0}$的点集$A$，继而以集合$A$中的点估计条件概率：
+$$
+p(C_{j}|x_{0}) = = \frac{1}{K} \sum_{i \in A} I(y_{i} = j).
+$$
 
-## 基本分类模型比较
+最后，运用贝叶斯规则将测试观测值$x_{0}$分到后验概率$p(C_{j}|x_{0})$最大的类中。
+
+- KNN作为典型的非参数方法（non-parametric methods），能够产生一个近似于最优贝叶斯分类器的效果
+- $K$值的选择对KNN分类器的效果有根本影响
+
+## KNN示意图
+
+![Illustration of KNN](figures/knn.png){width=70%}
 
 
-## 分类效果比较
+## 模型讨论
+
+- LDA中的判别函数与logistic回归中的对数发生比（log-odd）均是$x$的线性函数，因而二者都产生一个线性决策边界，且分类结果相近。若$p(x|C_{k}) \sim N(\mu_{k}, \Sigma)$近似成立，则LDA优于logistic回归；反之，logistic回归优于LDA。
+- KNN作为非参数方法，对决策边界的形状没有做出任何假设。因而当决策边界高度非线性时，KNN优于LDA和logistic回归。
+- QDA是线性决策边界（LDA和logistic回归）和非参数KNN方法的折衷方案，采用了二次函数形式的决策边界。
+
+[\textcolor{blue}{案例：股票市场走势预测}](https://github.com/wuhsiang/Courses/blob/master/datamining/cases/case-stock.pdf)
 
 
 # 聚类模型
