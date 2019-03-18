@@ -90,10 +90,12 @@ $$
 
 完美的分类器可以达到100%的灵敏度，及100%的特异度。但是理论上所有的分类器都会有最小的误差范围，称为贝叶斯错误率。
 
+可以绘制接收者操作特征曲线（receiver operating characteristic curve，ROC曲线），并结合ROC曲线下面积（area under the curve of ROC, AUC）来比较不同分类模型。
 
-## ROC曲线
 
-## AUC
+## ROC曲线与AUC
+
+![ROC curve and AUC](figures/roc.png){width=70%}
 
 # 基本分类模型
 
