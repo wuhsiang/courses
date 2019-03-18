@@ -191,11 +191,11 @@ $$
 
 $x$为多维向量时，LDA的判别函数为
 $$
-f_{k}(x) = x^{T} \Sigma^{-1} \mu_{k} - \frac{1}{2} \mu_{k}^{T} \Sigma^{-1} \mu_{k} + \text{log}[p(C_{k})].  
+f_{k}(x) = x^{T} \Sigma^{-1} \mu_{k} - \frac{1}{2} \mu_{k}^{T} \Sigma^{-1} \mu_{k} + \text{log}[p(C_{k})].
 $$
 相应地，QDA的判别函数为
 $$
-f_{k}(x) = - \frac{1}{2} x^{T} \Sigma_{k}^{-1} x + x^{T} \Sigma_{k}^{-1} \mu_{k} - \frac{1}{2} \mu_{k}^{T} \Sigma_{k}^{-1} \mu_{k} + \text{log}[p(C_{k})].  
+f_{k}(x) = - \frac{1}{2} x^{T} \Sigma_{k}^{-1} x + x^{T} \Sigma_{k}^{-1} \mu_{k} - \frac{1}{2} \mu_{k}^{T} \Sigma_{k}^{-1} \mu_{k} + \text{log}[p(C_{k})].
 $$
 
 ## QDA示意图
@@ -242,17 +242,41 @@ $$
 
 ## $K$均值聚类
 
+## 系统聚类
 
 # 树模型
 
 ## 树模型（tree-based models）
 
-1. 决策树
+1. 决策树（decision tree）
 2. 装袋法（bagging）
 3. 随机森林（random forest）
 4. 提升法（boosting）
 
 ## 决策树
+
+- 步骤：（1）根据分层（stratifying）或者分割（segmenting）的方式将预测变量空间划分为一系列的区域（area）；（2）给定观测样本的预测值，等于所属区域中训练集的平均值（连续变量）或者**众数**（分类变量）。
+- 特征：划分预测变量空间的分裂规则可以概括为一棵树
+- 适用范围：回归问题及分类问题
+
+**课堂板书：与回归模型预测值比较**
+
+## 测试错误率的衡量
+
+均方误差MSE适用于衡量回归问题的测试错误率。假定第$m$个区域第$k$个类别所占比例为$p_{mk}$，则分类问题的错误率衡量指标包括：
+
+- 分类错误率（classification error rate）：此区域的训练集中非最常见类所占的比例
+- 基尼系数（Gini index）：$G = \sum_{k=1}^{K} p_{mk} (1 - p_{mk})$
+- 互熵（cross entropy）: $D = -  \sum_{k=1}^{K} p_{mk} \text{log} (p_{mk})$
+
+后两个指标对节点纯度更加敏感。
+
+## 装袋法
+
+## 随机森林
+
+
+## 提升法
 
 # 支持向量机
 
