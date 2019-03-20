@@ -237,12 +237,60 @@ $$
 
 ## 聚类模型（clustering models）
 
+聚类分析（clustering）试图从观测数据中寻找**同质子类**，属于**无监督学习**（unsupervised learning）的范畴。基本聚类模型包括：
+
 1. $K$均值聚类（$K-$means clustering）
-2. 系统聚类（hierarchical clustering）
+2. 层次聚类（hierarchical clustering）
+
+原理：将观测样本分割到不同的类（cluster）中，使每个类内的观测彼此相似，而不同类中的观测彼此差异很大。
+
+**课堂讨论：比较聚类与PCA、FA、ANOVA、线性回归**
 
 ## $K$均值聚类
 
-## 系统聚类
+$k$均值聚类通过**最小化类内差异**而得到聚类结果：
+$$
+\text{min} \sum_{k=1}^{K} W(C_{k}).
+$$
+$W(\cdot)$衡量类内差异，例如可以采用欧氏距离计算。
+
+$k$均值聚类算法如下：
+
+1. 为每个观测样本随机分配一个初始类$k (1 \leq k \leq K)$。
+2. 重复以下操作，直至类的重分配停止为止：
+
+    - 分别计算$K$个类的中心。第$k$个类中心是其类内$p$维观测样本的均值向量。
+    - 将每个观测样本分配到距离其最近的类中心所在的类中。
+
+**课堂讨论：是否存在其它思路？**
+
+## $K$均值聚类示意图
+
+![Illustration of K-means clustering](figures/kmeans.png){width=60%}
+
+## 层次聚类
+
+层次聚类（hierarchical clustering）算法如下：
+
+1. 每个观测样本自成一类，共有$n$个初始类。计算所有$n(n-1)/2$对观测样本（类）之间的相异度。
+2. 令$i = n, n-1, ..., 2$：
+
+    - 在$i$个类中，比较任意两类间的相异度，找到相异度最小的两类，将其合并起来。用两个类之间的相异度表示这两个类在谱系图中交汇的高度。
+    - 计算剩下的$i-1$个新类中，每两个类间的相异度。
+
+层次聚类采用逐步归并的方式，构建了谱系图（dendrogram），从而允许任意的类别数量。
+
+## 距离测度
+
+通常采用聚类来衡量相异度，常见距离形式包括：最长（complete）距离法、类平均法（average）、最短（single）距离法和重心法（centroid）。
+
+![Distance measures in hierarchical clustering](figures/clusterdis.jpg){width=50%}
+
+## 层次聚类示意图
+
+
+![Illustration of hierarchical clustering](figures/clustergram.png){width=70%}
+
 
 # 树模型
 
