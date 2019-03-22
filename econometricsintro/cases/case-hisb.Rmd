@@ -1,0 +1,128 @@
+---
+title: "logistic回归案例：健康信息搜寻行为研究"
+author: "吴翔"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+options(digits = 2)
+
+```
+## 概述
+
+我们通过案例来阐述如何使用logistic回归模型。
+
+- 二项logistic回归
+- 多项logistic回归
+- 次序logistic回归
+
+
+```{r}
+
+# clean the work directory
+rm(list = ls())
+
+# set seeds
+set.seed(123)
+
+# read dataset
+suppressMessages(library(tidyverse))
+suppressMessages(library(pander))
+suppressMessages(library(stargazer))
+load("hisb.RData")
+
+```
+
+可以看到，数据集包含`r nrow(hisb)`个样本和`r ncol(hisb)`个变量。
+
+```{r}
+
+# display variables
+str(hisb)
+
+```
+
+各变量含义如下：
+
+- 健康信息来源`y`：包括互联网、医生和其它来源。
+- 年龄`age`
+- 性别`gender`
+- 种族`race`
+- 教育水平`education`
+- 收入`income`
+
+各个变量分布情况如下：
+
+```{r}
+
+# age
+summary(hisb$age)
+# gender
+table(hisb$gender)
+# race
+table(hisb$race)
+# education
+table(hisb$education)
+# income
+table(hisb$income)
+# hisb
+table(hisb$y)
+
+```
+
+## 二项logistic回归
+
+考虑如下问题：哪些民众更倾向使用互联网作为健康信息来源？我们采用`glm()`函数估计二项logistic回归模型。
+
+```{r}
+
+# create a binary response variable
+hisb.bl <- hisb
+hisb.bl$y <- ifelse(hisb.bl$y == "Internet", 1, 0)
+
+# fit the logistic regression model
+bl.fit <- glm(y ~ ., family = binomial(), data = hisb.bl)
+summary(bl.fit)
+
+```
+
+由于原始参数$\hat{\beta}$不易解释，我们撰写函数计算相应的OR值和置信区间。
+
+```{r, results = 'asis'}
+
+# write a function to calculate the OR and CI
+orsummary.bl <- function(fit){
+    # calculate OR and CI
+    y <- exp(cbind(coef(fit), confint(fit)))
+    # rename the matrix y
+    colnames(y)[1] <- "OR"
+    # column bind with estimate and p-value
+    y <- cbind(summary(fit)$coef[, c(1, 4)], y)
+    # adjust column order
+    y <- y[, c(1, 3:5, 2)]
+    # return the matrix
+    return(y)
+}
+# calculate OR and CI
+orstat.bl <- orsummary.bl(bl.fit)
+# display the ORs
+rownames(orstat.bl) <- c("intercept", "age", "male", "white", "college and above", "$20,000 to 74,999", "$75,000 or more")
+pandoc.table(orstat.bl)
+
+```
+
+
+```{r, results = 'asis'}
+
+# output as a table
+stargazer(bl.fit, type = "html")
+
+```
+
+## 多项logistic回归
+
+
+## 次序logistic回归
