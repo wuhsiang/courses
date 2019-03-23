@@ -312,8 +312,29 @@ $$
 $$
 \text{BL}_{j} = \text{log}[\frac{\text{Prob}(y = j)}{\text{Prob}(y = 1)}] = \beta_{j} X + \epsilon_{j}.
 $$
+估计方法和其余细节都与二项logistic回归模型类似。
+
+## 多项logistic回归案例
+
+考虑如下问题：**哪些因素影响了民众选择健康信息来源？**
+$$
+\text{logit}(p_{j}/p_{1}) = \beta_{0j} + \beta_{1j} Age_{i} + \beta_{2j} Gender_{i} + \beta_{3j} Race_{i} + \beta_{4j} Educ_{i} + \beta_{5j} Inc_{i} + \epsilon_{ij}.
+$$
+
+
+案例更多细节，详见[\textcolor{blue}{多项logistic回归案例:健康信息搜寻行为}](https://github.com/wuhsiang/Courses/blob/master/econometricsintro/cases/case-hisb.pdf)
 
 ## 离散选择模型
+
+消费决策过程中，通常面临几个候选项。这与多项logistic回归模型的设定是一致的。
+
+同时，每个候选项可以由具体的\textcolor{red}{属性}刻画，例如产品属性。
+
+给定候选项及其属性的时候，消费者如何决策？
+
+## 离散选择试验
+
+![An example of discrete choice experiment](figures/dce.png){width=70%}
 
 # 次序logistic回归（略）
 
