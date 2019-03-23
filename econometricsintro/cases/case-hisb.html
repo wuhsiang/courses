@@ -11,7 +11,7 @@
 
 <meta name="author" content="吴翔" />
 
-<meta name="date" content="2019-03-22" />
+<meta name="date" content="2019-03-23" />
 
 <title>logistic回归案例：健康信息搜寻行为研究</title>
 
@@ -377,7 +377,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">logistic回归案例：健康信息搜寻行为研究</h1>
 <h4 class="author">吴翔</h4>
-<h4 class="date">2019-03-22</h4>
+<h4 class="date">2019-03-23</h4>
 
 </div>
 
@@ -388,7 +388,6 @@ $(document).ready(function () {
 <ul>
 <li>二项logistic回归</li>
 <li>多项logistic回归</li>
-<li>次序logistic回归</li>
 </ul>
 <pre class="r"><code># clean the work directory
 rm(list = ls())
@@ -453,7 +452,17 @@ table(hisb$y)</code></pre>
 </div>
 <div id="logistic" class="section level2">
 <h2>二项logistic回归</h2>
-<p>考虑如下问题：哪些民众更倾向使用互联网作为健康信息来源？我们采用<code>glm()</code>函数估计二项logistic回归模型。</p>
+<p>考虑如下问题：<strong>哪些民众更倾向使用互联网作为健康信息来源？</strong></p>
+<p>当观测样本<span class="math inline">\(i\)</span>使用互联网作为健康信息来源时，记作<span class="math inline">\(y_{i} = 1\)</span>；否则，记作<span class="math inline">\(y_{i} = 0\)</span>。将所有其它变量纳入模型作为自变量，用以解释民众使用互联网作为健康信息来源的概率<span class="math inline">\(p\)</span>。因此，二项logistic回归模型如下：</p>
+<p><span class="math display">\[
+\text{logit}(p_{i}) = \beta_{0} + \beta_{1} Age_{i} + \beta_{2} Gender_{i} + \beta_{3} Race_{i} + \beta_{4} Educ_{i} + \beta_{5} Inc_{i} + \epsilon_{i}.
+\]</span></p>
+<p>进一步，考虑到二水平和多水平的分类自变量（categorical independent variable），我们将其虚拟变量化，用<span class="math inline">\(k-1\)</span>个虚拟变量来表示<span class="math inline">\(k\)</span>个水平的分类自变量。因此，二项logistic回归模型重新表示为：</p>
+<p><span class="math display">\[
+\text{logit}(p_{i}) = \beta_{0} + \beta_{1} Age_{i} + \beta_{2} GenderM_{i} + \beta_{3} RaceW_{i} + \beta_{4} EducH_{i} + \beta_{5} IncM_{i} + \beta_{6} IncH_{i} + \epsilon_{i}.
+\]</span></p>
+<p>注意，收入变量有三个水平，我们以低收入水平（年收入19,999美元以内）作为参照水平（reference level），而将其它中等收入和高等收入水平作为虚拟变量纳入模型。只使用<span class="math inline">\(k-1\)</span>个虚拟变量的原因在于，避免出现完全多重共线性。</p>
+<p>我们采用<code>glm()</code>函数估计二项logistic回归模型，得到如下结果：</p>
 <pre class="r"><code># create a binary response variable
 hisb.bl &lt;- hisb
 hisb.bl$y &lt;- ifelse(hisb.bl$y == &quot;Internet&quot;, 1, 0)
@@ -488,6 +497,39 @@ summary(bl.fit)</code></pre>
 ## AIC: 1828
 ## 
 ## Number of Fisher Scoring iterations: 4</code></pre>
+<p>考虑到<code>age</code>不可能为0，为了使截距项有实际意义，我们将年龄变量做对中（即减去其均值）处理。</p>
+<pre class="r"><code># centering age variable
+hisb.bl$age &lt;- scale(hisb.bl$age, center = TRUE, scale = FALSE)
+# fit the logistic regression model
+bl.fit &lt;- glm(y ~ ., family = binomial(), data = hisb.bl)
+summary(bl.fit)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ ., family = binomial(), data = hisb.bl)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -2.566  -0.862   0.510   0.780   1.817  
+## 
+## Coefficients:
+##                            Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)                -0.43365    0.17298   -2.51   0.0122 *  
+## age                        -0.05043    0.00431  -11.69  &lt; 2e-16 ***
+## genderMale                 -0.03720    0.11918   -0.31   0.7550    
+## raceWhite                   0.64694    0.14190    4.56  5.1e-06 ***
+## educationCollege and above  0.37010    0.12278    3.01   0.0026 ** 
+## income$20,000 to $74,999    0.87564    0.16555    5.29  1.2e-07 ***
+## income$75,000 or more       1.26223    0.18502    6.82  9.0e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 2124.4  on 1813  degrees of freedom
+## Residual deviance: 1813.9  on 1807  degrees of freedom
+## AIC: 1828
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
 <p>由于原始参数<span class="math inline">\(\hat{\beta}\)</span>不易解释，我们撰写函数计算相应的OR值和置信区间。</p>
 <pre class="r"><code># write a function to calculate the OR and CI
 orsummary.bl &lt;- function(fit){
@@ -506,15 +548,15 @@ orsummary.bl &lt;- function(fit){
 orstat.bl &lt;- orsummary.bl(bl.fit)
 # display the ORs
 rownames(orstat.bl) &lt;- c(&quot;intercept&quot;, &quot;age&quot;, &quot;male&quot;, &quot;white&quot;, &quot;college and above&quot;, &quot;$20,000 to 74,999&quot;, &quot;$75,000 or more&quot;)
-pandoc.table(orstat.bl)</code></pre>
-<table>
+pandoc.table(orstat.bl, digits = 2)</code></pre>
+<table style="width:97%;">
 <colgroup>
-<col width="32%"></col>
-<col width="14%"></col>
+<col width="33%"></col>
+<col width="15%"></col>
+<col width="9%"></col>
+<col width="11%"></col>
 <col width="12%"></col>
-<col width="12%"></col>
-<col width="12%"></col>
-<col width="16%"></col>
+<col width="15%"></col>
 </colgroup>
 <thead>
 <tr class="header">
@@ -529,287 +571,325 @@ pandoc.table(orstat.bl)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="center"><strong>intercept</strong></td>
-<td align="center">2.353</td>
-<td align="center">10.51</td>
-<td align="center">5.924</td>
-<td align="center">18.91</td>
-<td align="center">1.838e-15</td>
+<td align="center">-0.43</td>
+<td align="center">0.65</td>
+<td align="center">0.46</td>
+<td align="center">0.91</td>
+<td align="center">0.012</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>age</strong></td>
-<td align="center">-0.05043</td>
-<td align="center">0.9508</td>
-<td align="center">0.9427</td>
-<td align="center">0.9588</td>
-<td align="center">1.373e-31</td>
+<td align="center">-0.05</td>
+<td align="center">0.95</td>
+<td align="center">0.94</td>
+<td align="center">0.96</td>
+<td align="center">1.4e-31</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>male</strong></td>
-<td align="center">-0.0372</td>
-<td align="center">0.9635</td>
-<td align="center">0.7629</td>
-<td align="center">1.217</td>
-<td align="center">0.755</td>
+<td align="center">-0.037</td>
+<td align="center">0.96</td>
+<td align="center">0.76</td>
+<td align="center">1.2</td>
+<td align="center">0.75</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>white</strong></td>
-<td align="center">0.6469</td>
-<td align="center">1.91</td>
-<td align="center">1.445</td>
-<td align="center">2.521</td>
-<td align="center">5.135e-06</td>
+<td align="center">0.65</td>
+<td align="center">1.9</td>
+<td align="center">1.4</td>
+<td align="center">2.5</td>
+<td align="center">5.1e-06</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>college and above</strong></td>
-<td align="center">0.3701</td>
-<td align="center">1.448</td>
-<td align="center">1.138</td>
-<td align="center">1.842</td>
-<td align="center">0.002575</td>
+<td align="center">0.37</td>
+<td align="center">1.4</td>
+<td align="center">1.1</td>
+<td align="center">1.8</td>
+<td align="center">0.0026</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>$20,000 to 74,999</strong></td>
-<td align="center">0.8756</td>
+<td align="center">0.88</td>
 <td align="center">2.4</td>
-<td align="center">1.737</td>
-<td align="center">3.325</td>
-<td align="center">1.228e-07</td>
+<td align="center">1.7</td>
+<td align="center">3.3</td>
+<td align="center">1.2e-07</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>$75,000 or more</strong></td>
-<td align="center">1.262</td>
-<td align="center">3.533</td>
-<td align="center">2.461</td>
-<td align="center">5.085</td>
-<td align="center">8.967e-12</td>
+<td align="center">1.3</td>
+<td align="center">3.5</td>
+<td align="center">2.5</td>
+<td align="center">5.1</td>
+<td align="center">9e-12</td>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code># output as a table
-stargazer(bl.fit, type = &quot;html&quot;)</code></pre>
-<table style="text-align:center">
-<tr>
-<td colspan="2" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-<em>Dependent variable:</em>
-</td>
-</tr>
-<tr>
-<td>
-</td>
-<td colspan="1" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-y
-</td>
-</tr>
-<tr>
-<td colspan="2" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-age
-</td>
-<td>
--0.050<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.004)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-genderMale
-</td>
-<td>
--0.037
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.120)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-raceWhite
-</td>
-<td>
-0.650<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.140)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-educationCollege and above
-</td>
-<td>
-0.370<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.120)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-74,999
-</td>
-<td>
-0.880<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.170)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-75,000 or more
-</td>
-<td>
-1.300<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.180)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-Constant
-</td>
-<td>
-2.400<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.300)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan="2" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-Observations
-</td>
-<td>
-1,814
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-Log Likelihood
-</td>
-<td>
--907.000
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-Akaike Inf. Crit.
-</td>
-<td>
-1,828.000
-</td>
-</tr>
-<tr>
-<td colspan="2" style="border-bottom: 1px solid black">
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-<em>Note:</em>
-</td>
-<td style="text-align:right">
-<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
-</td>
-</tr>
-</table>
+<p>类似的，我们返回最大对数似然值。</p>
+<pre class="r"><code># LL
+logLik(bl.fit)</code></pre>
+<pre><code>## 'log Lik.' -907 (df=7)</code></pre>
+<p>最后，估计空模型。</p>
+<pre class="r"><code># fit the null logistic regression model
+bl.fit.null &lt;- glm(y ~ 0, family = binomial(), data = hisb.bl)
+summary(bl.fit.null)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ 0, family = binomial(), data = hisb.bl)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+##  -1.18   -1.18    1.18    1.18    1.18  
+## 
+## No Coefficients
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 2514.7  on 1814  degrees of freedom
+## Residual deviance: 2514.7  on 1814  degrees of freedom
+## AIC: 2515
+## 
+## Number of Fisher Scoring iterations: 0</code></pre>
+<p>返回空模型的LL，并由此可以计算伪<span class="math inline">\(R^{2}\)</span>。</p>
+<pre class="r"><code># calculate R square
+logLik(bl.fit.null)</code></pre>
+<pre><code>## 'log Lik.' -1257 (df=0)</code></pre>
+<pre class="r"><code>rsq &lt;- (logLik(bl.fit.null) - logLik(bl.fit)) / logLik(bl.fit.null)
+rsq</code></pre>
+<pre><code>## 'log Lik.' 0.28 (df=0)</code></pre>
 </div>
 <div id="logistic" class="section level2">
 <h2>多项logistic回归</h2>
-</div>
-<div id="logistic" class="section level2">
-<h2>次序logistic回归</h2>
+<p>类似地，我们采用<code>nnet</code>包中的<code>multinom()</code>函数估计多项logistic模型。</p>
+<pre class="r"><code>rm(list = ls())
+load(&quot;hisb.RData&quot;)
+
+# create a binary response variable
+hisb.ml &lt;- hisb
+hisb.ml$age &lt;- scale(hisb.ml$age, center = TRUE, scale = FALSE)
+
+# fit the multinomial logistic regression model
+suppressMessages(library(nnet))
+ml.fit &lt;- multinom(y ~ ., data = hisb.ml)</code></pre>
+<pre><code>## # weights:  24 (14 variable)
+## initial  value 1992.882692 
+## iter  10 value 1253.592652
+## iter  20 value 1239.182484
+## final  value 1239.182108 
+## converged</code></pre>
+<pre class="r"><code>summary(ml.fit)</code></pre>
+<pre><code>## Call:
+## multinom(formula = y ~ ., data = hisb.ml)
+## 
+## Coefficients:
+##          (Intercept)     age genderMale raceWhite
+## Internet       0.244 -0.0528    -0.0405      0.53
+## Others        -0.026 -0.0057    -0.0086     -0.26
+##          educationCollege and above income$20,000 to $74,999
+## Internet                      0.397                    0.839
+## Others                        0.065                   -0.081
+##          income$75,000 or more
+## Internet                  1.13
+## Others                   -0.31
+## 
+## Std. Errors:
+##          (Intercept)    age genderMale raceWhite
+## Internet        0.20 0.0052       0.14      0.17
+## Others          0.23 0.0068       0.19      0.21
+##          educationCollege and above income$20,000 to $74,999
+## Internet                       0.15                     0.19
+## Others                         0.20                     0.23
+##          income$75,000 or more
+## Internet                  0.22
+## Others                    0.28
+## 
+## Residual Deviance: 2478 
+## AIC: 2506</code></pre>
+<p>类似地，我们撰写函数计算相应的OR值和置信区间。</p>
+<pre class="r"><code># write a function to calculate the OR and CI
+orsummary.ml &lt;- function(fit, j = 1){
+    # calculate OR and CI
+    y &lt;- exp(cbind(coef(fit)[j, ], confint(fit)[,,j]))
+    # calculate z values
+    zvalues &lt;- summary(fit)$coefficients / summary(fit)$standard.errors
+    # calculate p values
+    pvalues &lt;- pnorm(abs(zvalues[j, ]), lower.tail = F) * 2
+    # column bind with estimate and p-value
+    y &lt;- cbind(coef(fit)[j, ], y, pvalues)
+    # rename column names
+    colnames(y)[c(1, 2, 5)] &lt;- c(&quot;Estimates&quot;, &quot;OR&quot;, &quot;Pr(&gt;|z|)&quot;)
+    # return the matrix
+    return(y)
+}
+
+# calculate model statistics
+internet.or &lt;- orsummary.ml(ml.fit, j = 1)
+other.or &lt;- orsummary.ml(ml.fit, j = 2)</code></pre>
+<p>最后，展示最终结果。</p>
+<pre class="r"><code># display the ORs
+rn &lt;- c(&quot;intercept&quot;, &quot;age&quot;, &quot;male&quot;, &quot;white&quot;, &quot;college and above&quot;, &quot;$20,000 to 74,999&quot;, &quot;$75,000 or more&quot;)
+rownames(internet.or) &lt;- rn
+rownames(other.or) &lt;- rn
+pandoc.table(internet.or)</code></pre>
+<table>
+<colgroup>
+<col width="32%"></col>
+<col width="16%"></col>
+<col width="12%"></col>
+<col width="12%"></col>
+<col width="12%"></col>
+<col width="16%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">Estimates</th>
+<th align="center">OR</th>
+<th align="center">2.5 %</th>
+<th align="center">97.5 %</th>
+<th align="center">Pr(&gt;|z|)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>intercept</strong></td>
+<td align="center">0.2436</td>
+<td align="center">1.276</td>
+<td align="center">0.8565</td>
+<td align="center">1.9</td>
+<td align="center">0.2309</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>age</strong></td>
+<td align="center">-0.0528</td>
+<td align="center">0.9486</td>
+<td align="center">0.939</td>
+<td align="center">0.9583</td>
+<td align="center">2.136e-24</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>male</strong></td>
+<td align="center">-0.04049</td>
+<td align="center">0.9603</td>
+<td align="center">0.727</td>
+<td align="center">1.268</td>
+<td align="center">0.7755</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>white</strong></td>
+<td align="center">0.5328</td>
+<td align="center">1.704</td>
+<td align="center">1.22</td>
+<td align="center">2.38</td>
+<td align="center">0.001782</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>college and above</strong></td>
+<td align="center">0.397</td>
+<td align="center">1.487</td>
+<td align="center">1.114</td>
+<td align="center">1.987</td>
+<td align="center">0.007186</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>$20,000 to 74,999</strong></td>
+<td align="center">0.8394</td>
+<td align="center">2.315</td>
+<td align="center">1.584</td>
+<td align="center">3.383</td>
+<td align="center">1.452e-05</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>$75,000 or more</strong></td>
+<td align="center">1.135</td>
+<td align="center">3.11</td>
+<td align="center">2.027</td>
+<td align="center">4.772</td>
+<td align="center">2.031e-07</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>pandoc.table(other.or)</code></pre>
+<table>
+<colgroup>
+<col width="32%"></col>
+<col width="16%"></col>
+<col width="12%"></col>
+<col width="12%"></col>
+<col width="12%"></col>
+<col width="14%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">Estimates</th>
+<th align="center">OR</th>
+<th align="center">2.5 %</th>
+<th align="center">97.5 %</th>
+<th align="center">Pr(&gt;|z|)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>intercept</strong></td>
+<td align="center">-0.02604</td>
+<td align="center">0.9743</td>
+<td align="center">0.6187</td>
+<td align="center">1.534</td>
+<td align="center">0.9105</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>age</strong></td>
+<td align="center">-0.005692</td>
+<td align="center">0.9943</td>
+<td align="center">0.9811</td>
+<td align="center">1.008</td>
+<td align="center">0.4034</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>male</strong></td>
+<td align="center">-0.008561</td>
+<td align="center">0.9915</td>
+<td align="center">0.6828</td>
+<td align="center">1.44</td>
+<td align="center">0.9641</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>white</strong></td>
+<td align="center">-0.2622</td>
+<td align="center">0.7694</td>
+<td align="center">0.5086</td>
+<td align="center">1.164</td>
+<td align="center">0.2145</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>college and above</strong></td>
+<td align="center">0.06465</td>
+<td align="center">1.067</td>
+<td align="center">0.7198</td>
+<td align="center">1.581</td>
+<td align="center">0.7474</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>$20,000 to 74,999</strong></td>
+<td align="center">-0.08121</td>
+<td align="center">0.922</td>
+<td align="center">0.5887</td>
+<td align="center">1.444</td>
+<td align="center">0.7227</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>$75,000 or more</strong></td>
+<td align="center">-0.3114</td>
+<td align="center">0.7324</td>
+<td align="center">0.4219</td>
+<td align="center">1.272</td>
+<td align="center">0.2685</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 

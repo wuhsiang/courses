@@ -88,15 +88,15 @@ $$
 但LPM存在异方差问题，同时预测值$\hat{p}_{i}$很可能落在$[0,1]$区间以外。因而，LPM随即被logit和probit模型取代。
 
 
-## 发生比率（odds）
+## 发生比（odds）
 
-事件的\textcolor{red}{发生比率}（odds），定义为事件发生的概率$p$与不发生的概率$(1-p)$的比率：
+事件的\textcolor{red}{发生比}（odds，也称发生比率、比数），定义为事件发生的概率$p$与不发生的概率$(1-p)$的比率：
 $$
 \text{odds} = \frac{p}{1 - p}.
 $$
 此时$\text{odds} \in [0, \infty]$。
 
-进一步，\textcolor{red}{对数发生比率}（log-odds），也称为发生概率$p$的\textcolor{red}{logit}：
+进一步，\textcolor{red}{对数发生比}（log-odds），也称为发生概率$p$的\textcolor{red}{logit}：
 $$
 \text{logit}(p) = \text{log}(\frac{p}{1-p}).
 $$
@@ -117,14 +117,114 @@ $$
 
 通过\textcolor{red}{最大似然估计}（maximum likelihood estimation, MLE）方法，得到参数$\beta$的估计值$\hat{\beta}$。
 
+## 二项logistic回归案例
+
+考虑如下问题：**哪些民众更倾向使用互联网作为健康信息来源？**当观测样本$i$使用互联网作为健康信息来源时，记作$y_{i} = 1$；否则，记作$y_{i} = 0$。将所有其它变量纳入模型作为自变量，用以解释民众使用互联网作为健康信息来源的概率$p$。
+$$
+\text{logit}(p_{i}) = \beta_{0} + \beta_{1} Age_{i} + \beta_{2} Gender_{i} + \beta_{3} Race_{i} + \beta_{4} Educ_{i} + \beta_{5} Inc_{i} + \epsilon_{i}.
+$$
+进一步将分类自变量其虚拟变量化，得到最终二项logistic回归模型中，最后一项$\beta_{5} Inc_{i}$则变成两个虚拟变量项：
+$$
+\beta_{5} IncM_{i} + \beta_{6} IncH_{i}
+$$
+
+案例更多细节，详见[\textcolor{blue}{二项logistic回归案例:健康信息搜寻行为}](https://github.com/wuhsiang/Courses/blob/master/econometricsintro/cases/case-hisb.pdf)
+
+## 二项logistic回归结果
+
+![Estimated parameters](figures/blogitres.png){width=90%}
+
 ## 参数解释
 
-[\textcolor{blue}{二项logistic回归案例:健康信息搜寻行为}](https://github.com/wuhsiang/Courses/blob/master/econometricsintro/cases/case-hisb.pdf)
+二项logistic回归得到如下参数估计结果：
+\begin{align*}
+\text{logit}(p_{i}) = & -0.43 -0.05 Age_{i} + 0.65 RaceW_{i} + 0.37 EducH_{i} \\
+ & + 0.88 IncM_{i} + 1.26 IncH_{i} + \epsilon_{i}.
+\end{align*}
 
-## 发生比率比（odds ratio）
+然而，该如何解释参数$\beta$的含义？我们分以下四个情形逐一讨论：
+
+- 截距项
+- 二分类自变量：种族、教育水平
+- 多分类自变量：收入
+- 连续自变量：年龄
+
+## 参数解释：截距项
+
+截距项$\hat{\beta}_{0} = -0.43$，其含义为：当其它变量取值均为0的时候，对数发生比$\text{log}(\text{odds}) = -0.43$。
+
+其它变量取值均为0的含义：年龄55岁（样本均值）、非白人种族、教育程度在大学以下、年收入在20,000美元以下。
+
+$\text{log}(\text{odds}) = -0.43$的含义是，使用互联网获取健康信息的概率与不使用互联网获取健康信息的概率之比（odds）为：
+$$
+\text{odds} = \text{exp}(-0.43) = 0.65.
+$$
+
+**注**：年龄进行对中（centering）处理之前，截距项估计值$\hat{\beta}_{0} = 2.35$，可计算相应的对数发生比$\text{odds} = \text{exp}(2.35) = 10.49$，但此数值无法解释。
+
+## 参数解释：二分类自变量
+
+二分类自变量种族（$\hat{\beta}_{3} = 0.65$）和教育水平（$\hat{\beta}_{4} = 0.37$）的系数的含义是什么？
+
+\textcolor{red}{其它条件不变}（ceteris paribus）时，种族变量对民众使用互联网获取健康信息的对数发生比的净效应是$0.65$。换言之，其它条件不变时，非白人族群使用互联网获取健康信息的对数发生比记为$\alpha_{0}$，那么相应的白人族群对应的对数发生比为$\alpha_{0} + 0.65$。由此，白人族群使用互联网获取健康信息的发生比（odds）与非白人族群使用互联网获取健康信息的发生比的比率为：
+$$
+\frac{\text{odds}_{RaceW}}{\text{odds}_{RaceNW}} = \frac{\text{exp}(\alpha_{0} + 0.65)}{\text{exp}(\alpha_{0})} = \exp(0.65) = 1.91.
+$$
+因此，$\hat{\beta}_{3} = 0.65$的含义是：白人族群使用互联网获取健康信息的发生比是非白人族群的1.91倍。
+
+## 参数解释：多分类自变量
+
+多分类自变量收入（$\hat{\beta}_{5} = 0.88$，$\hat{\beta}_{6} = 1.26$）的系数的含义是什么？
+
+其它条件不变时，低收入群体使用互联网获取健康信息的对数发生比记为$\alpha_{0}$。那么，中等收入群体和高收入群体的对数发生比相应为$\alpha_{0} + 0.88$和$\alpha_{0} + 1.26$。类似地，
+$$
+\frac{\text{odds}_{IncM}}{\text{odds}_{IncL}} = \exp(0.88) = 2.41, \text{ and } \frac{\text{odds}_{IncH}}{\text{odds}_{IncL}} = \exp(1.26) = 3.53.
+$$
+
+**课堂讨论**：中等收入群体和高收入群体之间是否可比？
+
+## 参数解释：连续自变量
+
+连续自变量年龄（$\hat{\beta}_{1} = -0.05$）的系数的含义是什么？
+
+其它条件不变时，由于没有参考水平，我们取年龄为$x_{0}$，而除年龄以外的其它项对应的对数发生比记为$\alpha_{0}$。那么，年龄$x_{0}$的群体使用互联网获取健康信息的对数发生比为$\alpha_{0} + \hat{\beta}_{1} x_{0}$；而年龄增加1岁，相应的对数发生比为$\alpha_{0} + \hat{\beta}_{1} (x_{0} + 1)$。由此，
+$$
+\frac{\text{odds}_{x_{0} + 1}}{\text{odds}_{x_{0}}} = \frac{\text{exp}[\alpha_{0} + \hat{\beta}_{1} (x_{0} + 1)]}{\text{exp}(\alpha_{0} + \hat{\beta}_{1} x_{0})} = \exp(\hat{\beta}_{1}) = \exp(-0.05) = 0.95.
+$$
+因此，年龄每增加1岁，使用互联网获取健康信息的发生比降低5%。
 
 
-## 相对风险（relative risk）
+## 参数解释：事件发生概率的预测
+
+**问题**：一位年龄50岁的白人男性民众，受教育程度在大学以下，年收入为20,000至74,999美元区间（中等收入水平）。请问他使用互联网获取健康信息的概率是多少？
+
+**分析**：首先预测对数发生比
+$$
+\text{logit}(\hat{p}_{i}) = \text{log}(\hat{\text{odds}}_{i}) = -0.43 - 0.05 \times (50 - 55) + 0.65 + 0.88 = 1.35.
+$$
+从而发生比的预测值为$\hat{\text{odds}}_{i} = \exp(1.35) = 3.86$，该民众使用互联网获取健康信息的概率预测值为$\hat{p}_{i} = 3.86/4.86 = 0.79$。
+
+## 发生比的比率（odds ratio）
+
+以上各种类型的自变量（二分类自变量、多分类自变量、连续变量）的系数解释时，都使用了以下概念：\textcolor{red}{发生比的比率}（odds ratio, OR）。
+
+假定有A组和B组，我们通常会考虑两组的发生比的比率：
+$$
+\text{OR} = \frac{\text{odds}_{A}}{\text{odds}_{B}}.
+$$
+
+使用OR解释系数含义更加直观，因此我们通常报告OR及相应的CI。
+
+**课堂讨论**：解释以上各个系数时，相应的A组和B组是什么？
+
+## 报告OR及相应的CI
+
+$\hat{\beta} > 0$，则有$OR > 1$；若$\beta$系数显著不等于0，则$OR$的置信区间（confidence interval, CI）不包含1。
+
+![Coefficients, OR, and corresponding CI](figures/or.png){width=80%}
+
+
+<!-- ## 相对风险（relative risk） -->
 
 ## 似然函数
 
@@ -152,31 +252,76 @@ L(\beta) = \prod_{i=1}^{n} p_{i}^{y_{i}} (1 - p_{i})^{(1-y_{i})}
 $$
 进一步，对数似然函数
 $$
-LL(\beta) = \sum_{i=1}^{n} y_{i} \cdot \text{log}(p_{i}) + (1-y_{i}) \cdot \text{log} (1 - p_{i}).
+LL(\beta) = \sum_{i=1}^{n} [y_{i} \cdot \text{log}(p_{i}) + (1-y_{i}) \cdot \text{log} (1 - p_{i})].
 $$
 可以使用最大似然估计得到参数估计值$\hat{\beta}$。
 
-## 分类数据的哲学视角
+## 模型拟合优度
 
-1. 变换方法（transformational approach）
-2. 潜变量方法（latent variable approach）
+logistic回归模型采用最大似然估计方法估计参数，因而模型拟合优度也应基于似然函数。
 
-## 变换方法
+假定模型中待估计的参数个数为$k$，样本量为$n$，似然函数的最大值为$\hat{L}$，则可计算AIC（Akaike information criterion）和BIC（bayesian information criterion）统计量：
+$$
+\text{AIC} = 2 k - 2 LL \text{ and } \text{BIC} = \text{log}(n) \cdot k -2 LL.
+$$
 
-## 潜变量方法
+此外，McFadden提出的伪$R^{2}$统计量为：
+$$
+\text{pseudo } R^{2} = \frac{LL_{0} - LL_{c}}{LL_{0}}.
+$$
+其中$LL_{0}$为空模型对应的对数似然值。
+
+## 评估模型拟合优度
+
+在以上例子中，样本量$n = 1814$，参数个数$k = 7$，对数似然函数最大值$LL = -907$。因而，
+$$
+\text{AIC} = 2 \times 7 - 2 \times (-907) = 1828.
+$$
+以及
+$$
+\text{BIC} = \text{log}(1814) \times 7 -2 \times (-907) = 1866.
+$$
+
+最后估计空模型，得到相应对数似然值$LL_{0} = -1257$，由此得到
+$$
+\text{pseudo } R^{2} = \frac{LL_{0} - LL_{c}}{LL_{0}} = 0.28.
+$$
+
+## 预测准确率？
+
+![confusion matrix](figures/confusionmatrix.png){width=90%}
+
+## 如何报告二项logistic回归结果？
+
+<!-- ## 分类数据的哲学视角 -->
+
+<!-- 1. 变换方法（transformational approach） -->
+<!-- 2. 潜变量方法（latent variable approach） -->
+
+<!-- ## 变换方法 -->
+
+<!-- ## 潜变量方法 -->
 
 # 多项logistic回归
 
 ## 多项logistic回归
 
-# 次序logistic回归
+当因变量取值是多分类变量时，需要使用多项logistic回归模型。其基本逻辑是：\textcolor{red}{一次比较两个结果}。
 
-## 次序logistic回归
+假定因变量有$J$个类别，我们将第$j(1 \leq j \leq J)$个分类与第一个分类（参考水平, reference level）进行比较，从而得到第$j$个分类的基线logistic回归模型：
+$$
+\text{BL}_{j} = \text{log}[\frac{\text{Prob}(y = j)}{\text{Prob}(y = 1)}] = \beta_{j} X + \epsilon_{j}.
+$$
 
+## 离散选择模型
+
+# 次序logistic回归（略）
+
+## 次序logistic回归（略）
 
 
 ## logistic回归总结
 
 1. 二项logistic回归
 2. 多项logistic回归
-3. 次序logistic回归
+3. 次序logistic回归（略）
