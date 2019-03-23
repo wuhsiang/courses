@@ -7,4 +7,4 @@
 ## logistic回归上机作业
 
 - 目标：理解logistic的回归参数含义，并掌握应当报告哪些模型拟合优度统计量。
-- 内容：采用课上所用的[hisb数据](https://github.com/wuhsiang/Courses/blob/master/econometricsintro/resources/hisb.csv)及模型，使用SPSS估计logistic回归模型。
+- 内容：采用课上所用的[hisb数据](https://github.com/wuhsiang/Courses/blob/master/econometricsintro/resources/hisb.csv)及模型，使用SPSS估计logistic回归模型。操作方法请参阅[Running a Logistic Regression Model on SPSS](http://www.restore.ac.uk/srme/www/fac/soc/wie/research-new/srme/modules/mod4/11/index.html)。
