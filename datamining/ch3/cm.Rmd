@@ -3,7 +3,7 @@ title: 分类模型
 author:
  - 授课教师：吴翔 \newline
  - 邮箱：wuhsiang@hust.edu.cn
-date: "March 18-25, 2019"
+date: "May 4-18, 2019"
 linestretch: 1.25
 fontsize: 18
 header-includes:
@@ -27,15 +27,21 @@ options(digits = 2)
 
 ## 统计学习方法
 
-统计机器学习（statistical machine learning）可分为：
+\textcolor{red}{统计机器学习（statistical machine learning）}可分为：
 
 - 有监督学习（supervised learning） vs 无监督学习（unsupervised learning）：聚类分析即为典型的无监督学习
 - 参数方法（parametric methods） vs 非参数方法（non-parametric methods）
 - 回归（regression）问题 vs \textcolor{red}{分类（classification）问题}：分别针对连续变量和分类变量
 
+
+
+## 模型复杂程度
+
+![Model complexity](figures/complexity.jpg){width=70%}
+
 ## 测试均方误差的分解
 
-测试均方误差的期望值（expected test MSE）可以分解为如下三个部分：
+测试均方误差的期望值（**expected test MSE**）可以分解为如下三个部分：
 $$
 E(y - \hat{f}(x))^{2} = \underbrace{\text{Var}(\hat{f}(x))}_{\text{variance}} + \underbrace{[\text{Bias}(\hat{f}(x))]^{2}}_{\text{bias}} + \underbrace{\text{Var}(\epsilon)}_{\text{irreducible}}.
 $$
@@ -52,12 +58,12 @@ $$
 ## 如何选择统计模型？
 
 - 传统统计模型的局限：线性回归模型等统计模型通常最小化训练数据的均方误差，但是其测试均方误差（test MSE）却较大。换言之，传统统计模型执着于寻求“真实规律”，以致于将一些随机因素**误判**为$f$的真实性质。
-- 权衡模型偏误与方差（bias-variance trade-off）：随着模型灵活性（或自由度）的增加，模型方差随之增大，但模型偏误则相应减小（过度拟合问题）。通过交叉验证（cross-validation）来实现两者的权衡。
-- 权衡预测精度与可解释性（accuracy-interpretability trade-off）：诸如bagging、boosting、support vector machines等非线性模型具有很高的预测精度，但不易解释；linear models等易于解释，但预测精度不高。两者的权衡取决于研究目的。
+- 权衡模型偏误与方差（**bias-variance trade-off**）：随着模型灵活性（或自由度）的增加，模型方差随之增大，但模型偏误则相应减小（过度拟合问题）。通过交叉验证（cross-validation）来实现两者的权衡。
+- 权衡预测精度与可解释性（**accuracy-interpretability trade-off**）：诸如bagging、boosting、support vector machines等非线性模型具有很高的预测精度，但不易解释；linear models等易于解释，但预测精度不高。两者的权衡取决于研究目的。
 
 ## 交叉验证
 
-交叉验证将原始数据集分为训练集（training set）和验证集（validation set），并以验证集的错误率选择最佳模型。
+交叉验证将原始数据集分为训练集（**training set**）和验证集（**validation set**），并以验证集的错误率选择最佳模型。
 
 - 留一交叉验证法（leave-one-out cross validation, LOOCV）
 - $k$折交叉验证法（$k-$fold CV）：将观测集随机分为$k$个大小基本一致的组，或说折（fold）。每次选取其中一折作为验证集，而剩余$k-1$折作为训练集。通常，取$k=5$或$k=10$。
@@ -81,6 +87,66 @@ $$
 
 ![confusion matrix](figures/confusionmatrix.png){width=90%}
 
+## 疾病筛查问题
+
+采用乳房X光检查乳腺癌，得到以下混淆矩阵：
+
+![Breast cancer screening](figures/screening.jpg){width=75%}
+
+## 两类预测错误
+
+![Two types of error](figures/errortype.jpg){width=85%}
+
+## 灵敏度
+
+- 定义：灵敏度（sensitivity）也称为真阳性率、召回率（recall rate）。指实际为阳性的样本中，被正确判断为阳性的比例。
+- 疾病筛查：在患病人群中，成功检出患者的概率。
+- 适用情况：用以**避免假阴性**。例如HIV的筛查。
+- 结果解读：由于真阳性率高，因而假阴性低。亦即，若得到结果是阴性，则有把握认为未患病。
+
+以上筛查技术的灵敏度为：132 / 177 = 74.6%。
+
+## 特异度
+
+- 定义：特异度（specificity）也称为真阴性率。指实际为阴性的样本中，被正确判断为阴性的比例。
+- 疾病筛查：在未患病人群中，成功给出阴性结果的概率。
+- 适用情况：用以**避免假阳性**。例如，治疗风险较大的疾病。
+- 结果解读：由于真阴性率高，因而假阳性率低。亦即，若得到结果是阳性，则有把握认为患病。
+
+以上筛查技术的特异度为：63650 / 64633 = 98.5%。
+
+
+
+联合筛查：先采用低成本、高灵敏度的筛查技术，排除未患病人群；再采用高成本、高特异度的筛查技术，确诊患病人群。
+
+
+
+## 机场安检问题
+
+- 方案一：
+    - 措施：针对所有可疑的危险物品，均触发报警。
+    - 评价：高灵敏度、低特异度。
+- 方案二：
+    - 措施：更复杂、成本更高的技术，尽可能方便未携带危险物品的乘客。
+    - 评价：高特异度。
+
+如何设计安检方案？
+
+实践中的权衡：灵敏度 vs 特异度
+
+
+
+## 权衡灵敏度和特异度
+
+![Sensitivity-specificity tradeoff](figures/specsens.png){width=80%}
+
+
+
+
+## ROC曲线与AUC
+
+![ROC curve and AUC](figures/roc.png){width=70%}
+
 ## 混淆矩阵及评价指标
 
 - 准确率（accuracy）：指被正确判断的样本的比例。
@@ -93,9 +159,6 @@ $$
 可以绘制接收者操作特征曲线（receiver operating characteristic curve，ROC曲线），并结合ROC曲线下面积（area under the curve of ROC, AUC）来比较不同分类模型。
 
 
-## ROC曲线与AUC
-
-![ROC curve and AUC](figures/roc.png){width=70%}
 
 # 基本分类模型
 
