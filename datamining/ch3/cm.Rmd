@@ -80,8 +80,7 @@ $$
 
 1. 基本分类模型（basic classifier）
 2. 树模型（tree-based models）
-3. 支持向量机（support vector machine, SVM）
-4. 聚类模型（clustering models）
+3. 聚类模型（clustering models）
 
 ## 分类模型的评价
 
