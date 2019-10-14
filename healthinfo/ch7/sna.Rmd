@@ -1,14 +1,13 @@
 ---
-title: 第七章 社会网络分析
+title: "第七章 社会网络分析"
 author:
  - 授课教师：吴翔 \newline
- - 邮箱：wuhsiang@hust.edu.cn
-date: "2018.11.2 - 2018.11.7"
-linestretch: 1.25
-fontsize: 16
+ - wuhsiang@hust.edu.cn
+date: "OCT 21 - 24, 2019"
 bibliography: ref.bib
 header-includes:
   - \usepackage{ctex}
+  - \usepackage[fontsize=15pt]{scrextend}
 output:
   beamer_presentation:
     theme: "CambridgeUS"
