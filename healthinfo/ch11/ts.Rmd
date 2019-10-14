@@ -35,9 +35,10 @@ options(digits = 2)
 
 ## 参考教材
 
-- Jonathan D. Cryer & Kung-Sik Chan著, 潘红宇等译.时间序列分析及应用（R语言）（原书第2版）. 北京：机械工业出版社. 2011.
+- Jonathan D. Cryer & Kung-Sik Chan著.时间序列分析及应用（R语言）（原书第2版）. 北京：机械工业出版社. 2011.
 - James D. Hamilton著. 时间序列分析（2册）. 北京:人民卫生出版社. 2015.
 - Robert I. Kabacoff著 . R语言实战（第二版）. 北京:人民邮电出版社. 2016.
+-  David Salsburg著. 女士品茶：统计学如何变革了科学和生活. 南昌:江西人民出版社. 2016.
 
 ## 本节知识点
 
@@ -48,17 +49,26 @@ options(digits = 2)
 
 ## 11.1 时间序列分析方法起源
 
-英国洛桑试验站（Rothamsted Experimental Station，现为Rothamsted Research 洛桑研究所）
+时间序列分析的方法，起源于英国统计学家Ronald Fisher在英国洛桑试验站（1919-1933）的**小麦收成变动研究**。这一研究产生了统计史上的三个重要方法：
 
+- **时间序列分析**
+- **随机对照实验**
+- **方差分析**
 
+我们通过回归这一研究，以深入理解时间序列分析的思想
 
 ## Fisher与洛桑试验站
 
 
 
+英国**洛桑试验站（Rothamsted Experimental Station）**，现为洛桑研究所（Rothamsted Research），在漫长的历史中（1843-1919）积累了大量的"实验数据"和其它记录，包括：
 
+- 降水量和温度的每日精确记录
+- 施肥量与土壤检测数据的每周记录
+- 农作物收成的每年记录
+- 人造肥料和不同农作物（小麦、黑麦、大麦、马铃薯等）的组合实验方案
 
-## 洛桑试验站的小麦产量
+## 洛桑试验站的农作物
 
 
 
@@ -66,14 +76,80 @@ options(digits = 2)
 
 
 
+## 收成变动研究
+
+Fisher考虑特定年份（$t$）的特定田地（$i$）上的农作物产量（$Y_{it}$），并试图回答以下问题：
+
+- **降水量**对洛桑小麦产量有何影响？
+- 不同**肥料**对不同品种的马铃薯产量有何影响？
+
 ## 如何预测小麦产量？
 
+选定一块田地（名曰："宽埂"），这块田地**只使用过**动物粪便作为肥料，考虑**降水量如何影响小麦产量**。
 
+- 降水量和小麦均是**时变**的，即考虑不同年份（$t$）的降水量（$X_{t}$）和小麦产量（$Y_{t}$）。
+
+- 探讨降水量$X_{t}$与小麦产量$Y_{t}$的关系，即属于**时间序列分析**范畴。
+
+- 问题演变为，如何**预测**小麦产量$Y_{t}$？
+
+## 小麦产量的影响因素分解
+
+- 土壤退化导致的产量总体稳步减小
+- 长期缓慢变化，每个变化周期为期数年
+- 不同年份的气候因素（例如降水量）导致的变化
+
+## 长期缓慢的变化
+
+```{r, echo = FALSE}
+
+rm(list = ls())
+# plot year and yields
+x <- 1843:1919
+y <- 200 + (x >= 1876 & x < 1880) * (-30) + (x >= 1880 & x < 1894) * (-50) + (x >= 1894 & x < 1901) * (-20) + (x>= 1901) * (-48)
+# create a ts object and plot the trend
+y <- ts(data = y, start = min(x), end = max(x))
+plot.ts(y, xlab = "year", ylab = "trend component")
+
+```
+
+
+
+## 理解长期而缓慢的变化
+
+- 难以解释的长期缓慢变化：产量从1876年开始剧烈下降，从1880年开始下降更加剧烈，至1894年产量开始改善，从1901年开始又剧烈下降
+
+- 小麦田地中杂草的生长情况与之相反
+
+- 最终解释：1876年前，人们雇佣小男孩到田里除草 --> 1876年《教育法》规定适龄儿童必须上学-->1880年法律处罚不让适龄儿童上学的家庭-->1894年洛桑附近的女子寄宿学校校长认为，高强度户外运动有助于儿童健康-->1901年校长去世
+
+    
+
+## 肥料使用对马铃薯产量的影响研究
+
+- 洛桑试验站的早期方案：在不同片田地上（或者Fisher的田地分块），针对不同马铃薯品种，使用不同化肥，并记录其产量
+- 潜在问题
+    - **田地**相关的混淆因素，例如土壤、排水方式、营养物质、杂草等
+    - **年份**相关的混淆因素，例如气候变化等
+
+## Fisher开创的统计方法
+
+- 随机对照实验
+    - 每片田地分块之后，进一步把每块田地分为若干排
+    - 采用**随机化**方案，对每块地的每一排实施不同的处理
+- 方差分析
+
+## 分解思想
+
+Fisher在洛桑试验站研究农作物收成变动时，采用了**分解（decomposition）的思想**：
+
+- 时间序列中的**要素分解**
+- 方差分析中的**效应分解**
 
 ## 11.1.2 时间序列基本概念
 
 - **时间序列（time series）**
-    - 定义：一组在特定时刻的观测值
+    - 定义：一组在特定时刻的观测值$Y_{t}$，例如特定田地上的小麦收成
     - 领域：广泛存在于宏观经济、金融财务以及医疗领域
 - **时间序列分析（time series analysis）**
     - 数据：时间序列数据，与横截面数据、面板数据，为三类主要的观测数据类型
@@ -89,6 +165,22 @@ options(digits = 2)
 - 面板数据（panel data）
     - 定义：
     - 例子：中国健康与养老追踪调查（China Health and Retirement Longitudinal Study, CHARLS）、中国健康与营养调查（China Health and Nutrition Survey, CHNS）等
+
+## 时间序列数据
+
+```{r, echo = FALSE}
+
+# clean the directory
+rm(list = ls())
+library(magrittr)
+# number of births per month in New York city
+births <- scan("http://robjhyndman.com/tsdldata/data/nybirths.dat") %>% ts(frequency = 12, start = c(1946, 1))
+# plot the time series data
+plot.ts(births, xlab = "time (month)")
+
+```
+
+
 
 ##  11.1.3 时间序列分析要素
 
@@ -118,6 +210,49 @@ $$
 Y_{t} = T_{t} + S_{t} + E_{t}.
 $$
 
+## 因素分解：加法模型
+
+```{r, echo = FALSE}
+
+# decomposition
+births.ad <- decompose(births, type = "additive")
+# plot the decomposition
+plot(births.ad, xlab = "time (month)")
+
+```
+
+
+
+## 加法模型之趋势因素
+
+```{r, echo = FALSE}
+
+# plot the trend
+plot(births.ad$trend, xlab = "time (month)", ylab = "trend component")
+
+```
+
+
+
+## 加法模型之季节因素
+
+```{r, echo = FALSE}
+
+# plot the trend
+plot(births.ad$seasonal, xlab = "time (month)", ylab = "seasonal component")
+
+```
+
+## 加法模型之随机因素
+
+```{r, echo = FALSE}
+
+# plot the trend
+plot(births.ad$random, xlab = "time (month)", ylab = "irregular component")
+
+```
+
+
 
 ## 乘法模型
 
@@ -127,7 +262,16 @@ Y_{t} = T_{t} \times S_{t} \times E_{t}.
 $$
 
 
+## 因素分解：乘法模型
 
+```{r, echo = FALSE}
+
+# decomposition
+births.mp <- decompose(births, type = "multiplicative")
+# plot the decomposition
+plot(births.mp, xlab = "time (month)")
+
+```
 
 #  时间序列经典分析方法（3个课时）
 
