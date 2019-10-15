@@ -439,6 +439,7 @@ $$
 Y_{t} = a + b \cdot t + Month_{t} + \epsilon_{t}.
 $$
 
+其中线性函数$(a + b \cdot t)$刻画了**趋势因素**，虚拟变量集合$Month_{t}$刻画了**季节因素**。
 
 ## 数据准备
 
@@ -460,7 +461,7 @@ summary(lm.ts)
 
 ```
 
-![模型估计结果](figures/lmts.png){width=55%}
+![模型估计结果](figures/lmts.png){width=60%}
 
 ## 模型预测
 
