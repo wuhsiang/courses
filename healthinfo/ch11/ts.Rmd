@@ -375,18 +375,32 @@ ma.ts %>% forecast() %>% plot()
 
 **指数平滑法（exponential smoothing）**
 
-- 思想：
-- 假设：
+- 思想：介于全期平均法和移动平均法之间。（1）使用**全期数据**，而非部分近期数据；（2）给予近期数据更大的权重，而远期数据的权重则呈**指数衰减**
+- 假设：时间序列的态势具有稳定性或规则性，因而过去的态势会在某种程度上持续到未来
 
 
 
 ## 指数平滑法：模型
 
-定义初始平滑值$S_{1} = Y_{1}$，则指数平滑模型可以表示为
+定义初始平滑值$S_{0} = Y_{0}$，则指数平滑模型可以表示为：
+
+- 任一期$t$的平滑值$S_{t}$，均是本期观测值$Y_{t}$和上期平滑值$S_{t-1}$的加权平均
 
 $$
-S_{t} = \alpha Y_{t} + (1 - \alpha) S_{t-1}
+S_{t} = \alpha Y_{t} + (1 - \alpha) S_{t-1}, \alpha \in [0, 1].
 $$
+
+- 平滑参数$\alpha$决定了近期或远期数据的权重。$\alpha \to 1$时，赋予近期观测值更大的权重
+- 可以通过预测精度确定最佳平滑参数$\alpha^{*}$
+
+## 何为“指数平滑”？
+
+推导可知，
+$$
+S_{t} = \alpha [Y_{t} + (1-\alpha)Y_{t-1} + ... + (1-\alpha)^{t-1}Y_{1}] + (1-\alpha)^{t} Y_{0}.  
+$$
+
+远期数据权重呈几何级数衰减，而几何级数衰减是指数衰减的离散版本，因此得名“指数平滑”。
 
 ## 指数平滑法：案例
 
@@ -409,20 +423,84 @@ es.ts %>% forecast() %>% plot()
 
 ## 指数平滑法：其它实践
 
+- 二次指数平滑法：对（一次）指数平滑法的再次平滑处理
+
+## 非参数模型小结
+
+- 不考虑问题的具体特征，而将其视作**黑箱**
+- 通常仅使用历史数据$Y_{\tau} (1 \leq \tau < t)$进行预测
+- 与K最近邻（k-nearest neighbors, KNN）等非参数模型类似，采用**直观逻辑**进行预测
+- **调节参数（tuning parameter）**通常依据预测误差最小化原则来确定
+
+## 其它模型？
+
+我们也可以自行建模，例如
+$$
+Y_{t} = a + b \cdot t + Month_{t} + \epsilon_{t}.
+$$
+
+
+## 数据准备
+
+```{r, echo = TRUE}
+
+nlength <- length(births)
+year <- 0:(nlength - 1) %/% 12 + 1946
+month <- as.factor(1:nlength %% 12)
+dat <- data.frame(births, year, month)
+lm.ts <- lm(births ~ year + month, data = dat)
+
+```
+
+## 模型估计
+
+```{r, echo = FALSE, eval = FALSE}
+
+summary(lm.ts)
+
+```
+
+![模型估计结果](figures/lmts.png){width=55%}
+
+## 模型预测
+
+```{r, echo = FALSE, fig.align='center', fig.height=5}
+
+births.lm <- fitted(lm.ts)%>% ts(frequency = 12, start = c(1946, 1))
+ts.plot(births, births.lm, gpars = list(col = c("black", "red")))
+
+```
+
 ## 预测模型比较
 
-```{r, echo = T, eval = F}
+```{r, echo = T}
 
 # write a function to assess accuracy
 accuracy.ts <- function(y, yhat){
     # calculate MSE and MAD
-    mse <- 
-    mad <- 
+    mse <- sum((y - yhat)^2) / length(y)
+    mad <- sum(abs(y - yhat)) / length(y)
     # return MSE and MAD
+    res <- data.frame(mse = mse, mad = mad)
+    return(res)
 }
 
 ```
 
+## 模型比较
+
+```{r, echo = FALSE}
+
+# moving average, exponential smoothing and our model
+accuracy <- accuracy.ts(births, fitted(ma.ts)) %>% 
+  rbind(accuracy.ts(births, fitted(es.ts))) %>% 
+  rbind(accuracy.ts(births, fitted(lm.ts)))
+
+# display the results
+rownames(accuracy) <- c("moving average", "exponential smoothing", "our model")
+accuracy
+
+```
 
 
 ## 11.2.4 生长曲线法
