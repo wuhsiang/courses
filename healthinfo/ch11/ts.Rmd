@@ -35,8 +35,8 @@ options(digits = 2)
 
 ## 参考教材
 
-- Jonathan D. Cryer & Kung-Sik Chan著.时间序列分析及应用（R语言）（原书第2版）. 北京：机械工业出版社. 2011.
 - James D. Hamilton著. 时间序列分析（2册）. 北京:人民卫生出版社. 2015.
+- Jonathan D. Cryer & Kung-Sik Chan著.时间序列分析及应用（R语言）（原书第2版）. 北京：机械工业出版社. 2011.
 - Robert I. Kabacoff著 . R语言实战（第二版）. 北京:人民邮电出版社. 2016.
 -  David Salsburg著. 女士品茶：统计学如何变革了科学和生活. 南昌:江西人民出版社. 2016.
 
@@ -49,13 +49,13 @@ options(digits = 2)
 
 ## 11.1 时间序列分析方法起源
 
-时间序列分析的方法，起源于英国统计学家Ronald Fisher在英国洛桑试验站（1919-1933）的**小麦收成变动研究**。这一研究产生了统计史上的三个重要方法：
+时间序列分析的方法，起源于英国统计学家Ronald Fisher在英国洛桑试验站（1919-1933）的**农作物收成变动研究**。这一研究产生了统计史上的三个重要方法：
 
-- **时间序列分析**
+- **时间序列分析思想**
 - **随机对照实验**
 - **方差分析**
 
-我们通过回归这一研究，以深入理解时间序列分析的思想
+我们通过回顾这一研究，以深入理解时间序列分析的思想。
 
 ## Fisher与洛桑试验站
 
@@ -80,8 +80,12 @@ options(digits = 2)
 
 Fisher考虑特定年份（$t$）的特定田地（$i$）上的农作物产量（$Y_{it}$），并试图回答以下问题：
 
-- **降水量**对洛桑小麦产量有何影响？
+- **降水量**对小麦产量有何影响？
 - 不同**肥料**对不同品种的马铃薯产量有何影响？
+
+
+
+**课堂讨论**：第一个问题（5min）
 
 ## 如何预测小麦产量？
 
@@ -101,7 +105,7 @@ Fisher考虑特定年份（$t$）的特定田地（$i$）上的农作物产量�
 
 ## 长期缓慢的变化
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.align='center', fig.height=6}
 
 rm(list = ls())
 # plot year and yields
@@ -155,20 +159,24 @@ Fisher在洛桑试验站研究农作物收成变动时，采用了**分解（dec
     - 数据：时间序列数据，与横截面数据、面板数据，为三类主要的观测数据类型
     - 分析方法：通常基于宏观经济学理论建模，并被视作宏观计量经济学的主要方法
 
-## 数据类型
+## 横截面 vs 时间序列数据
 
 - 横截面数据（cross sectional data）
-    - 某一时点收集的不同研究对象的数据
+    - 定义：不同**研究对象**在某一时点的变量观测数据
     - 例子：通常的问卷调查
 - 时间序列数据（time series data）
-    - 定义：
-- 面板数据（panel data）
-    - 定义：
-    - 例子：中国健康与养老追踪调查（China Health and Retirement Longitudinal Study, CHARLS）、中国健康与营养调查（China Health and Nutrition Survey, CHNS）等
+    - 定义：也称为纵剖面(longitudinal sectional)数据，是某一研究对象在不同**时点**的变量观测数据
+    - 例子：股票价格数据
+
+## 面板数据
+
+- 定义：不同研究对象在不同时点的变量观测数据
+- 特征：具有"横截面"和"时间序列"两个维度
+- 例子：中国健康与养老追踪调查（China Health and Retirement Longitudinal Study, CHARLS）、中国健康与营养调查（China Health and Nutrition Survey, CHNS）等
 
 ## 时间序列数据
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, cache = TRUE, fig.align='center', fig.height=6}
 
 # clean the directory
 rm(list = ls())
@@ -186,33 +194,39 @@ plot.ts(births, xlab = "time (month)")
 
 影响时间序列观测值的因素，可以分为以下几类：
 
-1. 趋势因素（trend component）：观测值的长期的趋势，通常是非线性的
-2. 周期因素（cyclical component）：非季节因素引起的波动，通常也被归入趋势因素中
-3. 季节因素（seasonal component）：在一定时期内呈现的规律变化，例如一年内随着自然季节的更替而发生的变化
-4. 不规则因素（irregular component）：随机因素
+1. **趋势因素（trend component）**：观测值的长期的趋势，通常是非线性的
+2. 循环因素（cyclical component）：非季节因素引起的波动，通常也被归入趋势因素中
+3. **季节因素（seasonal component）**：在一定时期内呈现的规律变化，例如一年内随着自然季节的更替而发生的变化
+4. **不规则因素（irregular component）**：随机因素
 
-通常将趋势和周期合并在一起考虑，成为趋势周期（trend-cycle），或简称趋势。
+通常将趋势因素和循环因素合并在一起考虑，成为趋势-循环因素（trend-cycle），或简称**趋势因素**。
 
+## 课堂讨论
 
+讨论以下情境中，趋势因素（trend component）和季节因素（seasonal component）的**含义**是什么
+
+- 京东 & 淘宝上某一产品的销售量
+- 某一医院在过去十年的每日门诊病人数量
 
 ## 11.1.4 时间序列建模
 
-时间序列
+时间序列可以分解为趋势因素、季节因素和随机因素
 $$
 Y_{t} = f(T_{t}, S_{t}, E_{t})
 $$
 
+常用的函数类型$f(\cdot)$有两种：累加、累乘。
 
 ## 加法模型
 
-加法模型
+假定趋势因素、季节因素和随机因素**相互独立**，则可以用**加法模型（additive model）**来分解各个因素
 $$
 Y_{t} = T_{t} + S_{t} + E_{t}.
 $$
 
 ## 因素分解：加法模型
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.align='center', fig.height=6}
 
 # decomposition
 births.ad <- decompose(births, type = "additive")
@@ -225,7 +239,7 @@ plot(births.ad, xlab = "time (month)")
 
 ## 加法模型之趋势因素
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.align='center', fig.height=6}
 
 # plot the trend
 plot(births.ad$trend, xlab = "time (month)", ylab = "trend component")
@@ -236,7 +250,7 @@ plot(births.ad$trend, xlab = "time (month)", ylab = "trend component")
 
 ## 加法模型之季节因素
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.align='center', fig.height=6}
 
 # plot the trend
 plot(births.ad$seasonal, xlab = "time (month)", ylab = "seasonal component")
@@ -245,7 +259,7 @@ plot(births.ad$seasonal, xlab = "time (month)", ylab = "seasonal component")
 
 ## 加法模型之随机因素
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.align='center', fig.height=6}
 
 # plot the trend
 plot(births.ad$random, xlab = "time (month)", ylab = "irregular component")
@@ -256,7 +270,7 @@ plot(births.ad$random, xlab = "time (month)", ylab = "irregular component")
 
 ## 乘法模型
 
-乘法模型
+趋势因素、季节因素和随机因素不满足相互独立的条件，则可以用**乘法模型（multiplicative model）**来分解各个因素
 $$
 Y_{t} = T_{t} \times S_{t} \times E_{t}.
 $$
@@ -264,7 +278,7 @@ $$
 
 ## 因素分解：乘法模型
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.align='center', fig.height=6}
 
 # decomposition
 births.mp <- decompose(births, type = "multiplicative")
@@ -272,6 +286,13 @@ births.mp <- decompose(births, type = "multiplicative")
 plot(births.mp, xlab = "time (month)")
 
 ```
+
+## 时间序列分析步骤
+
+1. 搜集数据，绘制时间序列图
+2. 因素分解，得到趋势因素、季节因素和随机因素
+3. 对特定情境建模，分别预测趋势因素和季节因素的时间序列值
+4. 获得最终的预测模型
 
 #  时间序列经典分析方法（3个课时）
 
@@ -313,12 +334,13 @@ plot(births.mp, xlab = "time (month)")
 
 - 指数曲线模型
 - Logistic曲线模型
+- Compertz曲线模型
 
 ## 指数曲线模型
 
 ## Logistic曲线模型
 
-
+## Compertz曲线模型
 
 
 # 时间序列案例分析（1个课时）
