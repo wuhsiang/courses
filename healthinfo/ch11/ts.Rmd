@@ -29,6 +29,7 @@ options(digits = 2)
 # load pacakges
 suppressMessages(library(magrittr))
 suppressMessages(library(smooth))
+set.seed(1234)
 
 ```
 
@@ -493,8 +494,8 @@ accuracy.ts <- function(y, yhat){
 ```{r, echo = FALSE}
 
 # moving average, exponential smoothing and our model
-accuracy <- accuracy.ts(births, fitted(ma.ts)) %>% 
-  rbind(accuracy.ts(births, fitted(es.ts))) %>% 
+accuracy <- accuracy.ts(births, fitted(ma.ts)) %>%
+  rbind(accuracy.ts(births, fitted(es.ts))) %>%
   rbind(accuracy.ts(births, fitted(lm.ts)))
 
 # display the results
@@ -506,15 +507,124 @@ accuracy
 
 ## 11.2.4 生长曲线法
 
-- 指数曲线模型
-- Logistic曲线模型
-- Compertz曲线模型
+- 指数增长模型
+- Logistic增长模型
+- 再论人口增长模型
 
-## 指数曲线模型
+## 指数增长模型
 
-## Logistic曲线模型
+**指数增长模型**
 
-## Compertz曲线模型
+- 性质：属于**参数方法**，即设定具体的统计模型
+- 假设：时间序列（1）刻画了事物的**增长过程**（或发展演化过程），且（2）增长率恒定；（3）资源充足
+- 例子：资源充足情况下的种群增长
+
+## 指数增长模型：建模
+
+在资源充足的情况下，物种的固有增长率为$r$（即繁殖率），种群数量$Y_{t}$可以刻画为
+$$
+\frac{\text{d}Y_{t}}{\text{d}t} = r \cdot Y_{t}.
+$$
+由此求解得到种群数量
+$$
+Y_{t} = Y_{0} \cdot e^{rt}.
+$$
+
+## 指数增长型时间序列
+
+```{r, echo = FALSE, fig.align='center', fig.height=5}
+
+# create a time series
+y.start <- 20
+r <- 0.1
+t <- 1:30
+y <- y.start * exp(r * t) %>% round() %>% ts(frequency = 1)
+plot.ts(y, main = "exponential growth model")
+
+```
+
+
+
+## 指数增长模型：估计
+
+- 取对数，采用最小二乘法估计
+- 采用非线性最小二乘法估计
+
+
+
+## Logistic增长模型
+
+**Logistic增长模型**
+
+- 性质：属于**参数方法**，即设定具体的统计模型
+- 假设：时间序列刻画了事物的**增长过程**（或发展演化过程）
+- 例子：（1）种群数量变化；（2）新产品销售量；（3）疾病感染人数
+
+
+
+## 种群数量变化
+
+在某个自然环境中，假定只有单一物种竞争资源，那么其种群数量$Y_{t}$的变化可以描述为
+$$
+\frac{\text{d}Y_{t}}{\text{d}t} = r \cdot Y_{t} \cdot (1 - \frac{Y_{t}}{N})
+$$
+参数的含义：
+
+- 种群的固有增长率$r$，即繁殖率
+- 环境资源容纳的最大种群数量$N$
+- $Y_{t} \ll N$时，近似为指数增长；$Y_{t} \to N$时，增长近似停滞
+
+
+
+## 种群数量变化（续）
+
+以上模型得到Logistic函数，即
+$$
+Y_{t} = \frac{N}{1 + (N/Y_{0} - 1) \cdot e^{-rt}}
+$$
+
+
+由此得到$S$型曲线，从而呈现以下特征：
+
+- $Y_{t} \ll N$时，近似为指数增长
+- $Y_{t} \to N$时，增长近似停滞
+
+## Logistic型时间序列
+
+```{r, echo = FALSE}
+
+# create a time series
+y.start <- 20
+r <- 0.5
+N <- 20000
+t <- 1:30
+y <- N / (1 + (N / y.start - 1) * exp(- r * t))
+y <- y %>% round() %>% ts(frequency = 1)
+plot.ts(y, main = "logistic growth model")
+
+```
+
+## 新产品销售量
+
+假定完全创新的新产品（永久品），进入市场之后，其销售量$Y_{t}$的变化可以描述为
+$$
+\frac{y_{t}}{N - Y_{t}} = p + q \cdot \frac{Y_{t}}{N}
+$$
+
+
+
+参数含义如下：
+
+- $y_{t}$为第$t$期的购买者，而$Y_{t}$为第$t$期初的累积购买者
+- $N$为市场容量
+- $p$为创新系数，$q$为模仿系数，分别刻画广告和口碑的效应
+
+## 再论人口增长模型
+
+- 马尔萨斯人口论与治乱循环
+- 模型参数的变化
+    - 固定增长率，如生育率的变化
+    - 容量的变化，如技术进步带来的粮食增产等
 
 
 # 时间序列案例分析（1个课时）
@@ -523,8 +633,7 @@ accuracy
 
 - 时间序列分析建模与预测
 
-
-- https://github.com/wuhsiang/Courses/blob/master/healthinfo/cases/case-dhaka.Rmd)
+- https://github.com/wuhsiang/Courses/blob/master/healthinfo/cases/case-outpatient.Rmd)
 
 
 
