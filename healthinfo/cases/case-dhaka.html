@@ -7,11 +7,12 @@
 <meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 <meta name="author" content="阿如汗，吴翔" />
 
-<meta name="date" content="2018-11-06" />
+<meta name="date" content="2019-10-20" />
 
 <title>案例：SNA在健康管理领域中的应用</title>
 
@@ -256,9 +257,7 @@ h6 {
 </style>
 
 
-</head>
 
-<body>
 
 <style type="text/css">
 .main-container {
@@ -272,7 +271,6 @@ code {
 }
 img {
   max-width:100%;
-  height: auto;
 }
 .tabbed-pane {
   padding-top: 12px;
@@ -283,22 +281,80 @@ img {
 button.code-folding-btn:focus {
   outline: none;
 }
+summary {
+  display: list-item;
+}
 </style>
 
 
 
-<div class="container-fluid main-container">
-
 <!-- tabsets -->
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-</script>
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
 
 <!-- code folding -->
 
 
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
 
 
 
@@ -308,13 +364,44 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">案例：SNA在健康管理领域中的应用</h1>
-<h4 class="author"><em>阿如汗，吴翔</em></h4>
-<h4 class="date"><em>2018-11-06</em></h4>
+<h4 class="author">阿如汗，吴翔</h4>
+<h4 class="date">2019-10-20</h4>
 
 </div>
 
 
-<div class="section level2">
+<style type="text/css">
+body{ /* Normal  */
+      font-size: 24px;
+  }
+td {  /* Table  */
+  font-size: 20px;
+}
+h1.title {
+  font-size: 48px;
+  color: DarkRed;
+}
+h1 { /* Header 1 */
+  font-size: 36px;
+  color: DarkBlue;
+}
+h2 { /* Header 2 */
+    font-size: 32px;
+  color: DarkBlue;
+}
+h3 { /* Header 3 */
+  font-size: 28px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+}
+code.r{ /* Code block */
+    font-size: 24px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 24px;
+}
+</style>
+<div id="概述" class="section level2">
 <h2>概述</h2>
 <p>我们通过案例来阐述如何使用社会网络分析研究健康管理。所有分析过程均通过R语言实现。</p>
 <p>本案例源自以下论文和数据集，我们非常感谢作者公开数据集。若非如此，我们无法在本次教学中给出这个合适的案例。</p>
@@ -332,14 +419,14 @@ $(document).ready(function () {
 </ul>
 <p>接下来，我们将通过论文导读与R语言实现两个部分了解文章思路及方法的具体应用。</p>
 </div>
-<div class="section level2">
+<div id="论文导读" class="section level2">
 <h2>论文导读</h2>
-<div class="section level3">
+<div id="研究背景及问题" class="section level3">
 <h3>研究背景及问题</h3>
 <p>精神疾病占全球疾病负担的7.1%，中低收入国家的低收入人群承担着更多的精神疾病困扰。研究表明，社会关系的质量与更深层次的社会嵌入是心理健康的重要影响因素。在孟加拉国，证实了社会网络有助于城市和农村地区的卫生服务提供，然而，社会关系及网络属性如何影响心理健康尚不清楚。</p>
 <p>因此，本研究以孟加拉国Dhaka城市贫民社区的青年为研究对象，探索社会网络是否在减轻抑郁症与焦虑方面发挥作用，从而促进贫困城市社区青年的心理健康。</p>
 </div>
-<div class="section level3">
+<div id="研究设计" class="section level3">
 <h3>研究设计</h3>
 <p>横断面研究设计，2016年12月，针对Dhaka市Vashantek社区某一分区18岁-29岁男性进行了为期26天的调查，收集了824名青年的心理健康状况数据，详细的社会经济学特征数据和朋友网络数据。</p>
 <p>抽样流程如下：</p>
@@ -351,7 +438,7 @@ $(document).ready(function () {
 <li>受访者与该调查区域以外的人存在的朋友关系，被排除在外</li>
 </ul>
 </div>
-<div class="section level3">
+<div id="数据描述" class="section level3">
 <h3>数据描述</h3>
 <p><strong>心理健康测量</strong>：采用了GHQ-12测量受试者的心理健康状况，12个健康问题，四点式李克特量表法计分，分数越高表明心理健康状况不佳。</p>
 <div class="figure">
@@ -365,24 +452,24 @@ $(document).ready(function () {
 <p>通过询问确定了824名受试者的朋友关系，建立了<span class="math inline">\(824 \times 824\)</span>邻接矩阵，使用社会网络分析软件Pajek进行网络特征值的计算。因此，在数据集中直接给出了社会网络特征指标计算的结果。</p>
 <p>为了还原整个数据分析过程，了解社会网络分析的应用，我们需要根据论文提供的社会网络特征线索，构造一个“相似”的随机网络，并从该网络中生成网络特征指标变量。</p>
 </div>
-<div class="section level3">
+<div id="统计分析" class="section level3">
 <h3>统计分析</h3>
 <p>为揭示社会关系与心理健康之间的关系，研究使用不同的社会网络特征指标分别运行了多元线性回归模型，社会经济学特征指标将作为控制变量纳入到每个回归模型中。同时对连续型变量进行了标准化处理，使其具有可比性，符合多元线性回归应用条件。</p>
 <p>在R语言实现的第三部分，我们将分别运行一个基准模型（因变量为社会经济学指标）和四个纳入不同解释变量（中心性度量指标）的模型。</p>
 </div>
-<div class="section level3">
+<div id="研究结果" class="section level3">
 <h3>研究结果</h3>
 <p>这一部分我们将在最后结合R语言实现结果进行解释。</p>
 </div>
 </div>
-<div id="r" class="section level2">
+<div id="r语言实现" class="section level2">
 <h2>R语言实现</h2>
 <ol style="list-style-type: decimal">
 <li>读取论文数据集，应用数据集中的人口统计学特征信息、社会经济学特征信息及心理健康测量信息。</li>
 <li>模拟论文数据构造社会网络，从既定的社会网络中生成网络指标变量。</li>
 <li>分析社会网络对健康的作用。</li>
 </ol>
-<div class="section level3">
+<div id="人口统计特征" class="section level3">
 <h3>人口统计特征</h3>
 <p>首先，我们读取<code>.dta</code>格式的Stata数据文件，并将其存储为<code>.RData</code>格式的R数据文件。</p>
 <p>为确保可重复性，我们设置随机数的种子。如此，在不同的计算机上、在不同时候运行此文档，其结果均相同。</p>
@@ -435,7 +522,7 @@ print(c(Mean = m, Median = med, SD = sd))</code></pre>
 <p>社会经济学特征变量<strong>婚姻状况（rmar），是否在当地出生（rvas），受教育程度（reduc），职业（qa_）</strong>是分类变量。</p>
 <p>清楚数据集中我们将要用到的一些变量的分布特征了，接下来需要模拟一个朋友网络，生成社会网络特征指标。</p>
 </div>
-<div class="section level3">
+<div id="模拟社会网络" class="section level3">
 <h3>模拟社会网络</h3>
 <p>论文虽然提供了每个受访者的属性数据，但并未提供其社会网络关系数据。因此，我们首先设法重现其社会关系。</p>
 <p>构造一个尽可能“相似”的随机网络，我们需要一些线索。论文报告的主要参数如下：</p>
@@ -456,7 +543,7 @@ plot(g, layout=layout.fruchterman.reingold, vertex.label=NA, vertex.size=1)</cod
 <p>我们在第三步的分析中将用这四个指标反映朋友网络特征，需要说明的是，最后将会对后三个中心性指标进行标准化处理。</p>
 <p>社会网络特征指标已生成，接下来需要回归模型揭示变量间因果关系了。</p>
 </div>
-<div class="section level3">
+<div id="拼接属性数据与关系数据" class="section level3">
 <h3>拼接属性数据与关系数据</h3>
 <p>首先，我们第一步中的原数据集与第二部中生成的社会网络是相互分离的（即社会网络中的节点仅仅是个虚拟节点，并不代表824名受试者）。</p>
 <p>因此，需要通过对虚拟节点的“修饰”将受试者与生成的随机网络图联系起来。</p>
@@ -479,7 +566,7 @@ plot(g, layout=layout.fruchterman.reingold, vertex.label=NA, vertex.size=1)</cod
                        urbanWQ = equity_UrbanQuintile)</code></pre>
 <p>对三个中心性指标进行标准化处理后得到重要的解释变量<strong>closeness centrality（sCloc），betweenness centrality（sBetc），eigenvector centrality（sEigc）</strong>。</p>
 </div>
-<div class="section level3">
+<div id="回归分析" class="section level3">
 <h3>回归分析</h3>
 <p>考虑基准模型：</p>
 <p><span class="math display">\[\begin{equation}
@@ -1268,6 +1355,23 @@ $(document).ready(function () {
 
 
 </script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
