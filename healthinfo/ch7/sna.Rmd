@@ -43,15 +43,9 @@ options(digits = 2)
 
 - 社会网络的基本概念
 - 社会网络的符号表示
-- 图的基本概念
+- 吸烟行为建模：社会网络视角
 - 基本社会网络结构
 - 社会网络分析软件
-
-## 社交网络时代
-
-IT --> 联系便利 --> 社交网络时代
-
-![社交网络时代](figures/sns.jpg){width=55%}
 
 ## 社会网络与健康
 
@@ -71,7 +65,7 @@ IT --> 联系便利 --> 社交网络时代
 
 ![社会网络与卫生服务能力提升](figures/mic.jpg){width=50%}
 
-- 医联体模式是否有助于提升基层医疗机构的卫生服务能力？
+- 医联体/医共体模式是否有助于提升基层卫生服务能力？
 
 
 ## 社会网络视角
@@ -130,8 +124,8 @@ Table: 社会网络与图论的对应关系
 
 ## 图论符号表示法（续）
 
-- 行动者集合$G$ = {王重阳，林朝英，黄药师，欧阳锋，洪七公，段智兴，周伯通，郭靖，杨过}
-- 社会关系集合$L$ = {<王重阳，周伯通>，<王重阳，林朝英>，<黄药师，郭靖>，<洪七公，郭靖>，<周伯通，郭靖>，<欧阳锋，杨过>}
+- 行动者集合$G$ = {A, B, C, D, E, F, G}
+- 社会关系集合$L$ = {<A, B>，<A, C>，<A, D>，<D, E>，<D, G>，<E, F>, <F, G>}
 
 ```{r, fig.align='center', fig.height=4.5}
 
@@ -141,9 +135,9 @@ rm(list = ls())
 # set random seeds
 set.seed(123)
 # create graph g from literal
-g.condorheros <- graph_from_literal(WCY-ZBT, WCY-LCY, HYS-GJ, HQG-GJ, ZBT-GJ, OYF-YG, DZX)
+g.smoking <- graph_from_literal(A-B, A-C, A-D, D-E, D-G, E-F, F-G)
 # plot the graph
-plot(g.condorheros, layout = layout.circle)
+plot(g.smoking, layout = layout.circle)
 
 ```
 
@@ -158,7 +152,7 @@ plot(g.condorheros, layout = layout.circle)
 
 suppressMessages(library(pander))
 suppressMessages(library(magrittr))
-g.condorheros %>% as_adjacency_matrix(sparse = F) %>% pandoc.table(split.tables = Inf)
+g.smoking %>% as_adjacency_matrix(sparse = F) %>% pandoc.table(split.tables = Inf)
 
 ```
 
@@ -172,75 +166,51 @@ g.condorheros %>% as_adjacency_matrix(sparse = F) %>% pandoc.table(split.tables 
 
 - 网络动态性
 
-## 有向图/有值图
 
-- 有向图
-- 有值图（含权图）
+## 吸烟行为建模：社会网络视角
 
-```{r, fig.align='center', fig.height=4.8}
+![要不你也来一支？](figures/smoking.jpg){width=75%}
 
-par(mfrow = c(1, 2))
-# directed graph
-g.ch.directed <- graph_from_literal(WCY++ZBT, WCY+-LCY, HYS+-GJ, HQG++GJ, ZBT++GJ, OYF++YG, DZX)
-g.ch.directed %>% plot(layout = layout.circle)
-# weighted edges
-gw <- g.condorheros %>% set_edge_attr("weight", value = 1:6) %>%
-  set_edge_attr("color", value = "red")
-plot(gw, edge.width = E(gw)$weight)
+## 案例背景描述
 
+- 吸烟人群，但同时也认识到吸烟的危害
+- 自制力程度有差异，且可以由行动的阈值来刻画
+- 行动阈值：周围朋友吸烟的人数达到特定值（threshold）时，才会开始吸烟
 
-```
+## 社会网络符号表示：图论
 
-## 多重关系
+![图论符号表示](figures/smoking-graph-1.png){width=80%}
 
-- 师门关系
-- 家庭关系
+## 社会网络符号表示：社会计量
 
-```{r, fig.align='center', fig.height=4.8}
+![社会计量符号表示](figures/smoking-matrix-1.png){width=80%}
 
-par(mfrow = c(1, 2))
-# create graph h1 from literal
-graph_from_literal(WCY-ZBT, LCY, HYS, HQG-GJ, OYF, YG, DZX) %>% plot(layout = layout.circle)
-# create graph h2 from literal
-graph_from_literal(WCY-LCY, HYS-GJ, HQG, ZBT-GJ, OYF-YG, DZX) %>% plot(layout = layout.circle)
+## 吸烟行为分析：情境一
 
-```
+[slides on smoking behavior](smoking.ppt)
 
-## 网络动态性
+## 情境二：网络结构变化
 
-- 前30年
-- 后30年
+- 假定A在某次聚会中认识了F，两人成为了好朋友
+- 以上社会网络中的吸烟行为规律是否会变化？
 
-```{r, fig.align='center', fig.height=4.8}
+## 社会网络符号表示：图论
 
-par(mfrow = c(1, 2))
-# early period
-g.condorheros %>% induced_subgraph(c(1, 3:4, 6:7, 9)) %>% plot(layout = layout.circle)
-# late period
-g.condorheros %>% induced_subgraph(c(2,4:9)) %>% plot(layout = layout.circle)
+![图论符号表示](figures/smoking-graph-2.png){width=80%}
 
-```
+## 社会网络符号表示：社会计量
 
-## 7.1.3 图的基本概念
+![社会计量符号表示](figures/smoking-matrix-2.png){width=80%}
 
-- 子图：若$G_{s} = (N_{s}, L_{s})$，且$N_{S} \subset N$、$L_{s} \subset L$，那么$G_{s}$是$G$的子图
-  - 点导出子图
-  - 边导出子图
-- 二元图：包含两个节点的点导出子图
-- 三元图：包含三个节点的点导出子图
+## 吸烟行为分析：情境二
 
-## 子图（续）
+[slides on smoking behavior](smoking.ppt)
 
-点导出子图与边导出子图
+## 案例总结讨论
 
-```{r, echo = T, fig.align='center', fig.height=4}
-
-par(mfrow = c(1, 2))
-g.condorheros %>% induced_subgraph(c(1,2, 5, 8)) %>% plot()
-g.condorheros %>% subgraph.edges(c(2:5)) %>% plot()
-
-
-```
+- 案例有什么有意思的结论？
+- 社会网络分析视角的特点是什么？
+- 社会网络分析视角适合哪些健康领域的议题？
 
 ## 节点度
 
@@ -269,53 +239,6 @@ g.condorheros %>% subgraph.edges(c(2:5)) %>% plot()
 \end{equation*}
 
 $S_{D}^{2} = 0$对应的图称为$d$-规则图（$d$-regular lattice）。
-
-## 图的密度
-
-图的密度
-
-- 实际存在的边与可能的边的数量比例
-
-\begin{equation}
-  \Delta = \frac{L}{g(g - 1) / 2} = \frac{2L}{g(g - 1)}.
-\end{equation}
-
-
-## 图的密度（续）
-
-- 空图
-- 完全图
-- 密度 $\Delta = 2 / 6 = 0.33$
-
-```{r, fig.align='center', fig.height=4.5}
-
-par(mfrow = c(1, 3))
-graph_from_literal(1, 2, 3, 4) %>% plot(circular = T)
-make_full_graph(n = 4) %>% plot(circular = T)
-graph_from_literal(1-2, 3, 2-4) %>% plot(circular = T)
-
-```
-
-
-## 节点间距离
-
-- 测地线（geodesic distance）：节点$n_{i}$和$n_{j}$之间的最短距离$d(n_{i}, n_{j})$
-- 图的直径
-  - 测地线的最大值$D = \text{max}_{i} \text{max}_{j} d(n_{i}, n_{j})$
-  - 刻画了图中两点之间的最远距离
-- 非连通图：直径$D$无穷大
-
-## 连通图
-
-- 连通图
-  - 任意两个节点$n_{i}$和$n_{j}$间都存在通路
-  - 所有节点对都是可达的
-- 连通分图
-  - 非连通图的节点划分为多个子集
-  - 每个子集内部是连通的，不同子集之间是不可达的
-- 连通分图个数
-  - 连通图：1
-  - 非连通图：$\geq$ 2
 
 
 ## 7.1.4 主要网络模型
@@ -366,7 +289,7 @@ g.lattice %>% plot(circular = T)
 - 基本假设：大多数节点几乎没有联系，但任意两个节点之间的距离都比预期的短
 - 特点：这个世界真小啊！“六度分割”理论
 
-```{r, fig.align='center', fig.height=4.5}
+```{r, fig.align='center', fig.height=4}
 
 g.sw <- sample_smallworld(1, 9, 3, 0.02)
 g.sw %>% plot(circular = T)
@@ -501,8 +424,8 @@ $d(n_{GJ}) = 3$, 故$C_{D}(n_{DZX}) = 0.375$
 ```{r, results = 'asis'}
 
 # calculate degree centrality
-cd <- cbind(degree(g.star,  normalized = T), degree(g.ring,  normalized = T), degree(g.line,  normalized = T), degree(g.condorheros,  normalized = T))
-colnames(cd) <- c("star", "ring", "line", "condor-heros")
+cd <- cbind(degree(g.star,  normalized = T), degree(g.ring,  normalized = T), degree(g.line,  normalized = T), degree(g.smoking,  normalized = T))
+colnames(cd) <- c("star", "ring", "line", "smoking")
 # print the results
 pandoc.table(cd, caption = "Degree centrality for four graphs")
 
@@ -526,10 +449,10 @@ pandoc.table(cd, caption = "Degree centrality for four graphs")
 ```{r}
 
 # calculate adjacency matrix
-a.condorheros <- g.condorheros %>% as_adjacency_matrix(sparse = F)
+a.smoking <- g.smoking %>% as_adjacency_matrix(sparse = F)
 # calculate eigvalues
-eigmax <- eigen(a.condorheros)$`values`[1]
-eigvec <- eigen(a.condorheros)$vectors[, 1]
+eigmax <- eigen(a.smoking)$`values`[1]
+eigvec <- eigen(a.smoking)$vectors[, 1]
 
 ```
 
@@ -553,8 +476,8 @@ $C_{e}(n_{i}) = c(0.37, 0.51, 0.2, 0.32, 0.6, 0.32, 0, 0, 0)$。
 
 ```{r, results = 'asis'}
 
-ce <- cbind(eigen_centrality(g.star, scale = T)$vector, eigen_centrality(g.ring, scale = T)$vector, eigen_centrality(g.line, scale = T)$vector, eigen_centrality(g.condorheros, scale = T)$vector)
-colnames(ce) <- c("star", "ring", "line", "condor-heros")
+ce <- cbind(eigen_centrality(g.star, scale = T)$vector, eigen_centrality(g.ring, scale = T)$vector, eigen_centrality(g.line, scale = T)$vector, eigen_centrality(g.smoking, scale = T)$vector)
+colnames(ce) <- c("star", "ring", "line", "smoking")
 pandoc.table(ce, digits = 2, caption = "Eiggenvector centrality for four graphs")
 
 ```
@@ -595,8 +518,8 @@ PageRank在特征中心性的基础上作了修正：
 ```{r, fig.align='center', fig.height=4.5}
 
 par(mfrow = c(1, 2))
-g.condorheros %>% plot(circular = T)
-g.ch.m <- decompose(g.condorheros)[[1]]
+g.smoking %>% plot(circular = T)
+g.ch.m <- decompose(g.smoking)[[1]]
 g.ch.m %>% plot()
 
 ```
@@ -625,7 +548,7 @@ $\sum_{j \neq GJ} d(n_{GJ}, n_{j}) = 1 \times 3 + 2 + 3 = 8$, 故$C_{C}(n_{GJ}) 
 
 # calculate closeness centrality
 cc <- cbind(closeness(g.star, normalized = T), closeness(g.ring, normalized = T), closeness(g.line, normalized = T), c(closeness(g.ch.m, normalized = T), rep(0, 3)))
-colnames(cc) <- c("star", "ring", "line", "condor-heros")
+colnames(cc) <- c("star", "ring", "line", "smoking")
 # print the results
 pandoc.table(cc, digits = 2, caption = "Closeness centrality for four graphs")
 
@@ -667,8 +590,8 @@ $n_{GJ}$：$\sum g_{j-HYS} = \sum g_{j-HQG} = 4$，故$\sum_{j \leq k} g_{jk}(n_
 
 ```{r, results = 'asis'}
 
-cb <- cbind(betweenness(g.star,  normalized = T), betweenness(g.ring,  normalized = T), betweenness(g.line,  normalized = T), betweenness(g.condorheros,  normalized = T))
-colnames(cb) <- c("star", "ring", "line", "condor-heros")
+cb <- cbind(betweenness(g.star,  normalized = T), betweenness(g.ring,  normalized = T), betweenness(g.line,  normalized = T), betweenness(g.smoking,  normalized = T))
+colnames(cb) <- c("star", "ring", "line", "smoking")
 pandoc.table(cb, digits = 2, caption = "Betweenness centrality for four graphs")
 
 ```
@@ -677,9 +600,9 @@ pandoc.table(cb, digits = 2, caption = "Betweenness centrality for four graphs")
 
 ```{r, results = 'asis'}
 
-cb <- cbind(degree(g.condorheros,  normalized = T), eigen_centrality(g.condorheros, scale = T)$vector, c(closeness(g.ch.m, normalized = T), rep(0, 3)), betweenness(g.condorheros,  normalized = T))
+cb <- cbind(degree(g.smoking,  normalized = T), eigen_centrality(g.smoking, scale = T)$vector, c(closeness(g.ch.m, normalized = T), rep(0, 3)), betweenness(g.smoking,  normalized = T))
 colnames(cb) <- c("degree", "eigen_centrality", "closeness", "betweenness")
-pandoc.table(cb, digits = 2, caption = "A comparison of centralities for condor-heros network")
+pandoc.table(cb, digits = 2, caption = "A comparison of centralities for smoking network")
 
 ```
 
