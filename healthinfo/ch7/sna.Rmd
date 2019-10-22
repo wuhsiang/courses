@@ -374,16 +374,19 @@ g.pa %>% plot(circular = T)
 par(mfrow = c(1, 3))
 
 # 星形网络
-g.star <- make_star(n = 9, mode = "undirected")
+g.star <- make_star(n = 7, mode = "undirected")
 plot(g.star)
 
 # 环形网络
-g.ring <- make_ring(n = 9, directed = FALSE, circular = TRUE)
+g.ring <- make_ring(n = 7, directed = FALSE, circular = TRUE)
 plot(g.ring)
 
 # 线形网络
-g.line <- graph_from_literal(1-2, 2-3, 3-4, 4-5, 5-6, 6-7, 7-8, 8-9)
+g.line <- graph_from_literal(1-2, 2-3, 3-4, 4-5, 5-6, 6-7)
 plot(g.line, circular = T)
+
+# 更新吸烟网络
+g.smoking <- graph_from_literal(A-B, A-C, A-D, B-C, D-E, A-F, D-G, E-F, F-G)
 
 ```
 
@@ -400,24 +403,15 @@ plot(g.line, circular = T)
 
 ## 度中心性（续）
 
-\begin{columns}
-\begin{column}{0.58\textwidth}
+在图$G$中，节点个数$g = 7$，度的最大值为$g - 1 = 6$
 
-在图$G$中，节点个数$g = 9$，度的最大值为$g - 1 = 8$。
+$d(A) = 4$, 故$C_{D}(A) = 2/3$
 
-$d(n_{HYS}) = 1$, 故$C_{D}(n_{HYS}) = 0.125$
+$d(D) = d(F) = 3$, 故$C_{D}(D) = 1/2$
 
-$d(n_{WCY}) = 2$, 故$C_{D}(n_{WCY}) = 0.25$
+$d(B) = d(C) = d(E) = d(G) = 2$，故$d(B) = 1/3$
 
-$d(n_{DZX}) = 0$, 故$C_{D}(n_{DZX}) = 0$
-
-$d(n_{GJ}) = 3$, 故$C_{D}(n_{DZX}) = 0.375$
-
-\end{column}
-\begin{column}{0.4\textwidth}
- \includegraphics[width=1.2\textwidth]{figures/condorheros.png}
-\end{column}
-\end{columns}
+![](figures/smoking-graph-2.png){width=40%}
 
 ## 度中心性（续）
 
@@ -427,7 +421,7 @@ $d(n_{GJ}) = 3$, 故$C_{D}(n_{DZX}) = 0.375$
 cd <- cbind(degree(g.star,  normalized = T), degree(g.ring,  normalized = T), degree(g.line,  normalized = T), degree(g.smoking,  normalized = T))
 colnames(cd) <- c("star", "ring", "line", "smoking")
 # print the results
-pandoc.table(cd, caption = "Degree centrality for four graphs")
+pandoc.table(cd, caption = "Degree centrality for four graphs", digits = 2)
 
 ```
 
@@ -458,19 +452,13 @@ eigvec <- eigen(a.smoking)$vectors[, 1]
 
 ## 特征向量中心性（续）
 
-\begin{columns}
-\begin{column}{0.58\textwidth}
-
 在图$G$中，最大特征值为`r eigmax`。
 
 对应的特征向量为
-$C_{e}(n_{i}) = c(0.37, 0.51, 0.2, 0.32, 0.6, 0.32, 0, 0, 0)$。
+$C_{e}(n_{i}) = c(0.53, 0.31, 0.31, 0.42, 0.31, 0.42, 0.31)$。
+这一结果可以进一步归一化。
 
-\end{column}
-\begin{column}{0.4\textwidth}
- \includegraphics[width=1.2\textwidth]{figures/condorheros.png}
-\end{column}
-\end{columns}
+![](figures/smoking-graph-2.png){width=40%}
 
 ## 特征向量中心性（续）
 
@@ -506,40 +494,18 @@ PageRank在特征中心性的基础上作了修正：
   C_{C}(n_{i}) = \frac{g - 1}{\sum_{j = 1}^{g} d(n_{i}, n_{j})}.
 \end{equation}
 
-缺陷：
-
-- 必须是连通图
-- 实际操作中，基于最大连通子图来计算
 
 ## 接近中心性（续）
 
-首先，得到最大连通子图$G'$。可以看到，欧阳锋、杨过和段智兴（节点7-9）被排除在最大连通子图之外。
+在图$G'$中，节点个数$g = 7$，最短距离之和的最小值为$g - 1 = 6$。
 
-```{r, fig.align='center', fig.height=4.5}
+$\sum_{n_{j} \neq A} d(A, n_{j}) = 1 \times 4 + 2 \times 2 = 8$,故$C_{C}(A) = 6 / 8 = 0.75$
 
-par(mfrow = c(1, 2))
-g.smoking %>% plot(circular = T)
-g.ch.m <- decompose(g.smoking)[[1]]
-g.ch.m %>% plot()
+$\sum_{n_{j} \neq B} d(B, n_{j}) = 1 \times 2 + 2 \times 2 + 2 \times 3 = 12$, 故$C_{C}(B) = 0.5$
 
-```
+$\sum_{n_{j} \neq D} d(D, n_{j}) = 1 \times 3 + 2 \times 3 = 9$,故$C_{C}(D) = 6 / 9 = 0.67$
 
-## 接近中心性（续）
-
-\begin{columns}
-\begin{column}{0.58\textwidth}
-
-在图$G'$中，节点个数$g = 6$，最短距离之和的最小值为$g - 1 = 5$。
-
-$\sum_{j \neq HYS} d(n_{HYS}, n_{j}) = 1 + 2 \times 2 + 3 + 4 = 12$, 故$C_{C}(n_{HYS}) = 5 / 12 = 0.42 $
-
-$\sum_{j \neq GJ} d(n_{GJ}, n_{j}) = 1 \times 3 + 2 + 3 = 8$, 故$C_{C}(n_{GJ}) = 5 / 8 = 0.62$
-
-\end{column}
-\begin{column}{0.4\textwidth}
- \includegraphics[width=1.2\textwidth]{figures/gchm.png}
-\end{column}
-\end{columns}
+![](figures/smoking-graph-2.png){width=40%}
 
 
 ## 接近中心性（续）
@@ -547,7 +513,7 @@ $\sum_{j \neq GJ} d(n_{GJ}, n_{j}) = 1 \times 3 + 2 + 3 = 8$, 故$C_{C}(n_{GJ}) 
 ```{r, results = 'asis'}
 
 # calculate closeness centrality
-cc <- cbind(closeness(g.star, normalized = T), closeness(g.ring, normalized = T), closeness(g.line, normalized = T), c(closeness(g.ch.m, normalized = T), rep(0, 3)))
+cc <- cbind(closeness(g.star, normalized = T), closeness(g.ring, normalized = T), closeness(g.line, normalized = T), closeness(g.smoking, normalized = T))
 colnames(cc) <- c("star", "ring", "line", "smoking")
 # print the results
 pandoc.table(cc, digits = 2, caption = "Closeness centrality for four graphs")
@@ -569,22 +535,15 @@ pandoc.table(cc, digits = 2, caption = "Closeness centrality for four graphs")
 
 ## 中介中心性（续）
 
-\begin{columns}
-\begin{column}{0.58\textwidth}
+在图$G$中，节点个数$g = 7$，除节点$i$以外，图$G$的路径最大数目为$(g - 1) (g - 2) / 2 = 15$
 
-在图$G$中，节点个数$g = 9$，除节点$i$以外，图$G$的路径最大数目为$(g - 1) (g - 2) / 2 = 28$。
+$A$：$\sum g_{n_{j}-A} = 4 \times 2 + 1/3 = 8.33$，故$C_{B}(A) = 8.33 / 15 = 0.56$
 
-只有王重阳、周伯通、郭靖处于其他行动者的最短路径上。
+$D$：$\sum g_{n_{j}-D} = 2 \times 1/2 + 2 \times 1/2 \times 2 + 1/2  = 3.5$，故$C_{B}(D) = 3.5 / 15 = 0.23$
 
-$n_{WCY}$：$\sum g_{j-LCY} = 1 \times 4 = 4$，故$C_{B}(n_{WCY}) = 4 / 28 = 0.14$。
+$E$：$\sum g_{n_{j}-E} = 1/3$，故$C_{B}(D) = 1 / 3 / 15 = 0.022$
 
-$n_{GJ}$：$\sum g_{j-HYS} = \sum g_{j-HQG} = 4$，故$\sum_{j \leq k} g_{jk}(n_{GJ}) / g_{jk} = 4 \times 2 - 1 = 7$，即$C_{B}(n_{GJ}) = 7 / 28 = 0.25$。
-
-\end{column}
-\begin{column}{0.4\textwidth}
- \includegraphics[width=1.2\textwidth]{figures/condorheros.png}
-\end{column}
-\end{columns}
+![](figures/smoking-graph-2.png){width=40%}
 
 ## 中介中心性（续）
 
@@ -600,20 +559,26 @@ pandoc.table(cb, digits = 2, caption = "Betweenness centrality for four graphs")
 
 ```{r, results = 'asis'}
 
-cb <- cbind(degree(g.smoking,  normalized = T), eigen_centrality(g.smoking, scale = T)$vector, c(closeness(g.ch.m, normalized = T), rep(0, 3)), betweenness(g.smoking,  normalized = T))
+cb <- cbind(degree(g.smoking,  normalized = T), eigen_centrality(g.smoking, scale = T)$vector, closeness(g.smoking, normalized = T), betweenness(g.smoking,  normalized = T))
 colnames(cb) <- c("degree", "eigen_centrality", "closeness", "betweenness")
 pandoc.table(cb, digits = 2, caption = "A comparison of centralities for smoking network")
 
 ```
 
-
-## 声望
+## 有向关系
 
 有向关系的社会网络中，主要的三种声望测量：
 
 - 度数声望（类似于度中心性）
 - 邻近声望（类似于接近中心性）
 - 地位或等级声望（类似于特征向量中心性）
+
+## 吸烟行为的干预策略
+
+开放讨论：
+
+- 在给出的案例中，应当如何有效干预吸烟行为？
+- 关系属性与行动者属性是如何协同发挥作用的？
 
 ## 中心性与市场策略
 
