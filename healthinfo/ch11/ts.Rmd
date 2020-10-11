@@ -3,7 +3,7 @@ title: "第十一章 时间序列分析方法"
 author:
  - 授课教师：吴翔 \newline
  - wuhsiang@hust.edu.cn
-date: "OCT 15 - 18, 2019"
+date: "OCT 12 - 15, 2020"
 bibliography: ref.bib
 header-includes:
   - \usepackage{ctex}
@@ -49,6 +49,11 @@ set.seed(1234)
 - Robert I. Kabacoff著 . R语言实战（第二版）. 北京:人民邮电出版社. 2016.
 -  David Salsburg著. 女士品茶：统计学如何变革了科学和生活. 南昌:江西人民出版社. 2016.
 
+## 时间序列案例：传染病
+
+![美国COVID-19感染及死亡人数](figures/covid.png){width=90%}
+
+
 ## 本节知识点
 
 - 时间序列分析方法起源
@@ -67,7 +72,6 @@ set.seed(1234)
 我们通过回顾这一研究，以深入理解时间序列分析的思想。
 
 ## Fisher与洛桑试验站
-
 
 
 英国**洛桑试验站（Rothamsted Experimental Station）**，现为洛桑研究所（Rothamsted Research），在漫长的历史中（1843-1919）积累了大量的"实验数据"和其它记录，包括：
@@ -398,7 +402,7 @@ $$
 
 推导可知，
 $$
-S_{t} = \alpha [Y_{t} + (1-\alpha)Y_{t-1} + ... + (1-\alpha)^{t-1}Y_{1}] + (1-\alpha)^{t} Y_{0}.  
+S_{t} = \alpha [Y_{t} + (1-\alpha)Y_{t-1} + ... + (1-\alpha)^{t-1}Y_{1}] + (1-\alpha)^{t} Y_{0}.
 $$
 
 远期数据权重呈几何级数衰减，而几何级数衰减是指数衰减的离散版本，因此得名“指数平滑”。

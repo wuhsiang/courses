@@ -3,7 +3,7 @@ title: "第七章 社会网络分析"
 author:
  - 授课教师：吴翔 \newline
  - wuhsiang@hust.edu.cn
-date: "OCT 21 - 24, 2019"
+date: "OCT 16 - 21, 2020"
 bibliography: ref.bib
 header-includes:
   - \usepackage{ctex}
