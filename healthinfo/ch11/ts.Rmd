@@ -42,6 +42,16 @@ set.seed(1234)
 
 ![课程存储地址](../../QR.png){width=30%}
 
+## GitHub：Courses仓库
+
+![Github上的Courses仓库](figures/project.png){width=80%}
+
+## Courses仓库：交流平台
+
+![Courses仓库：交流功能](figures/platform.jpg){width=80%}
+
+
+
 ## 参考教材
 
 - James D. Hamilton著. 时间序列分析（2册）. 北京:人民卫生出版社. 2015.
