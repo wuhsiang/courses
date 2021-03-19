@@ -1,9 +1,9 @@
 ---
-title: 线性回归分析
+title: 线性回归分析：原理、建模与诊断
 author:
  - 授课教师：吴翔 \newline
  - 邮箱：wuhsiang@hust.edu.cn
-date: "March 16, 2019"
+date: "March 20, 2021"
 linestretch: 1.25
 fontsize: 18
 header-includes:
@@ -102,6 +102,16 @@ summary(fit4)$coef
 
 **课堂思考: x对y的效应，到底是正还是负？**
 
+## 遗漏了变量？
+
+![Dissertation defense](figures/defense.jpg){width=40%}
+
+我：我的统计模型是。。。估计了体育锻炼和抑郁症状的关系
+
+答辩委员：影响抑郁症状的因素非常多，很多变量都没有纳入，这个模型是有问题的！
+
+**课堂思考: 做统计模型，到底需要纳入多少变量？**
+
 ## 如何学习线性回归？
 
 
@@ -109,7 +119,7 @@ summary(fit4)$coef
 
 **理念**：
 
-- 方便有多门，归元无二路
+- 方便有多门，归元无二路：原理 + 建模 + 诊断 >> 软件操作
 - 挽弓当挽强，用箭当用长
 
 ## 课程存储地址
@@ -118,6 +128,7 @@ summary(fit4)$coef
 - 资源：课件、案例数据及代码
 
 ![课程存储地址](../../QR.png){width=40%}
+
 
 ## 参考教材
 
@@ -130,10 +141,11 @@ summary(fit4)$coef
 
 ## 缘起
 
-变异与个体差异
+返回《物种起源》一书的年代，考虑遗传、变异与个体差异的问题：
 
 - 随着物种的变异，其个体差异是否会一直增大？
 - 个体差异上的**两极分化**是否是一般规律？
+- 遗传与个体差异有无关系？
 
 ## Galton的身高研究
 
@@ -153,13 +165,13 @@ ggplot(galton, aes(x = parent, y = child)) + geom_point() + geom_smooth(method=l
 
 Galton的身高研究发现：
 
-- 父代的身高增加时，子代的身高也倾向于增加
+- 父代的身高增加时，子代的身高也倾向于增加。
 - 当父代高于平均身高时，子代身高比他更高的概率要小于比他更矮的概率；父代矮于平均身高时，子代身高比他更矮的概率要小于比他更高的概率。
 - 同一族群中，子代的身高通常介于其父代的身高和族群的平均身高之间。
 
 **回归效应**：
 
-- 向平均数方向的回归 (regression toward mediocrity)
+- 向平均数方向的回归 (regression toward mediocrity)，或曰：回归平庸
 - 天之道，损有余而补不足
 
 ## Galton的开创性研究
@@ -169,6 +181,8 @@ Francis Galton（以及Karl Pearson）研究
 - 个体差异：确立了社会科学研究与自然科学研究的根本区别
 - 遗传与个体差异的关系：倡导“优生学”
 - 双生儿法（twin method）：匹配方法（matching）之先河
+
+**课堂讨论: 匹配方法和随机对照试验方法的区别（轮回）？**
 
 ## 社会科学定量研究逻辑
 
@@ -195,7 +209,7 @@ $$
 
 ## 回归模型设定
 
-考虑收入$x$与中老年人抑郁水平$y$的关系，回归模型为：
+考虑吸烟量$x$与血压$y$的关系，回归模型为：
 $$
 y_{i} = \alpha + \beta x_{i} + \epsilon_{i}.
 $$
@@ -224,6 +238,7 @@ $$
 
 ![总体回归线](figures/condmean.png){width=60%}
 
+**简化示例: 虚拟变量 --> 多分类变量 --> 连续变量**
 
 ## 暗含的假设
 
@@ -234,7 +249,7 @@ $$
 - A4. 关于$y$的假设：
     - $y$应是连续变量：广义线性模型
     - $y$的条件期望$\mu_{y|x^{k}} = E(y|x = x^{k})$符合正态分布：分位数回归
-- A5. 正交（严格外生）假设
+- A5. \textcolor{red}{正交（严格外生）假设}
     - 误差项$\epsilon$和$x$不相关，即$Cov(x, \epsilon) = 0$
     - 内生性问题
 
@@ -263,14 +278,13 @@ $$
 - **有效性**：在众多估计量中，$b$的抽样分布的方差最小。
 - **一致性**：样本量增大时，$b$趋近于$\beta$。
 
-
 **课堂思考：统计显著性与样本量有无关系？**
 
 ## 变异分解逻辑
 
 样本观测值$y_{i}$、均值$\bar{y}$、预测值$\hat{y}$之间的关系
 
-![变异的分解](figures/variancedecomp.png){width=60%}
+![变异的分解](figures/SSTdecomposition.jpg){width=60%}
 
 **板书演示：变异分解逻辑**
 
@@ -334,118 +348,35 @@ $$
 F(\Delta \text{df}, \text{df}_{\text{SSE}}) = \frac{\Delta \text{SSR} / \Delta \text{df}}{\text{MSE}_{\text{B}}} ?> F_{\alpha}
 $$
 
-# 线性回归案例
+## 遗漏变量问题
 
-## 中老年精神健康案例
+**遗漏变量（omitted variables）问题**是指，真实模型为：
+$$
+y \sim \beta_{1} x_{1} + \beta_{2} x_{2}. (1)
+$$
+但遗漏了变量$x_{2}$，且$Cov(x_{1}, x_{x}) \neq 0$，从而模型被错误设定为：
+$$
+y \sim \beta_{1} x_{1}. (2)
+$$
+记模型(1)的系数估计分别为$\hat{\beta_{1}}$和$\hat{\beta_{2}}$，模型(2)的系数估计为$\tilde{\beta_{1}}$，模型$x_{2} \sim \gamma x_{1}$的系数估计为$\hat{\gamma}$，那么，可以证明：
+$$
+\tilde{\beta_{1}} = \hat{\beta_{1}} + \hat{\beta_{2}} \cdot \hat{\gamma}.
+$$
 
-从CHARLS数据中随机抽取样本$n = 488$，考虑中老年抑郁水平。`income`为个人收入，以万元计；`educ`表示教育水平是否在初中及以上，`hukou`表示是否是城市户口。
+## 遗漏变量偏误
 
-```{r}
+\textcolor{red}{遗漏变量偏误}（omitted variable bias, OVB）即为：
+$$
+\text{OVB} = \hat{\beta_{2}} \cdot \hat{\gamma}.
+$$
 
-rm(list = ls())
-suppressMessages(library(dplyr))
-suppressMessages(library(ggplot2))
-load("charlswh.RData")
+**课堂讨论：（1）哪些变量一定要纳入模型，作为控制变量？（2）哪些变量不必纳入模型作为控制变量？（3）出现了遗漏变量，如何判断回归系数偏误的方向？**
 
-```
+# 线性回归建模
 
-变量 | 均值 | 标准差 | 最小值 | 最大值 |
---- | --- | --- | --- | --- |
-cesd10 | `r mean(charlswh$cesd10)` | `r sd(charlswh$cesd10)` | `r min(charlswh$cesd10)` | `r max(charlswh$cesd10)` |
-income | `r mean(charlswh$income)` | `r sd(charlswh$income)` | `r min(charlswh$income)` | `r max(charlswh$income)` |
-educ | `r mean(charlswh$educ)` | `r sd(charlswh$educ)` | `r min(charlswh$educ)` | `r max(charlswh$educ)` |
-hukou | `r mean(charlswh$hukou)` | `r sd(charlswh$hukou)` | `r min(charlswh$hukou)` | `r max(charlswh$hukou)` |
+## 线性回归建模
 
-Table: 描述性统计量
-
-## 收入与精神健康
-
-```{r}
-
-# estimate three models
-fit1 <- lm(y ~ I(log(income)), data = charlswh)
-fit2 <- lm(y ~ I(log(income)) + educ, data = charlswh)
-fit3 <- lm(y ~ I(log(income)) + educ + hukou, charlswh)
-
-```
-
-变量   | 模型1 | 模型2 | 模型3 |
----- | :-----: |:---: |:-----: |
-常数项 | `r summary(fit1)$coef[1,1]` (`r summary(fit1)$coef[1,2]`) | `r summary(fit2)$coef[1,1]` (`r summary(fit2)$coef[1,2]`) | `r summary(fit3)$coef[1,1]` (`r summary(fit3)$coef[1,2]`) |
-log(income) | `r summary(fit1)$coef[2,1]` (`r summary(fit1)$coef[2,2]`) | `r summary(fit2)$coef[2,1]` (`r summary(fit2)$coef[2,2]`) | `r summary(fit3)$coef[2,1]` (`r summary(fit3)$coef[2,2]`) |
-educ | - | `r summary(fit2)$coef[3,1]` (`r summary(fit2)$coef[3,2]`) | `r summary(fit3)$coef[3,1]` (`r summary(fit3)$coef[3,2]`) |
-hukou | - | - | `r summary(fit3)$coef[4,1]`$^{\text{ns}}$ (`r summary(fit3)$coef[4,2]`) |
-$R^{2}$ | `r summary(fit1)$r.squared` |`r summary(fit2)$r.squared` | `r summary(fit3)$r.squared` |
-
-Table: 不同线性回归模型比较
-
-**课堂讨论：应选择哪个模型？**
-
-## 变异分解与模型选择
-
-```{r}
-
-summary.aov(fit3)
-
-```
-
-## 最终模型
-
-权衡**精确性原则**与**简约性原则**，选择模型2。
-
-![模型估计结果](figures/fit2.png){width=75%}
-
-## 显著性与效应大小
-
-- 统计显著性（statistical significance）
-- 效应大小（effect size）
-
-请参阅Github上的[\textcolor{red}{完整案例}](https://github.com/wuhsiang/Courses/tree/master/econometricsintro/cases/case-charlswh.pdf)
-
-**课堂讨论：二者有何区别？**
-
-
-## 回归结果图示
-
-```{r, fig.height=4}
-
-# load related pacakges
-suppressMessages(library(tidyverse))
-suppressMessages(library(broom))
-# calculate regression diagnostics
-model.diag.metrics <- augment(fit2)
-# plot the fitted values
-ggplot(model.diag.metrics, aes(I.log.income.., y)) +
-  geom_point() +
-  stat_smooth(method = lm, se = FALSE) +
-  geom_segment(aes(xend = I.log.income.., yend = .fitted), color = "red", size = 0.3)
-
-```
-
-
-## 变异分解：编程计算
-
-```{r, echo = T}
-
-# calculate predicted values
-yhat <- predict.lm(fit2)
-# calculate and print SST, SSR, and SSE
-ybar <- mean(charlswh$y)
-sst <- sum((charlswh$y - ybar) ^ 2)
-ssr <- sum((yhat - ybar) ^ 2)
-sse <- sum((charlswh$y - yhat) ^ 2)
-c(sst, ssr, sse)
-
-```
-
-## 变异分解：系统输出
-
-```{r, echo = T}
-
-# variation decomposition
-summary.aov(fit2)
-
-```
+本部分请参阅slides！
 
 # 线性回归诊断
 
@@ -483,11 +414,11 @@ $$
 - 维度规约：因子分析
 - 变量选择：如lasso等统计机器学习方法，尤其是$n < p$时模型无法识别的情形
 
-```{r, echo = T}
+```{r, echo = T, eval = F}
 
 suppressMessages(library(car))
 # calculate VIF
-vif(fit2)
+vif(fit)
 
 ```
 
