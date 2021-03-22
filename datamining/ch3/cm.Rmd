@@ -3,7 +3,7 @@ title: 分类模型
 author:
  - 授课教师：吴翔 \newline
  - 邮箱：wuhsiang@hust.edu.cn
-date: "May 4-18, 2019"
+date: "March - May, 2021"
 linestretch: 1.25
 fontsize: 18
 header-includes:
@@ -25,30 +25,167 @@ options(digits = 2)
 
 # 统计学习概述
 
+## 医疗健康领域中的统计学习
+
+![statistial learning in healthcare](figures/mlhealth.jpg){width=70%}
+
+## 通用模型
+
+因变量（响应变量，response variable）记为$y$，自变量（预测变量，predictors）集合记作向量$\textbf{x} = c(x_{1}, x_{2}, ..., x_{p})$，则通用模型可以写成：
+
+$$
+y = \underbrace{f(\textbf{x})}_{\text{Prediction}} + \underbrace{\epsilon}_{\text{Error}}.
+$$
+
+从而由
+
+$$
+\hat{y} = \hat{f}(\textbf{x})
+$$
+
+得到预测值。研究者可以选择不同的建模方法，从而得到对$f(\cdot)$的不同估计$\hat{f}(\cdot)$。
+
+## 理解视角
+
+将观测值$y$分为结构部分$f(\textbf{x})$和随机部分$\epsilon$，可以从**三个视角**来理解：
+
+- **因果性**（计量经济领域）：观测项 = 机制项 + 干扰项
+- **预测性**（\textcolor{red}{统计学习领域}）：观测项 = 预测项 + 误差项
+- **描述性**（统计领域）：观测项 = 概括项 + 残差项
+
+**课堂讨论：（1）三个视角在研究目的上有何区别？（2）在建模思路和模型选取上有何差异？**
+
+## 模型误差
+
+本质上，统计学习指一套估计$f(\cdot)$的方法。为此，我们需要了解在估计$f(\cdot)$中涉及的\textcolor{red}{关键理论概念}，以及\textcolor{red}{评估准则}。
+
+给定$\hat{f}(\textbf{x})$和$\textbf{x}$，那么：
+$$
+E(y - \hat{y})^{2} = E[f(\textbf{x}) + \epsilon - \hat{f}(\textbf{x})]^{2} = \underbrace{[f(\textbf{x}) - \hat{f}(\textbf{x})]^{2}}_{\text{Reducible}} + \underbrace{\text{Var}(\epsilon)}_{\text{Irreducible}}.
+$$
+
+第一项是\textcolor{red}{可约误差}（reducible error），若使用更适当的方式估计$f(\cdot)$，则可以减少可约误差；第二项是\textcolor{red}{不可约误差}（irreducible error），它是由未被测量的因素导致的，因而不可消除。
+
+## 自由度
+
+模型\textcolor{red}{自由度}，表征了模型的\textcolor{red}{复杂程度}，是研究者在估计$f(\cdot)$时的重要考量因素。
+
+在统计学习中，尤其需要理解模型的自由度。
+\vspace{12pt}
+
+> The number of \textcolor{red}{degrees of freedom} is the number of values in the final calculation of a statistic that are free to vary.
+>
+> `r tufte::quote_footer('--- In Statistics')`
+
+\vspace{12pt}
+
+> The \textcolor{red}{degrees of freedom} are an accounting of how many parameters are estimated by the model and, by extension, a measure of complexity for linear regression models.
+>
+> `r tufte::quote_footer('--- In Statistical Learning')`
+
+
+
+## 自由度分解
+
+假定多元线性模型$y = \beta X + \epsilon$中，假定$X$包括一列常数和$(p - 1)$列变量，那么待估计的参数个数为$p$，方差和自由度的分解如下：
+
+- SST: 自由度为$n - 1$
+- SSE: 自由度为$n - p$
+- SSR：自由度为$p - 1$
+
+因而，自由度的分解为：
+$$
+n - 1 = (n - p) + (p - 1)
+$$
+
+线性回归模型中，模型的自由度等于预测变量的个数。
+
+**课堂思考: 假设模型有两个解释变量，其中$x_{1}$是连续变量，$x_{2}$是包含5个分类的分类变量，SSR的自由度为多少？**
+
+## 方差分析表
+
+变异来源 | 平方和  | 自由度  | 均方 |
+---- | ---- | ----- | --- |
+回归模型 | SSR | $p - 1$ | MSR = SSR/$(p-1)$ |
+误差 | SSE | $n - p$ | MSE = SSE/$(n-p)$ |
+总变异 | SST | $n-1$ | MST = SST/$(n-1)$
+
+假定在线性回归模型$A$的基础上，加了几个变量得到模型$B$，模型选择取决于构造的$F$检验：
+$$
+F(\Delta \text{df}, \text{df}_{\text{SSE}}) = \frac{\Delta \text{SSR} / \Delta \text{df}}{\text{MSE}_{\text{B}}} ?> F_{\alpha}
+$$
+
+## 预测精度 vs 可解释性
+
+Q1：如何选择函数$f(\cdot)$？
+
+随着模型自由度（degree of freedom）增加，模型变得更加复杂。
+
+- 预测精度（accuracy）：尽可能减少可约误差，因此要求自由度更大的模型。
+- 可解释性（interpretability）：尽可能用少数变量来解释$\textbf{x}$如何影响$y$，因此要求自由度更小的模型。
+
+统计学习中，大多数时候更加关注\textcolor{red}{预测精度}，因而可以将$f(\cdot)$视作\textcolor{red}{黑箱}。
+
+## 权衡预测精度与模型可解释性
+
+![Widely-used models](figures/accuracyinterpre.png){width=70%}
+
+## 参数方法 vs 非参数方法
+
+Q2：函数$f(\cdot)$的形式，是否有明确假设？或说，给定训练集（training set）数据，如何估计函数$f(\cdot)$？
+
+参数方法（parametric methods）：
+
+- 步骤：（1）设定具体的\textcolor{red}{函数形式}，包括线性或非线性函数；（2）使用训练集数据，拟合（fit）或说训练（train）模型，得到参数估计值。
+- 优点：简化了$f(\cdot)$的估计问题，估计一组参数通常很方便。
+- 缺点：一旦模型设定有误，则会导致较大误差。
+
+\vspace{6pt}
+
+非参数方法（non-parametric methods）
+
+- 步骤：使用附近的观测值来估计给定$\textbf{x}$时的预测值。
+- 优点：避免设定特定的函数形式，从而规避了模型设定错误。
+- 缺点：无法将估计$f(\cdot)$这一问题变成少量参数的估计，因而远远超过参数方法需要的观测值才能获得$f(\cdot)$的准确估计。
+
+## 监督学习 vs 无监督学习
+
+Q3：有无已知的输出结果（即响应变量$y$）作为参考？
+
+- \textcolor{red}{监督学习}（supervised learning）：有已知的输出结果（当然也有输入结果）作为参考，即为训练集。
+- \textcolor{red}{无监督学习}（unsupervised learning）：无已知的输出结果（仅有输入结果）作为参考。例如，市场细分研究中的\textcolor{red}{聚类分析}，依据消费者特征将其分为不同的细分市场。
+
+## 回归问题 vs 分类问题
+
+Q4：响应变量$y$是离散还是连续的？
+
+- \textcolor{red}{回归问题}（regression），或说预测问题（prediction）：响应变量$y$是连续的。
+- \textcolor{red}{分类问题}（classification）：响应变量$y$是离散的。
+
+因而，二者在本质上并无太大差异。
+
 ## 统计学习方法
 
 \textcolor{red}{统计机器学习（statistical machine learning）}可分为：
 
-- 有监督学习（supervised learning） vs 无监督学习（unsupervised learning）：聚类分析即为典型的无监督学习
+- 监督学习（supervised learning） vs 无监督学习（unsupervised learning）：聚类分析即为典型的无监督学习
 - 参数方法（parametric methods） vs 非参数方法（non-parametric methods）
 - 回归（regression）问题 vs \textcolor{red}{分类（classification）问题}：分别针对连续变量和分类变量
 
 
-
-## 模型复杂程度
-
-![Model complexity](figures/complexity.jpg){width=70%}
-
 ## 测试均方误差的分解
 
-测试均方误差的期望值（**expected test MSE**）可以分解为如下三个部分：
+\textcolor{red}{测试集}（test set）均方误差的期望值（**expected test MSE**）可以分解为如下三个部分：
 $$
-E(y - \hat{f}(x))^{2} = \underbrace{\text{Var}(\hat{f}(x))}_{\text{variance}} + \underbrace{[\text{Bias}(\hat{f}(x))]^{2}}_{\text{bias}} + \underbrace{\text{Var}(\epsilon)}_{\text{irreducible}}.
+E(y - \hat{f}(x))^{2} = \underbrace{\text{Var}(\hat{f}(x))}_{\text{Variance}} + \underbrace{[\text{Bias}(\hat{f}(x))]^{2}}_{\text{Bias}} + \underbrace{\text{Var}(\epsilon)}_{\text{Irreducible}}.
 $$
 
 - 模型方差（variance）：针对不同的训练数据，$\hat{f}$的变化程度。
 - 模型偏误（bias）：通过相对简化的模型来**近似**真实世界的问题时所引入的误差。
 
+## 模型复杂程度
+
+![Model complexity](figures/complexity.jpg){width=70%}
 
 ## 权衡模型偏误与方差
 
@@ -57,18 +194,18 @@ $$
 
 ## 如何选择统计模型？
 
-- 传统统计模型的局限：线性回归模型等统计模型通常最小化训练数据的均方误差，但是其测试均方误差（test MSE）却较大。换言之，传统统计模型执着于寻求“真实规律”，以致于将一些随机因素**误判**为$f$的真实性质。
-- 权衡模型偏误与方差（**bias-variance trade-off**）：随着模型灵活性（或自由度）的增加，模型方差随之增大，但模型偏误则相应减小（过度拟合问题）。通过交叉验证（cross-validation）来实现两者的权衡。
-- 权衡预测精度与可解释性（**accuracy-interpretability trade-off**）：诸如bagging、boosting、support vector machines等非线性模型具有很高的预测精度，但不易解释；linear models等易于解释，但预测精度不高。两者的权衡取决于研究目的。
+- 传统统计模型的局限：线性回归模型等统计模型通常最小化训练数据的均方误差，但是其测试均方误差（\textcolor{red}{test MSE}）却较大。换言之，传统统计模型执着于寻求“真实规律”，以致于将一些随机因素\textcolor{red}{误判}为$f$的真实性质。
+- 权衡模型偏误与方差（\textcolor{red}{bias-variance trade-off}）：随着模型灵活性（或自由度）的增加，模型方差随之增大，但模型偏误则相应减小（过度拟合问题）。通过交叉验证来权衡两者。
+- 权衡预测精度与可解释性（\textcolor{red}{accuracy-interpretability trade-off}）：诸如bagging、boosting、support vector machines等非线性模型具有很高的预测精度，但不易解释；linear models等易于解释，但预测精度不高。两者的权衡取决于研究目的。
 
 ## 交叉验证
 
-交叉验证将原始数据集分为训练集（**training set**）和验证集（**validation set**），并以验证集的错误率选择最佳模型。
+\textcolor{red}{交叉验证}（cross-validation）将原始数据集分为训练集（**training set**）和验证集（**validation set**），并以验证集的错误率选择最佳模型。
 
 - 留一交叉验证法（leave-one-out cross validation, LOOCV）
 - $k$折交叉验证法（$k-$fold CV）：将观测集随机分为$k$个大小基本一致的组，或说折（fold）。每次选取其中一折作为验证集，而剩余$k-1$折作为训练集。通常，取$k=5$或$k=10$。
 
-分类模型验证集错误率：
+\textcolor{red}{分类模型}验证集错误率：
 $$
 \text{CV}_{(k)} = \frac{1}{k} \sum_{i=1}^{k} \text{Err}_{k} = \frac{1}{k} \sum_{i=1}^{k} \frac{1}{m_{k}} \sum_{i=1}^{m_{k}} I(y_{i} \neq \hat{y}_{i}).
 $$
@@ -92,33 +229,44 @@ $$
 
 ![Breast cancer screening](figures/screening.jpg){width=75%}
 
-## 两类预测错误
-
-![Two types of error](figures/errortype.jpg){width=85%}
 
 ## 灵敏度
 
-- 定义：灵敏度（sensitivity）也称为真阳性率、召回率（recall rate）。指实际为阳性的样本中，被正确判断为阳性的比例。
+- 定义：\textcolor{red}{灵敏度}（sensitivity）也称为真阳性率、召回率（recall rate）。指实际为阳性的样本中，被正确判断为阳性的比例。
 - 疾病筛查：在患病人群中，成功检出患者的概率。
-- 适用情况：用以**避免假阴性**。例如HIV的筛查。
+- 适用情况：用以\textcolor{red}{避免假阴性}。例如HIV的筛查。
 - 结果解读：由于真阳性率高，因而假阴性低。亦即，若得到结果是阴性，则有把握认为未患病。
 
 以上筛查技术的灵敏度为：132 / 177 = 74.6%。
 
 ## 特异度
 
-- 定义：特异度（specificity）也称为真阴性率。指实际为阴性的样本中，被正确判断为阴性的比例。
+- 定义：\textcolor{red}{特异度}（specificity）也称为真阴性率。指实际为阴性的样本中，被正确判断为阴性的比例。
 - 疾病筛查：在未患病人群中，成功给出阴性结果的概率。
-- 适用情况：用以**避免假阳性**。例如，治疗风险较大的疾病。
+- 适用情况：用以\textcolor{red}{避免假阳性}。例如，治疗风险较大的疾病。
 - 结果解读：由于真阴性率高，因而假阳性率低。亦即，若得到结果是阳性，则有把握认为患病。
 
 以上筛查技术的特异度为：63650 / 64633 = 98.5%。
 
-
-
 联合筛查：先采用低成本、高灵敏度的筛查技术，排除未患病人群；再采用高成本、高特异度的筛查技术，确诊患病人群。
 
+## 两类预测错误
 
+![Two types of error](figures/errortype.jpg){width=80%}
+
+## 误诊率与漏诊率
+
+考虑两类预测错误，相应得到两个比率：
+
+- \textcolor{red}{误诊率}：也称为假阳性率。指实际为阴性的样本中，被错误判断为阳性的比例。
+- \textcolor{red}{漏诊率}：也称为假阴性率。指实际为阳性的样本中，被错误判断为阴性的比例。
+
+以上筛查技术的误诊率为：983 / 64633 = 1.5%，漏诊率为：45 / 177 = 25.4%。
+
+同时可以得知：
+
+- 误诊率 = 1 - 特异度
+- 漏诊率 = 1 - 灵敏度
 
 ## 机场安检问题
 
@@ -134,29 +282,32 @@ $$
 实践中的权衡：灵敏度 vs 特异度
 
 
-
 ## 权衡灵敏度和特异度
 
 ![Sensitivity-specificity tradeoff](figures/specsens.png){width=80%}
 
 
+## ROC曲线及AUC
 
+以疾病筛查为例，即有监督的二分类模型，模型预测结果为概率值，我们需要从中选取一个阈值来判断样本是否患病。确定阈值之后，超过此阈值定义为患病，低于此阈值定义为健康，就可以得出混淆矩阵。
 
-## ROC曲线与AUC
+\textcolor{red}{接收者操作特征曲线}（receiver operating characteristic curve，ROC曲线）绘制：
+
+- 不断改变阈值，以误诊率（FPR）为横轴，灵敏度（TPR）为纵轴绘制
+
+ROC曲线下面积（area under the curve of ROC, AUC）常用于比较不同分类模型：
+
+- AUC = 1，是完美分类器，通常不存在。
+- AUC = 0.5，与随机猜测一样，模型没有预测价值。
+- 0.5 < AUC < 1，即是通常情形。
+
+## 分类器及阈值
+
+![classifier and threshold](figures/screenroc.png){width=70%}
+
+## ROC曲线绘制
 
 ![ROC curve and AUC](figures/roc.png){width=70%}
-
-## 混淆矩阵及评价指标
-
-- 准确率（accuracy）：指被正确判断的样本的比例。
-- 精确率（precision）：指判断为阳性的样本中，实际为阳性的比例。
-- 灵敏度（sensitivity）：也称为真阳性率、召回率（recall rate）。指实际为阳性的样本中，被正确判断为阳性的比例。
-- 特异度（specificity）：也称为真阴性率。指实际为阴性的样本中，被正确判断为阴性的比例。
-
-完美的分类器可以达到100%的灵敏度，及100%的特异度。但是理论上所有的分类器都会有最小的误差范围，称为贝叶斯错误率。
-
-可以绘制接收者操作特征曲线（receiver operating characteristic curve，ROC曲线），并结合ROC曲线下面积（area under the curve of ROC, AUC）来比较不同分类模型。
-
 
 
 # 基本分类模型
@@ -181,9 +332,9 @@ $$
 
 ## 似然函数
 
-可以通过**最大似然估计**（maximum likelihood estimation, MLE）得到logistic回归的参数值。
+可以通过\textcolor{red}{最大似然估计}（maximum likelihood estimation, MLE）得到logistic回归的参数值。
 
-参数记为$\theta$，数据记为$D$。似然函数（likelihood function）是参数$\theta$的函数，且定义为给定参数$\theta$时，观测到数据$D$的概率：
+参数记为$\theta$，数据记为$D$。\textcolor{red}{似然函数}（likelihood function）是参数$\theta$的函数，且定义为给定参数$\theta$时，观测到数据$D$的概率：
 $$
 l(\theta) = p(D|\theta).
 $$
@@ -200,7 +351,7 @@ $$
 p(Y|X) = \frac{p(X,Y)}{p(X)} = \frac{p(Y) \cdot p(X|Y)}{p(X)}.
 $$
 
-或从“数据-参数”的视角而言，参数$\theta$的后验分布$\pi({\theta}) = p(\theta|D)$正比于参数的先验分布$p(\theta)$和似然函数$l(\theta)$之积：
+或从“数据-参数”的视角而言，参数$\theta$的\textcolor{red}{后验分布}$\pi({\theta}) = p(\theta|D)$正比于参数的\textcolor{red}{先验分布}$p(\theta)$和\textcolor{red}{似然函数}$l(\theta)$之积：
 $$
 \pi(\theta) = \frac{p(\theta)p(D|\theta)}{p(D)} = \frac{p(\theta) l(\theta)}{p(D)}.
 $$
@@ -220,16 +371,16 @@ $$
 
 ## 贝叶斯分类器
 
-贝叶斯分类器（bayesian classifier）选择后验概率$p(C_{k}|x)$最大的类别，作为分类结果，即$\text{argmax } p(C_{k}|x)$。
+\textcolor{red}{贝叶斯分类器}（bayesian classifier）选择后验概率$p(C_{k}|x)$最大的类别，作为分类结果，即$\text{argmax } p(C_{k}|x)$。
 
-可以证明，贝叶斯分类器将产生最低的测试错误率，亦即**贝叶斯错误率**。相应用于分类的边界，成为贝叶斯决策边界（bayes decision boundary）。
+可以证明，贝叶斯分类器将产生最低的测试错误率，亦即\textcolor{red}{贝叶斯错误率}。相应用于分类的边界，成为贝叶斯决策边界（bayes decision boundary）。
 
-问题在于，如何推导出后验概率$p(C_{k}|x)$？我们需要更多**假设**。
+问题在于，如何推导出后验概率$p(C_{k}|x)$？我们需要更多\textcolor{red}{假设}。
 
 
 ## LDA
 
-线性判别分析（linear discriminant analysis, LDA）假定$p(x|C_{k}) \sim N(\mu_{k}, \Sigma)$。LDA即是条件概率$p(x|C_{k})$为（多元）正态分布时的贝叶斯分类器，其判别函数$f(x)$为线性函数。
+\textcolor{red}{线性判别分析}（linear discriminant analysis, LDA）假定$p(x|C_{k}) \sim N(\mu_{k}, \Sigma)$。LDA即是条件概率$p(x|C_{k})$为（多元）正态分布时的贝叶斯分类器，其判别函数$f(x)$为线性函数。
 
 考虑$x$是一维的情况，
 $$
@@ -249,7 +400,7 @@ $$
 
 ## QDA
 
-二次判别分析（quadratic discriminant analysis, QDA）假定$p(x|C_{k}) \sim N(\mu_{k}, \Sigma_{k})$。QDA即是条件概率$p(x|C_{k})$为（多元）正态分布时的贝叶斯分类器，其判别函数$f(x)$为二次函数。QDA与LDA的差别在于，协方差矩阵$\Sigma_{k}$是否假定相等。
+\textcolor{red}{二次判别分析}（quadratic discriminant analysis, QDA）假定$p(x|C_{k}) \sim N(\mu_{k}, \Sigma_{k})$。QDA即是条件概率$p(x|C_{k})$为（多元）正态分布时的贝叶斯分类器，其判别函数$f(x)$为二次函数。QDA与LDA的\textcolor{red}{差别}在于，协方差矩阵$\Sigma_{k}$是否假定相等。
 
 $x$为多维向量时，LDA的判别函数为
 $$
@@ -271,14 +422,14 @@ $$
 
 通常难以知道$p(C_{k}|X)$的分布。因而，可以设法估计条件分布$p(C_{k}|X)$。
 
-对给定正整数$K$和测试观测值$x_{0}$，$K$最近邻（KNN）分类器首先识别训练集中$K$个最靠近$x_{0}$的点集$A$，继而以集合$A$中的点估计条件概率：
+对给定正整数$K$和测试观测值$x_{0}$，\textcolor{red}{$K$最近邻}（KNN）分类器首先识别训练集中$K$个最靠近$x_{0}$的点集$A$，继而以集合$A$中的点估计条件概率：
 $$
 p(C_{j}|x_{0}) = = \frac{1}{K} \sum_{i \in A} I(y_{i} = j).
 $$
 
 最后，运用贝叶斯规则将测试观测值$x_{0}$分到后验概率$p(C_{j}|x_{0})$最大的类中。
 
-- KNN作为典型的非参数方法（non-parametric methods），能够产生一个近似于最优贝叶斯分类器的效果
+- KNN作为典型的\textcolor{red}{非参数方法}（non-parametric methods），能够产生一个近似于最优贝叶斯分类器的效果
 - $K$值的选择对KNN分类器的效果有根本影响
 
 ## KNN示意图
