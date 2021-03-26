@@ -24,7 +24,7 @@ options(digits = 2)
 ```
 
 
-# 二项logistic回归
+# 分类数据分析概述
 
 ## 课程存储地址
 
@@ -39,9 +39,9 @@ options(digits = 2)
 
 ## 数据的测量类型
 
-- 定量测量：数值有实质含义。包括连续变量（或定距变量）、离散变量（通常是计数变量）。
-- 定性测量：数值**无实质含义**。包括次序变量和名义变量。
-- 实践中的处理：李克特量表
+- \textcolor{red}{定量}（quantitative）测量：数值有实质含义。包括连续变量（或定距变量）、离散变量（通常是计数变量）。
+- \textcolor{red}{定性}（qualitative）测量：数值\textcolor{red}{无实质含义}。包括次序变量和名义变量。
+- 实践中的处理：年龄变量、李克特量表
 
 ![A typology of measurement](figures/measures.png){width=75%}
 
@@ -65,6 +65,8 @@ $$
 
 $E(y|X)$对分类因变量\textcolor{red}{不适用}，因此分类因变量需要\textcolor{red}{新的统计模型}！
 
+**课堂讨论：分类变量，分别作为自变量和因变量的情形，应如何处理？其差异是什么？**
+
 ## 分类因变量与logistic回归
 
 ![Categorical dependent variables and logit models](figures/logits.png){width=90%}
@@ -77,6 +79,50 @@ $E(y|X)$对分类因变量\textcolor{red}{不适用}，因此分类因变量需�
 
 研究者目的在于，估计或预测\textcolor{red}{事件发生的概率}如何受到自变量的影响。相应地，每个独立样本可以视作一次**伯努利试验**（Bernoulli trial），试验结果要么是1（发生），要么是0（不发生）。
 
+**课程讨论：分类变量在\textcolor{red}{本质上}是离散的，还是连续的？**
+
+## 两种哲学观点
+
+- **统计学视角**：认为分类变量在本质上是\textcolor{red}{离散}的，且依赖数据的变换来推导回归类模型，亦即\textcolor{red}{变换方法（transformational approach）}。这一方法的统计建模意味着，分类因变量在经过某种变换之后，其\textcolor{red}{条件期望}可以表达成自变量的线性函数。此类变换函数称为\textcolor{red}{链接函数}（link functions），而这类模型则统称为\textcolor{red}{广义线性模型}。
+- **计量经济学视角**：认为分类变量背后存在一个连续的、未观测到的变量，即\textcolor{red}{连续的潜变量}（latent variable）。当该潜变量越过某个\textcolor{red}{阈值}，观测到的分类变量取值就会变化，亦即\textcolor{red}{潜在变量方法（latent variable approach）}。这一方法认为，分类变量有别于通常的连续变量，在于它的\textcolor{red}{部分可观测性}（partial observability）。因此，统计建模意味着，探讨自变量如何影响潜在的连续变量（即\textcolor{red}{结构分析}）而非观测到的分类变量。
+
+## 潜在变量方法：议题理解
+
+请根据自己的理解，讨论以下二分类或多分类变量的情形：
+
+- 如何理解个体是否患病？
+- 如何理解消费者的产品购买行为？
+- 如何理解消费者的品牌选择行为？
+- 如何理解已婚妇女是否进入劳动力市场？
+
+## 潜在变量方法：统计建模
+
+考虑二分类因变量$y$，其背后的连续潜在变量记为$y^{*}$，且阈值交叉（threshold-crossing）测量模型为：
+$$
+y_{i} =
+\begin{cases}
+1 & \text{ if } y_{i}^{*} > 0; \\
+0 & \text{ otherwise}.\\
+\end{cases}
+$$
+
+统计建模则是建立连续的潜在变量$y^{*}$与自变量$\textbf{x}$的关系：
+$$
+y^{*}_{i} = \beta \textbf{x}_{i} + \epsilon_{i}, \text{ and } 1 \leq n \leq N.
+$$
+
+至此，与线性回归模型无异。
+
+## 变换方法
+
+变换方法核心在于如何寻找\textcolor{red}{合适的变换}，主要包括：
+
+- 线性概率模型
+- Logit模型
+- Probit模型
+
+变换方法与潜在变量方法在统计结果上并无太大差异，关键在于其哲学基础和理解方式。统计学领域通常采用变换方法来解释模型，而计量经济学领域则通常采用潜在变量方法来解释模型，因其能够奠基于诸如效用（utility）、支付意愿（willingness to pay, WTP）等\textcolor{red}{经济学概念}之上。
+
 ## 线性概率模型
 
 研究者目的在于，估计或预测\textcolor{red}{事件发生的概率}$p$如何受到自变量的影响。
@@ -85,8 +131,19 @@ $E(y|X)$对分类因变量\textcolor{red}{不适用}，因此分类因变量需�
 $$
 p_{i} = \beta X + \epsilon_{i}.
 $$
-但LPM存在异方差问题，同时预测值$\hat{p}_{i}$很可能落在$[0,1]$区间以外。因而，LPM随即被logit和probit模型取代。
 
+**课堂讨论：如何看待LPM？它是否合适？**
+
+## LPM的缺陷
+
+![Linear probability model](figures/lpm.jpg){width=40%}
+
+LPM存在两个主要的问题：
+
+- 异方差问题。
+- 预测值$\hat{p}_{i}$很可能落在$[0,1]$区间以外。
+
+因而，LPM随即被logit和probit模型取代。
 
 ## 发生比（odds）
 
@@ -100,7 +157,77 @@ $$
 $$
 \text{logit}(p) = \text{log}(\frac{p}{1-p}).
 $$
-显然，$\text{logit}(p) \in (- \infty, \infty)$。$p \rightarrow 0$时，$\text{logit}(p) \rightarrow - \infty$；$p \rightarrow 1$时，$\text{logit}(p) \rightarrow \infty$。
+
+## Logit变换
+
+Logit模型采用如下变换：
+$$
+\text{logit}(p) = \text{log}(\frac{p}{1-p}).
+$$
+
+显然，
+
+- $\text{logit}(p) \in (- \infty, \infty)$。$p \rightarrow 0$时，$\text{logit}(p) \rightarrow - \infty$；$p \rightarrow 1$时，$\text{logit}(p) \rightarrow \infty$。
+- 此外，还有$p \rightarrow 0.5$时，$\text{logit}(p) \rightarrow 0$。
+
+## Probit变换
+
+标准正态分布的累积分布函数记为$\Phi(\cdot)$，Probit模型采用如下变换：
+$$
+\text{probit}(p) = \Phi^{-1}(p).
+$$
+
+显然，
+
+- $\text{probit}(p) \in (- \infty, \infty)$。$p \rightarrow 0$时，$\text{probit}(p) \rightarrow - \infty$；$p \rightarrow 1$时，$\text{probit}(p) \rightarrow \infty$。
+- 此外，还有$p \rightarrow 0.5$时，$\text{probit}(p) \rightarrow 0$。
+
+## 病例对照研究
+
+\textcolor{red}{病例对照研究}（case-control study）属于回顾性研究，它比较特定疾病的患病者（病例组）与未患病者（对照组）暴露于某可能危险因素的百分比差异，分析这些因素是否与该疾病存在联系。
+
+![Case-control study](figures/casecontrol.jpg){width=60%}
+
+## 发生比与病因探究
+
+\textcolor{red}{发生比的比率（odds ratio, OR）}，即病例组中暴露人数（a）与非暴露人数（c）的比值，除以对照组中暴露人数（b）与非暴露人数（d）的比值：
+$$
+\text{OR} = \frac{a/c}{b/d}.
+$$
+
+OR可用于推断病因：
+
+- 若$OR = 1$，表明病例组的暴露发生比与对照组无差异，因而该暴露（exposure）与该疾病（disease）不相关。
+- 若$OR > 1$，表明病例组的暴露发生比大于对照组，因而该暴露可能是该疾病的\textcolor{red}{危险因素}（risk factor）。
+- 若$OR < 1$，表明病例组的暴露发生比小于对照组，因而该暴露可能是该疾病的\textcolor{red}{保护因素}（protective factor）。
+
+## 相对风险
+
+\textcolor{red}{相对风险}（relative risk, RR）指群体暴露在一定风险下（干预组）与未暴露在该风险下（对照组），某事件发生概率的比值。
+
+![Relative risk](figures/relativerisk.png){width=30%}
+
+左侧干预组患病风险是1/4，右侧对照组患病风险是1/2，因此相对风险为1/2。
+
+## 列联表展示
+
+可以使用\textcolor{red}{列联表}（contigency table）来理解OR和RR：
+
+![Contigency table: OR and RR](figures/contigencytable.png){width=45%}
+
+**课堂讨论：结合新冠的危险因素，及疫苗接种效果，理解以上两个概念。**
+
+## OR与RR
+
+发生比的比率（OR）与相对风险（RR）的概念密切相关。当事件发生\textcolor{red}{概率很小}时，OR经常被用作RR的近似。
+$$
+\text{RR} = \frac{r_{t}/(1 - r_{t})}{r_{c}/(1 - r_{c})} \approx \frac{r_{t}}{r_{c}} = \text{OR}.
+$$
+
+因为事件发生概率很小时，干预组和对照组的事件发生概率$r_{t}$和$r_{c}$均很小，因而$1 - r_{t}$和$1 - r_{c}$这两项均接近于1。
+
+
+# 二项logistic回归
 
 ## 二项logistic回归
 
@@ -116,6 +243,8 @@ $$
 注：$\text{logit}(\cdot)$与$\text{logistic}(\cdot)$互为逆函数（inverse function）。
 
 通过\textcolor{red}{最大似然估计}（maximum likelihood estimation, MLE）方法，得到参数$\beta$的估计值$\hat{\beta}$。
+
+
 
 ## 二项logistic回归案例
 
@@ -287,20 +416,15 @@ $$
 \text{pseudo } R^{2} = \frac{LL_{0} - LL_{c}}{LL_{0}} = 0.28.
 $$
 
+## 似然比检验
+
 ## 预测准确率？
 
 ![confusion matrix](figures/confusionmatrix.png){width=90%}
 
 ## 如何报告二项logistic回归结果？
 
-<!-- ## 分类数据的哲学视角 -->
 
-<!-- 1. 变换方法（transformational approach） -->
-<!-- 2. 潜变量方法（latent variable approach） -->
-
-<!-- ## 变换方法 -->
-
-<!-- ## 潜变量方法 -->
 
 # 多项logistic回归
 
@@ -336,13 +460,13 @@ $$
 
 ![An example of discrete choice experiment](figures/dce.png){width=70%}
 
-# 次序logistic回归（略）
+# 次序logistic回归
 
-## 次序logistic回归（略）
+## 次序logistic回归
 
 
 ## logistic回归总结
 
-1. 二项logistic回归
+1. 二项logistic回归：变换方法 vs 潜在变量方法
 2. 多项logistic回归
-3. 次序logistic回归（略）
+3. 次序logistic回归

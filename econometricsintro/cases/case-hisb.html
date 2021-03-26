@@ -11,7 +11,7 @@
 
 <meta name="author" content="吴翔" />
 
-<meta name="date" content="2021-03-20" />
+<meta name="date" content="2021-03-26" />
 
 <title>logistic回归案例：健康信息搜寻行为研究</title>
 
@@ -167,11 +167,42 @@ pre code {
 
 <h1 class="title toc-ignore">logistic回归案例：健康信息搜寻行为研究</h1>
 <h4 class="author">吴翔</h4>
-<h4 class="date">2021-03-20</h4>
+<h4 class="date">2021-03-26</h4>
 
 </div>
 
 
+<style type="text/css">
+body{ /* Normal  */
+      font-size: 16px;
+  }
+td {  /* Table  */
+  font-size: 16px;
+}
+h1.title {
+  font-size: 36px;
+  color: DarkRed;
+}
+h1 { /* Header 1 */
+  font-size: 32px;
+  color: DarkBlue;
+}
+h2 { /* Header 2 */
+    font-size: 28px;
+  color: DarkBlue;
+}
+h3 { /* Header 3 */
+  font-size: 24px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+}
+code.r{ /* Code block */
+    font-size: 14px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 14px;
+}
+</style>
 <div id="概述" class="section level2">
 <h2>概述</h2>
 <p>我们通过案例来阐述如何使用logistic回归模型。</p>
@@ -188,6 +219,7 @@ set.seed(123)
 # read dataset
 suppressMessages(library(tidyverse))
 suppressMessages(library(pander))
+panderOptions(&#39;round&#39;,2)
 suppressMessages(library(stargazer))
 load(&quot;hisb.RData&quot;)</code></pre>
 <p>可以看到，数据集包含1814个样本和6个变量。</p>
@@ -365,7 +397,7 @@ pandoc.table(orstat.bl, digits = 2)</code></pre>
 <td align="center">0.65</td>
 <td align="center">0.46</td>
 <td align="center">0.91</td>
-<td align="center">0.012</td>
+<td align="center">0.01</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>age</strong></td>
@@ -373,11 +405,11 @@ pandoc.table(orstat.bl, digits = 2)</code></pre>
 <td align="center">0.95</td>
 <td align="center">0.94</td>
 <td align="center">0.96</td>
-<td align="center">1.4e-31</td>
+<td align="center">0</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>male</strong></td>
-<td align="center">-0.037</td>
+<td align="center">-0.04</td>
 <td align="center">0.96</td>
 <td align="center">0.76</td>
 <td align="center">1.2</td>
@@ -389,7 +421,7 @@ pandoc.table(orstat.bl, digits = 2)</code></pre>
 <td align="center">1.9</td>
 <td align="center">1.4</td>
 <td align="center">2.5</td>
-<td align="center">5.1e-06</td>
+<td align="center">0</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>college and above</strong></td>
@@ -397,7 +429,7 @@ pandoc.table(orstat.bl, digits = 2)</code></pre>
 <td align="center">1.4</td>
 <td align="center">1.1</td>
 <td align="center">1.8</td>
-<td align="center">0.0026</td>
+<td align="center">0</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>$20,000 to 74,999</strong></td>
@@ -405,7 +437,7 @@ pandoc.table(orstat.bl, digits = 2)</code></pre>
 <td align="center">2.4</td>
 <td align="center">1.7</td>
 <td align="center">3.3</td>
-<td align="center">1.2e-07</td>
+<td align="center">0</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>$75,000 or more</strong></td>
@@ -413,7 +445,7 @@ pandoc.table(orstat.bl, digits = 2)</code></pre>
 <td align="center">3.5</td>
 <td align="center">2.5</td>
 <td align="center">5.1</td>
-<td align="center">9e-12</td>
+<td align="center">0</td>
 </tr>
 </tbody>
 </table>
@@ -517,14 +549,14 @@ rn &lt;- c(&quot;intercept&quot;, &quot;age&quot;, &quot;male&quot;, &quot;white
 rownames(internet.or) &lt;- rn
 rownames(other.or) &lt;- rn
 pandoc.table(internet.or)</code></pre>
-<table>
+<table style="width:99%;">
 <colgroup>
-<col width="32%" />
+<col width="33%" />
 <col width="16%" />
+<col width="9%" />
+<col width="11%" />
 <col width="12%" />
-<col width="12%" />
-<col width="12%" />
-<col width="16%" />
+<col width="15%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -539,71 +571,71 @@ pandoc.table(internet.or)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="center"><strong>intercept</strong></td>
-<td align="center">0.2436</td>
-<td align="center">1.276</td>
-<td align="center">0.8565</td>
+<td align="center">0.24</td>
+<td align="center">1.28</td>
+<td align="center">0.86</td>
 <td align="center">1.9</td>
-<td align="center">0.2309</td>
+<td align="center">0.23</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>age</strong></td>
-<td align="center">-0.0528</td>
-<td align="center">0.9486</td>
-<td align="center">0.939</td>
-<td align="center">0.9583</td>
-<td align="center">2.136e-24</td>
+<td align="center">-0.05</td>
+<td align="center">0.95</td>
+<td align="center">0.94</td>
+<td align="center">0.96</td>
+<td align="center">0</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>male</strong></td>
-<td align="center">-0.04049</td>
-<td align="center">0.9603</td>
-<td align="center">0.727</td>
-<td align="center">1.268</td>
-<td align="center">0.7755</td>
+<td align="center">-0.04</td>
+<td align="center">0.96</td>
+<td align="center">0.73</td>
+<td align="center">1.27</td>
+<td align="center">0.78</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>white</strong></td>
-<td align="center">0.5328</td>
-<td align="center">1.704</td>
+<td align="center">0.53</td>
+<td align="center">1.7</td>
 <td align="center">1.22</td>
 <td align="center">2.38</td>
-<td align="center">0.001782</td>
+<td align="center">0</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>college and above</strong></td>
-<td align="center">0.397</td>
-<td align="center">1.487</td>
-<td align="center">1.114</td>
-<td align="center">1.987</td>
-<td align="center">0.007186</td>
+<td align="center">0.4</td>
+<td align="center">1.49</td>
+<td align="center">1.11</td>
+<td align="center">1.99</td>
+<td align="center">0.01</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>$20,000 to 74,999</strong></td>
-<td align="center">0.8394</td>
-<td align="center">2.315</td>
-<td align="center">1.584</td>
-<td align="center">3.383</td>
-<td align="center">1.452e-05</td>
+<td align="center">0.84</td>
+<td align="center">2.31</td>
+<td align="center">1.58</td>
+<td align="center">3.38</td>
+<td align="center">0</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>$75,000 or more</strong></td>
-<td align="center">1.135</td>
+<td align="center">1.13</td>
 <td align="center">3.11</td>
-<td align="center">2.027</td>
-<td align="center">4.772</td>
-<td align="center">2.031e-07</td>
+<td align="center">2.03</td>
+<td align="center">4.77</td>
+<td align="center">0</td>
 </tr>
 </tbody>
 </table>
 <pre class="r"><code>pandoc.table(other.or)</code></pre>
-<table>
+<table style="width:99%;">
 <colgroup>
-<col width="32%" />
+<col width="33%" />
 <col width="16%" />
+<col width="9%" />
+<col width="11%" />
 <col width="12%" />
-<col width="12%" />
-<col width="12%" />
-<col width="14%" />
+<col width="15%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -618,59 +650,59 @@ pandoc.table(internet.or)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="center"><strong>intercept</strong></td>
-<td align="center">-0.02604</td>
-<td align="center">0.9743</td>
-<td align="center">0.6187</td>
-<td align="center">1.534</td>
-<td align="center">0.9105</td>
+<td align="center">-0.03</td>
+<td align="center">0.97</td>
+<td align="center">0.62</td>
+<td align="center">1.53</td>
+<td align="center">0.91</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>age</strong></td>
-<td align="center">-0.005692</td>
-<td align="center">0.9943</td>
-<td align="center">0.9811</td>
-<td align="center">1.008</td>
-<td align="center">0.4034</td>
+<td align="center">-0.01</td>
+<td align="center">0.99</td>
+<td align="center">0.98</td>
+<td align="center">1.01</td>
+<td align="center">0.4</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>male</strong></td>
-<td align="center">-0.008561</td>
-<td align="center">0.9915</td>
-<td align="center">0.6828</td>
+<td align="center">-0.01</td>
+<td align="center">0.99</td>
+<td align="center">0.68</td>
 <td align="center">1.44</td>
-<td align="center">0.9641</td>
+<td align="center">0.96</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>white</strong></td>
-<td align="center">-0.2622</td>
-<td align="center">0.7694</td>
-<td align="center">0.5086</td>
-<td align="center">1.164</td>
-<td align="center">0.2145</td>
+<td align="center">-0.26</td>
+<td align="center">0.77</td>
+<td align="center">0.51</td>
+<td align="center">1.16</td>
+<td align="center">0.21</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>college and above</strong></td>
-<td align="center">0.06465</td>
-<td align="center">1.067</td>
-<td align="center">0.7198</td>
-<td align="center">1.581</td>
-<td align="center">0.7474</td>
+<td align="center">0.06</td>
+<td align="center">1.07</td>
+<td align="center">0.72</td>
+<td align="center">1.58</td>
+<td align="center">0.75</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>$20,000 to 74,999</strong></td>
-<td align="center">-0.08121</td>
-<td align="center">0.922</td>
-<td align="center">0.5887</td>
-<td align="center">1.444</td>
-<td align="center">0.7227</td>
+<td align="center">-0.08</td>
+<td align="center">0.92</td>
+<td align="center">0.59</td>
+<td align="center">1.44</td>
+<td align="center">0.72</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>$75,000 or more</strong></td>
-<td align="center">-0.3114</td>
-<td align="center">0.7324</td>
-<td align="center">0.4219</td>
-<td align="center">1.272</td>
-<td align="center">0.2685</td>
+<td align="center">-0.31</td>
+<td align="center">0.73</td>
+<td align="center">0.42</td>
+<td align="center">1.27</td>
+<td align="center">0.27</td>
 </tr>
 </tbody>
 </table>
