@@ -353,8 +353,6 @@ $\hat{\beta} > 0$，则有$OR > 1$；若$\beta$系数显著不等于0，则$OR$�
 ![Coefficients, OR, and corresponding CI](figures/or.png){width=80%}
 
 
-<!-- ## 相对风险（relative risk） -->
-
 ## 似然函数
 
 **问题**：箱子里有10个球，或是白球，或是黑球。从中有放回地取出5个球，得到结果：{白球、白球、白球、黑球、白球}。请估计，箱子中有几个白球、几个黑球？
@@ -389,20 +387,20 @@ $$
 
 logistic回归模型采用最大似然估计方法估计参数，因而模型拟合优度也应基于似然函数。
 
+通常会报告模型的最大似然值，即-2LL。最大似然值取最大值时，-2LL取最小值。因此在给定的统计建模下，-2LL越小，拟合效果越好。类似于$R^{2}$，-2LL通常会随着模型复杂程度增加而变小。
+
 假定模型中待估计的参数个数为$k$，样本量为$n$，似然函数的最大值为$\hat{L}$，则可计算AIC（Akaike information criterion）和BIC（bayesian information criterion）统计量：
 $$
 \text{AIC} = 2 k - 2 LL \text{ and } \text{BIC} = \text{log}(n) \cdot k -2 LL.
 $$
 
-此外，McFadden提出的伪$R^{2}$统计量为：
-$$
-\text{pseudo } R^{2} = \frac{LL_{0} - LL_{c}}{LL_{0}}.
-$$
-其中$LL_{0}$为空模型对应的对数似然值。
-
 ## 评估模型拟合优度
 
 在以上例子中，样本量$n = 1814$，参数个数$k = 7$，对数似然函数最大值$LL = -907$。因而，
+$$
+-2\text{LL} = 1814.
+$$
+以及
 $$
 \text{AIC} = 2 \times 7 - 2 \times (-907) = 1828.
 $$
@@ -411,19 +409,42 @@ $$
 \text{BIC} = \text{log}(1814) \times 7 -2 \times (-907) = 1866.
 $$
 
-最后估计空模型，得到相应对数似然值$LL_{0} = -1257$，由此得到
+## 似然比统计量
+
+显然，-2LL与样本规模有关，样本规模越大，LL越小，-2LL越大。因而，-2LL难以用于比较不同模型。
+
+当前模型似然值记为$L_{c}$，假定零模型（null model）和饱和模型（saturated model）的似然值分别为$L_{0}$和$L_{f}$。由此，可以使用似然比统计量，亦即\textcolor{red}{偏差（deviance）}，$G^{2}$，来测量当前模型偏离饱和模型的程度：
 $$
-\text{pseudo } R^{2} = \frac{LL_{0} - LL_{c}}{LL_{0}} = 0.28.
+G^{2} = -2 \text{log}(L_{c}/L_{f}) = -2(LL_{c} - LL_{f}).
 $$
+
 
 ## 似然比检验
 
+假定模型$M_{1}$嵌套于$M_{2}$，即$M_{1}$代表约束更多的模型，$M_{2}$代表约束较少的模型。两个模型的对数似然值分别为$LL_{1}$和$LL_{2}$，那么\textcolor{red}{似然比卡方统计量}
+$$
+-2(LL_{1} - LL_{2})
+$$
+服从于自由度为$(K_{2} - K_{1})$的卡方分布。
+
+由此，可以在$M_{1}$和$M_{2}$之间做\textcolor{red}{模型选择}。
+
+
 ## 预测准确率？
 
-![confusion matrix](figures/confusionmatrix.png){width=90%}
+在统计学习中，通常结合\textcolor{red}{混淆矩阵}（confusion matrix）来评估Logit模型的预测效果。
+
+![confusion matrix](figures/confusionmatrix.png){width=80%}
 
 ## 如何报告二项logistic回归结果？
 
+建议报告的部分：
+
+- 系数
+- OR值
+- OR值的置信区间
+- p值
+- LL（或-2LL)，AIC（或BIC）
 
 
 # 多项logistic回归
@@ -432,7 +453,7 @@ $$
 
 当因变量取值是多分类变量时，需要使用多项logistic回归模型。其基本逻辑是：\textcolor{red}{一次比较两个结果}。
 
-假定因变量有$J$个类别，我们将第$j(1 \leq j \leq J)$个分类与第一个分类（参考水平, reference level）进行比较，从而得到第$j$个分类的基线logistic回归模型：
+假定因变量有$J$个类别，我们将第$j(1 \leq j \leq J)$个分类与第一个分类（参考水平, reference level）进行比较，从而得到第$j$个分类的\textcolor{red}{基线logistic回归模型}：
 $$
 \text{BL}_{j} = \text{log}[\frac{\text{Prob}(y = j)}{\text{Prob}(y = 1)}] = \beta_{j} X + \epsilon_{j}.
 $$
@@ -456,6 +477,8 @@ $$
 
 给定候选项及其属性的时候，消费者如何决策？
 
+**提示：回顾变换方法和潜在变量方法。**
+
 ## 离散选择试验
 
 ![An example of discrete choice experiment](figures/dce.png){width=70%}
@@ -464,9 +487,28 @@ $$
 
 ## 次序logistic回归
 
+在次序logistic回归中，基线logistic回归模型难以刻画其次序特征。通常，可以使用\textcolor{red}{累积logistic回归模型}来建模。
+
+假设响应变量$y_{i}$的次序取值为$1, 2, ..., J (J \geq 3)$，那么累积概率建模为
+$$
+C_{i,j} = \text{Prob}(y_{i} \leq j) = \sum_{k=1}^{j} \text{Prob}(y_{i} = k) = F(\beta \textbf{x}_{i}).
+$$
+
+当$F(\cdot)$服从累积逻辑斯蒂分布时，就得到了次序logit模型。
+
+## 次序Logit模型
+
+次序Logit模型中，我们给出类似于“对数发生比”的表达式：
+$$
+\text{CL}_{j} = \text{log}[\frac{\text{Prob}(y_{i} \leq j | \text{x}_{i})}{\text{Prob}(y_{i} > j | \text{x}_{i})}] = \beta \textbf{x}_{i}.
+$$
+
+估计方法和其余细节都与二项logistic回归模型类似。
+
+**课堂讨论：二项、多项和次序logit模型中，如何理解变换方法？**
 
 ## logistic回归总结
 
 1. 二项logistic回归：变换方法 vs 潜在变量方法
-2. 多项logistic回归
-3. 次序logistic回归
+2. 多项logistic回归：基线logit模型
+3. 次序logistic回归：累积logit模型
